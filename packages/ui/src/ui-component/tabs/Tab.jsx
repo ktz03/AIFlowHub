@@ -1,4 +1,4 @@
-import { styled } from '@mui/system'
+import { styled } from '@mui/material/styles'
 import { buttonClasses } from '@mui/base/Button'
 import { Tab as BaseTab, tabClasses } from '@mui/base/Tab'
 import { blue } from './tabColors'

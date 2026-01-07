@@ -39,6 +39,24 @@ const LoaderConfigPreviewChunks = Loadable(lazy(() => import('@/views/docstore/L
 const VectorStoreConfigure = Loadable(lazy(() => import('@/views/docstore/VectorStoreConfigure')))
 const VectorStoreQuery = Loadable(lazy(() => import('@/views/docstore/VectorStoreQuery')))
 
+// admin routing
+const UserManagement = Loadable(lazy(() => import('@/views/admin/UserManagement')))
+
+// usage stats routing
+const UsageStats = Loadable(lazy(() => import('@/views/usage-stats')))
+
+// quota routing
+const QuotaManagement = Loadable(lazy(() => import('@/views/quota')))
+
+// template market routing
+const TemplateMarket = Loadable(lazy(() => import('@/views/template-market')))
+
+// model evaluation routing
+const ModelEvaluation = Loadable(lazy(() => import('@/views/model-evaluation')))
+
+// chat history routing
+const ChatHistory = Loadable(lazy(() => import('@/views/chat-history')))
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -120,6 +138,30 @@ const MainRoutes = {
         {
             path: '/document-stores/query/:storeId',
             element: <VectorStoreQuery />
+        },
+        {
+            path: '/admin/users',
+            element: <UserManagement />
+        },
+        {
+            path: '/usage-stats',
+            element: <UsageStats />
+        },
+        {
+            path: '/quota',
+            element: <QuotaManagement />
+        },
+        {
+            path: '/template-market',
+            element: <TemplateMarket />
+        },
+        {
+            path: '/model-evaluation',
+            element: <ModelEvaluation />
+        },
+        {
+            path: '/chat-history',
+            element: <ChatHistory />
         }
     ]
 }

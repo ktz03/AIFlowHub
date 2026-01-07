@@ -27,6 +27,37 @@ export class CustomTemplate implements ICustomTemplate {
     @Column({ nullable: true, type: 'text' })
     type?: string
 
+    // 新增字段
+    @Column({ nullable: true })
+    userId?: string
+
+    @Column({ nullable: true, type: 'text' })
+    category?: string
+
+    @Column({ nullable: true, type: 'text' })
+    tags?: string
+
+    @Column({ default: false })
+    isPublic?: boolean
+
+    @Column({ default: 0 })
+    useCount?: number
+
+    @Column({ default: 0 })
+    likeCount?: number
+
+    @Column({ default: 0 })
+    viewCount?: number
+
+    @Column({ nullable: true, type: 'text' })
+    thumbnail?: string
+
+    @Column({ nullable: true, type: 'text' })
+    author?: string
+
+    @Column({ nullable: true, default: '1.0.0' })
+    version?: string
+
     @Column({ type: 'timestamp' })
     @CreateDateColumn()
     createdDate: Date

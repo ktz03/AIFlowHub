@@ -18,7 +18,29 @@ export const WHITELIST_URLS = [
     '/api/v1/version',
     '/api/v1/attachments',
     '/api/v1/metrics',
-    '/api/v1/nvidia-nim'
+    '/api/v1/nvidia-nim',
+    // 前端页面需要的 API（开发模式下允许访问）
+    '/api/v1/chatflows',
+    '/api/v1/agentflows',
+    '/api/v1/marketplaces',
+    '/api/v1/tools',
+    '/api/v1/assistants',
+    '/api/v1/credentials',
+    '/api/v1/variables',
+    '/api/v1/apikey',
+    '/api/v1/document-store',
+    '/api/v1/nodes',
+    '/api/v1/node-configs',
+    '/api/v1/node-custom-function',
+    '/api/v1/openai-assistants',
+    '/api/v1/chatmessage',
+    '/api/v1/stats',
+    '/api/v1/auth',
+    '/api/v1/usage-stats',
+    '/api/v1/quota',
+    '/api/v1/template-market',
+    '/api/v1/model-evaluation',
+    '/api/v1/chat-history'
 ]
 
 export const OMIT_QUEUE_JOB_DATA = ['componentNodes', 'appDataSource', 'sseStreamer', 'telemetry', 'cachePool']

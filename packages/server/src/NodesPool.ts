@@ -73,7 +73,7 @@ export class NodesPool {
                             }
                         }
                     } catch (err) {
-                        logger.error(`❌ [server]: Error during initDatabase with file ${file}:`, err)
+                        logger.error(`[server]: Error during initDatabase with file ${file}:`, err)
                     }
                 }
             })

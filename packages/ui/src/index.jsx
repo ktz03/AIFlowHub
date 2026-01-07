@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import App from '@/App'
 import { store } from '@/store'
 import { createRoot } from 'react-dom/client'
 
 // style + assets
 import '@/assets/scss/style.scss'
+
+// i18n
+import '@/i18n'
 
 // third party
 import { BrowserRouter } from 'react-router-dom'
@@ -18,16 +21,18 @@ const root = createRoot(container)
 
 root.render(
     <React.StrictMode>
-        <Provider store={store}>
-            <BrowserRouter>
-                <SnackbarProvider>
-                    <ConfirmContextProvider>
-                        <ReactFlowContext>
-                            <App />
-                        </ReactFlowContext>
-                    </ConfirmContextProvider>
-                </SnackbarProvider>
-            </BrowserRouter>
-        </Provider>
+        <Suspense fallback={<div>Loading...</div>}>
+            <Provider store={store}>
+                <BrowserRouter>
+                    <SnackbarProvider>
+                        <ConfirmContextProvider>
+                            <ReactFlowContext>
+                                <App />
+                            </ReactFlowContext>
+                        </ConfirmContextProvider>
+                    </SnackbarProvider>
+                </BrowserRouter>
+            </Provider>
+        </Suspense>
     </React.StrictMode>
 )

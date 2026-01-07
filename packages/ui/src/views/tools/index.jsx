@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { Box, Stack, Button, ButtonGroup, Skeleton, ToggleButtonGroup, ToggleButton } from '@mui/material'
@@ -28,6 +29,7 @@ import { useTheme } from '@mui/material/styles'
 
 const Tools = () => {
     const theme = useTheme()
+    const { t } = useTranslation()
     const getAllToolsApi = useApi(toolsApi.getAllTools)
 
     const [isLoading, setLoading] = useState(true)
@@ -47,10 +49,10 @@ const Tools = () => {
     const onUploadFile = (file) => {
         try {
             const dialogProp = {
-                title: 'Add New Tool',
+                title: t('tool.create'),
                 type: 'IMPORT',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Save',
+                cancelButtonName: t('common.cancel'),
+                confirmButtonName: t('common.save'),
                 data: JSON.parse(file)
             }
             setDialogProps(dialogProp)
@@ -78,10 +80,10 @@ const Tools = () => {
 
     const addNew = () => {
         const dialogProp = {
-            title: 'Add New Tool',
+            title: t('tool.create'),
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add'
+            cancelButtonName: t('common.cancel'),
+            confirmButtonName: t('common.add')
         }
         setDialogProps(dialogProp)
         setShowDialog(true)
@@ -89,10 +91,10 @@ const Tools = () => {
 
     const edit = (selectedTool) => {
         const dialogProp = {
-            title: 'Edit Tool',
+            title: t('common.edit'),
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common.cancel'),
+            confirmButtonName: t('common.save'),
             data: selectedTool
         }
         setDialogProps(dialogProp)
@@ -138,7 +140,12 @@ const Tools = () => {
                     <ErrorBoundary error={error} />
                 ) : (
                     <Stack flexDirection='column' sx={{ gap: 3 }}>
-                        <ViewHeader onSearchChange={onSearchChange} search={true} searchPlaceholder='Search Tools' title='Tools'>
+                        <ViewHeader
+                            onSearchChange={onSearchChange}
+                            search={true}
+                            searchPlaceholder={t('tool.searchPlaceholder')}
+                            titleKey='tool.title'
+                        >
                             <ToggleButtonGroup
                                 sx={{ borderRadius: 2, maxHeight: 40 }}
                                 value={view}
@@ -154,7 +161,7 @@ const Tools = () => {
                                     }}
                                     variant='contained'
                                     value='card'
-                                    title='Card View'
+                                    title={t('chatflow.cardView')}
                                 >
                                     <IconLayoutGrid />
                                 </ToggleButton>
@@ -166,7 +173,7 @@ const Tools = () => {
                                     }}
                                     variant='contained'
                                     value='list'
-                                    title='List View'
+                                    title={t('chatflow.listView')}
                                 >
                                     <IconList />
                                 </ToggleButton>
@@ -178,7 +185,7 @@ const Tools = () => {
                                     startIcon={<IconFileUpload />}
                                     sx={{ borderRadius: 2, height: 40 }}
                                 >
-                                    Load
+                                    {t('common.import')}
                                 </Button>
                                 <input
                                     style={{ display: 'none' }}
@@ -196,7 +203,7 @@ const Tools = () => {
                                     startIcon={<IconPlus />}
                                     sx={{ borderRadius: 2, height: 40 }}
                                 >
-                                    Create
+                                    {t('common.create')}
                                 </StyledButton>
                             </ButtonGroup>
                         </ViewHeader>
@@ -229,7 +236,7 @@ const Tools = () => {
                                         alt='ToolEmptySVG'
                                     />
                                 </Box>
-                                <div>No Tools Created Yet</div>
+                                <div>{t('tool.empty')}</div>
                             </Stack>
                         )}
                     </Stack>

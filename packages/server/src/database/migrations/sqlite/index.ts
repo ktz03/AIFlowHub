@@ -27,6 +27,13 @@ import { AddArtifactsToChatMessage1726156258465 } from './1726156258465-AddArtif
 import { AddCustomTemplate1725629836652 } from './1725629836652-AddCustomTemplate'
 import { AddFollowUpPrompts1726666294213 } from './1726666294213-AddFollowUpPrompts'
 import { AddTypeToAssistant1733011290987 } from './1733011290987-AddTypeToAssistant'
+import { AddUserEntity1735400000000 } from './1735400000000-AddUserEntity'
+import { AddUsageLogEntity1735400000001 } from './1735400000001-AddUsageLogEntity'
+import { AddDeletedByUserToUsageLog1735500000000 } from './1735500000000-AddDeletedByUserToUsageLog'
+import { AddQuotaWarningFields1735600000000 } from './1735600000000-AddQuotaWarningFields'
+import { EnhanceCustomTemplate1735700000000 } from './1735700000000-EnhanceCustomTemplate'
+import { AddModelEvaluation1735800000000 } from './1735800000000-AddModelEvaluation'
+import { AddChatHistoryUserFields1735900000000 } from './1735900000000-AddChatHistoryUserFields'
 
 export const sqliteMigrations = [
     Init1693835579790,
@@ -57,5 +64,12 @@ export const sqliteMigrations = [
     AddArtifactsToChatMessage1726156258465,
     AddCustomTemplate1725629836652,
     AddFollowUpPrompts1726666294213,
-    AddTypeToAssistant1733011290987
+    AddTypeToAssistant1733011290987,
+    AddUserEntity1735400000000,
+    AddUsageLogEntity1735400000001,
+    AddDeletedByUserToUsageLog1735500000000,
+    AddQuotaWarningFields1735600000000,
+    EnhanceCustomTemplate1735700000000,
+    AddModelEvaluation1735800000000,
+    AddChatHistoryUserFields1735900000000
 ]

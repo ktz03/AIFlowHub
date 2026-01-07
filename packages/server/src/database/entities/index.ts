@@ -11,6 +11,11 @@ import { Lead } from './Lead'
 import { UpsertHistory } from './UpsertHistory'
 import { ApiKey } from './ApiKey'
 import { CustomTemplate } from './CustomTemplate'
+import { User } from './User'
+import { UsageLog } from './UsageLog'
+import { TemplateFavorite } from './TemplateFavorite'
+import { TemplateRating } from './TemplateRating'
+import { ModelEvaluation } from './ModelEvaluation'
 
 export const entities = {
     ChatFlow,
@@ -25,5 +30,10 @@ export const entities = {
     Lead,
     UpsertHistory,
     ApiKey,
-    CustomTemplate
+    CustomTemplate,
+    User,
+    UsageLog,
+    TemplateFavorite,
+    TemplateRating,
+    ModelEvaluation
 }

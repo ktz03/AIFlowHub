@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from '@/store/actions'
 import moment from 'moment'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { styled } from '@mui/material/styles'
@@ -73,6 +74,7 @@ const Variables = () => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
+    const { t } = useTranslation()
     useNotifier()
 
     const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
@@ -100,8 +102,8 @@ const Variables = () => {
     const addNew = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add',
+            cancelButtonName: t('common.cancel'),
+            confirmButtonName: t('common.add'),
             customBtnId: 'btn_confirmAddingVariable',
             data: {}
         }
@@ -112,8 +114,8 @@ const Variables = () => {
     const edit = (variable) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common.cancel'),
+            confirmButtonName: t('common.save'),
             data: variable
         }
         setVariableDialogProps(dialogProp)
@@ -122,10 +124,10 @@ const Variables = () => {
 
     const deleteVariable = async (variable) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete variable ${variable.name}?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('common.delete'),
+            description: `${t('dialog.confirmDeleteMessage')} ${variable.name}?`,
+            confirmButtonName: t('common.delete'),
+            cancelButtonName: t('common.cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -134,7 +136,7 @@ const Variables = () => {
                 const deleteResp = await variablesApi.deleteVariable(variable.id)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Variable deleted',
+                        message: t('notification.deleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -149,7 +151,7 @@ const Variables = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete Variable: ${
+                    message: `${t('notification.error')}: ${
                         typeof error.response.data === 'object' ? error.response.data.message : error.response.data
                     }`,
                     options: {
@@ -200,9 +202,14 @@ const Variables = () => {
                     <ErrorBoundary error={error} />
                 ) : (
                     <Stack flexDirection='column' sx={{ gap: 3 }}>
-                        <ViewHeader onSearchChange={onSearchChange} search={true} searchPlaceholder='Search Variables' title='Variables'>
+                        <ViewHeader
+                            onSearchChange={onSearchChange}
+                            search={true}
+                            searchPlaceholder={t('variable.searchPlaceholder')}
+                            titleKey='variable.title'
+                        >
                             <Button variant='outlined' sx={{ borderRadius: 2, height: '100%' }} onClick={() => setShowHowToDialog(true)}>
-                                How To Use
+                                {t('variable.howToUse')}
                             </Button>
                             <StyledButton
                                 variant='contained'
@@ -211,7 +218,7 @@ const Variables = () => {
                                 startIcon={<IconPlus />}
                                 id='btn_createVariable'
                             >
-                                Add Variable
+                                {t('variable.create')}
                             </StyledButton>
                         </ViewHeader>
                         {!isLoading && variables.length === 0 ? (
@@ -223,7 +230,7 @@ const Variables = () => {
                                         alt='VariablesEmptySVG'
                                     />
                                 </Box>
-                                <div>No Variables Yet</div>
+                                <div>{t('variable.empty')}</div>
                             </Stack>
                         ) : (
                             <TableContainer
@@ -240,11 +247,11 @@ const Variables = () => {
                                         }}
                                     >
                                         <TableRow>
-                                            <StyledTableCell>Name</StyledTableCell>
-                                            <StyledTableCell>Value</StyledTableCell>
-                                            <StyledTableCell>Type</StyledTableCell>
-                                            <StyledTableCell>Last Updated</StyledTableCell>
-                                            <StyledTableCell>Created</StyledTableCell>
+                                            <StyledTableCell>{t('table.name')}</StyledTableCell>
+                                            <StyledTableCell>{t('variable.value')}</StyledTableCell>
+                                            <StyledTableCell>{t('common.type')}</StyledTableCell>
+                                            <StyledTableCell>{t('table.updatedDate')}</StyledTableCell>
+                                            <StyledTableCell>{t('table.createdDate')}</StyledTableCell>
                                             <StyledTableCell> </StyledTableCell>
                                             <StyledTableCell> </StyledTableCell>
                                         </TableRow>
@@ -346,13 +353,17 @@ const Variables = () => {
                                                             {moment(variable.createdDate).format('MMMM Do, YYYY')}
                                                         </StyledTableCell>
                                                         <StyledTableCell>
-                                                            <IconButton title='Edit' color='primary' onClick={() => edit(variable)}>
+                                                            <IconButton
+                                                                title={t('common.edit')}
+                                                                color='primary'
+                                                                onClick={() => edit(variable)}
+                                                            >
                                                                 <IconEdit />
                                                             </IconButton>
                                                         </StyledTableCell>
                                                         <StyledTableCell>
                                                             <IconButton
-                                                                title='Delete'
+                                                                title={t('common.delete')}
                                                                 color='error'
                                                                 onClick={() => deleteVariable(variable)}
                                                             >
