@@ -1,0 +1,135 @@
+{
+    "id": "official-customer-service",
+    "name": "智能客服助手",
+    "description": "基于大语言模型的智能客服系统，支持多轮对话、知识库检索和意图识别，适用于企业客户服务场景",
+    "category": "chatbot",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["客服", "对话", "FAQ", "知识库"],
+    "usecases": ["在线客服", "售后支持", "产品咨询", "FAQ问答"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatOpenAI_0",
+                "position": { "x": 800, "y": 300 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatOpenAI_0",
+                    "label": "Chat Model",
+                    "version": 1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel"],
+                    "category": "Chat Models",
+                    "description": "大语言模型节点，可替换为通义千问、文心一言等国产模型",
+                    "inputParams": [
+                        { "name": "modelName", "type": "string", "default": "gpt-3.5-turbo" },
+                        { "name": "temperature", "type": "number", "default": 0.7 }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-3.5-turbo",
+                        "temperature": 0.7
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "ChatOpenAI" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "promptTemplate_0",
+                "position": { "x": 400, "y": 200 },
+                "type": "customNode",
+                "data": {
+                    "id": "promptTemplate_0",
+                    "label": "客服提示词",
+                    "version": 1,
+                    "name": "promptTemplate",
+                    "type": "PromptTemplate",
+                    "baseClasses": ["PromptTemplate"],
+                    "category": "Prompts",
+                    "description": "客服场景专用提示词模板",
+                    "inputParams": [{ "name": "template", "type": "string" }],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "template": "你是一个专业的客服助手。请根据以下信息回答用户问题：\n\n用户问题：{question}\n\n回答要求：\n1. 语气友好、专业\n2. 回答简洁明了\n3. 如果不确定，请建议用户联系人工客服\n4. 适当使用表情符号增加亲和力"
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "PromptTemplate" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 1200, "y": 300 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "对话链",
+                    "version": 1,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "支持多轮对话的会话链",
+                    "inputParams": [],
+                    "inputAnchors": [
+                        { "name": "model", "type": "BaseChatModel" },
+                        { "name": "memory", "type": "BaseMemory" }
+                    ],
+                    "inputs": {},
+                    "outputAnchors": [{ "name": "output", "type": "ConversationChain" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "bufferMemory_0",
+                "position": { "x": 800, "y": 500 },
+                "type": "customNode",
+                "data": {
+                    "id": "bufferMemory_0",
+                    "label": "对话记忆",
+                    "version": 1,
+                    "name": "bufferMemory",
+                    "type": "BufferMemory",
+                    "baseClasses": ["BufferMemory", "BaseMemory"],
+                    "category": "Memory",
+                    "description": "存储对话历史，支持多轮对话",
+                    "inputParams": [
+                        { "name": "memoryKey", "type": "string", "default": "chat_history" },
+                        { "name": "k", "type": "number", "default": 10 }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "memoryKey": "chat_history",
+                        "k": 10
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "BufferMemory" }],
+                    "outputs": {}
+                }
+            }
+        ],
+        "edges": [
+            {
+                "id": "e1",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "output",
+                "target": "conversationChain_0",
+                "targetHandle": "model"
+            },
+            {
+                "id": "e2",
+                "source": "bufferMemory_0",
+                "sourceHandle": "output",
+                "target": "conversationChain_0",
+                "targetHandle": "memory"
+            }
+        ]
+    }
+}
