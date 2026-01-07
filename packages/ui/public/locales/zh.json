@@ -105,7 +105,7 @@
         "passwordWeak": "弱",
         "passwordMedium": "中等",
         "passwordStrong": "强",
-        "welcome": "欢迎使用 Flowise",
+        "welcome": "欢迎使用 AIFlowHub",
         "loginPrompt": "登录以解锁更多功能",
         "accountSettings": "账户设置",
         "roleAdmin": "管理员",
@@ -259,7 +259,7 @@
         "profile": "个人资料",
         "settings": "设置",
         "logout": "退出登录",
-        "aboutFlowise": "关于 Flowise"
+        "aboutFlowise": "关于 AIFlowHub"
     },
     "settings": {
         "title": "设置",

@@ -105,7 +105,7 @@
         "passwordWeak": "Weak",
         "passwordMedium": "Medium",
         "passwordStrong": "Strong",
-        "welcome": "Welcome to Flowise",
+        "welcome": "Welcome to AIFlowHub",
         "loginPrompt": "Sign in to unlock more features",
         "accountSettings": "Account Settings",
         "roleAdmin": "Admin",
@@ -259,7 +259,7 @@
         "profile": "Profile",
         "settings": "Settings",
         "logout": "Logout",
-        "aboutFlowise": "About Flowise"
+        "aboutFlowise": "About AIFlowHub"
     },
     "settings": {
         "title": "Settings",
