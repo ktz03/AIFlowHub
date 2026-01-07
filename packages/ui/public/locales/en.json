@@ -109,7 +109,12 @@
         "loginPrompt": "Sign in to unlock more features",
         "accountSettings": "Account Settings",
         "roleAdmin": "Admin",
-        "roleUser": "User"
+        "roleUser": "User",
+        "rememberMe": "Remember me",
+        "emailRequired": "Email is required",
+        "passwordRequired": "Password is required",
+        "usernameRequired": "Username is required",
+        "invalidEmail": "Please enter a valid email address"
     },
     "chatflow": {
         "title": "Chatflows",

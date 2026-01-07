@@ -109,7 +109,12 @@
         "loginPrompt": "登录以解锁更多功能",
         "accountSettings": "账户设置",
         "roleAdmin": "管理员",
-        "roleUser": "用户"
+        "roleUser": "用户",
+        "rememberMe": "记住我",
+        "emailRequired": "请输入邮箱地址",
+        "passwordRequired": "请输入密码",
+        "usernameRequired": "请输入用户名",
+        "invalidEmail": "请输入有效的邮箱地址"
     },
     "chatflow": {
         "title": "对话流程",
