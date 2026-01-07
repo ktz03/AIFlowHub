@@ -58,6 +58,7 @@ import {
 import { validateChatflowAPIKey } from './validateKey'
 import logger from './logger'
 import { utilAddChatMessage } from './addChatMesage'
+import { trackUsage, extractModelFromFlowData } from './usageTracking'
 import { buildAgentGraph } from './buildAgentGraph'
 import { getErrorMessage } from '../errors/utils'
 import { FLOWISE_METRIC_COUNTERS, FLOWISE_COUNTER_STATUS, IMetricsProvider } from '../Interface.Metrics'
@@ -860,16 +861,60 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             appServer.abortControllerPool.add(abortControllerId, signal)
             executeData.signal = signal
 
+            const startTime = Date.now()
             const result = await executeFlow(executeData)
+            const latencyMs = Date.now() - startTime
 
             appServer.abortControllerPool.remove(abortControllerId)
             incrementSuccessMetricCounter(appServer.metricsProvider, isInternal, isAgentFlow)
+
+            // 记录使用统计 (异步，不阻塞主流程)
+            const userId = (req as any).user?.userId
+            logger.info(`[UsageTracking] Checking userId from request: ${userId}, isInternal: ${isInternal}`)
+            if (userId) {
+                const question = incomingInput.question || ''
+                const answer = result?.text || ''
+                const modelName = extractModelFromFlowData(chatflow.flowData)
+                logger.info(`[UsageTracking] Calling trackUsage for userId: ${userId}, model: ${modelName}`)
+
+                trackUsage({
+                    userId,
+                    chatflowId: chatflowid,
+                    question,
+                    answer,
+                    modelName,
+                    latencyMs,
+                    status: 'success'
+                }).catch((err) => logger.warn(`[UsageTracking] Error: ${err}`))
+            } else {
+                logger.info(`[UsageTracking] No userId found, skipping usage tracking`)
+            }
+
             return result
         }
     } catch (e) {
         logger.error('[server]: Error:', e)
         appServer.abortControllerPool.remove(`${chatflow.id}_${chatId}`)
         incrementFailedMetricCounter(appServer.metricsProvider, isInternal, isAgentFlow)
+
+        // 记录失败的使用统计
+        const userId = (req as any).user?.userId
+        if (userId) {
+            const question = incomingInput.question || ''
+            const modelName = extractModelFromFlowData(chatflow.flowData)
+
+            trackUsage({
+                userId,
+                chatflowId: chatflowid,
+                question,
+                answer: '',
+                modelName,
+                latencyMs: 0,
+                status: 'failed',
+                errorMessage: getErrorMessage(e)
+            }).catch((err) => logger.warn(`[UsageTracking] Error: ${err}`))
+        }
+
         if (e instanceof InternalFlowiseError && e.statusCode === StatusCodes.UNAUTHORIZED) {
             throw e
         } else {

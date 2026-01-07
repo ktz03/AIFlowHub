@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { IconButton, Box, OutlinedInput, Toolbar, Typography } from '@mui/material'
@@ -24,6 +25,7 @@ const ViewHeader = ({
     search,
     searchPlaceholder = 'Search',
     title,
+    titleKey,
     description,
     isBackButton,
     onBack,
@@ -31,8 +33,12 @@ const ViewHeader = ({
     onEdit
 }) => {
     const theme = useTheme()
+    const { t } = useTranslation()
     const searchInputRef = useRef()
     useSearchShortcut(searchInputRef)
+
+    // 支持 i18n key 或直接使用 title
+    const displayTitle = titleKey ? t(titleKey) : title
 
     return (
         <Box sx={{ flexGrow: 1, py: 1.25, width: '100%' }}>
@@ -66,7 +72,7 @@ const ViewHeader = ({
                             }}
                             variant='h1'
                         >
-                            {title}
+                            {displayTitle}
                         </Typography>
                         {description && (
                             <Typography
@@ -142,6 +148,7 @@ ViewHeader.propTypes = {
     search: PropTypes.bool,
     searchPlaceholder: PropTypes.string,
     title: PropTypes.string,
+    titleKey: PropTypes.string,
     description: PropTypes.string,
     isBackButton: PropTypes.bool,
     onBack: PropTypes.func,

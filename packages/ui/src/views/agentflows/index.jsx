@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { Box, Skeleton, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material'
@@ -34,6 +35,7 @@ import { IconPlus, IconLayoutGrid, IconList } from '@tabler/icons-react'
 const Agentflows = () => {
     const navigate = useNavigate()
     const theme = useTheme()
+    const { t } = useTranslation()
 
     const [isLoading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -131,7 +133,12 @@ const Agentflows = () => {
                 <ErrorBoundary error={error} />
             ) : (
                 <Stack flexDirection='column' sx={{ gap: 3 }}>
-                    <ViewHeader onSearchChange={onSearchChange} search={true} searchPlaceholder='Search Name or Category' title='Agents'>
+                    <ViewHeader
+                        onSearchChange={onSearchChange}
+                        search={true}
+                        searchPlaceholder={t('agentflow.searchPlaceholder')}
+                        title={t('agentflow.title')}
+                    >
                         <ToggleButtonGroup
                             sx={{ borderRadius: 2, maxHeight: 40 }}
                             value={view}
@@ -165,7 +172,7 @@ const Agentflows = () => {
                             </ToggleButton>
                         </ToggleButtonGroup>
                         <StyledButton variant='contained' onClick={addNew} startIcon={<IconPlus />} sx={{ borderRadius: 2, height: 40 }}>
-                            Add New
+                            {t('common.addNew')}
                         </StyledButton>
                     </ViewHeader>
                     {!view || view === 'card' ? (
@@ -204,7 +211,7 @@ const Agentflows = () => {
                                     alt='AgentsEmptySVG'
                                 />
                             </Box>
-                            <div>No Agents Yet</div>
+                            <div>{t('agentflow.empty')}</div>
                         </Stack>
                     )}
                 </Stack>

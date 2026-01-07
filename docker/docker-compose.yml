@@ -1,54 +1,30 @@
-version: '3.1'
-
 services:
     flowise:
-        image: flowiseai/flowise
-        restart: always
+        build:
+            context: ..
+            dockerfile: Dockerfile
+        image: flowise-local:latest
+        container_name: flowise
+        restart: unless-stopped
         environment:
-            - PORT=${PORT}
-            - CORS_ORIGINS=${CORS_ORIGINS}
-            - IFRAME_ORIGINS=${IFRAME_ORIGINS}
+            - PORT=${PORT:-3000}
+            - CORS_ORIGINS=${CORS_ORIGINS:-*}
+            - IFRAME_ORIGINS=${IFRAME_ORIGINS:-*}
             - FLOWISE_USERNAME=${FLOWISE_USERNAME}
             - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
-            - FLOWISE_FILE_SIZE_LIMIT=${FLOWISE_FILE_SIZE_LIMIT}
-            - DEBUG=${DEBUG}
-            - DATABASE_PATH=${DATABASE_PATH}
-            - DATABASE_TYPE=${DATABASE_TYPE}
-            - DATABASE_PORT=${DATABASE_PORT}
-            - DATABASE_HOST=${DATABASE_HOST}
-            - DATABASE_NAME=${DATABASE_NAME}
-            - DATABASE_USER=${DATABASE_USER}
-            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-            - DATABASE_SSL=${DATABASE_SSL}
-            - DATABASE_SSL_KEY_BASE64=${DATABASE_SSL_KEY_BASE64}
-            - APIKEY_STORAGE_TYPE=${APIKEY_STORAGE_TYPE}
-            - APIKEY_PATH=${APIKEY_PATH}
-            - SECRETKEY_PATH=${SECRETKEY_PATH}
-            - FLOWISE_SECRETKEY_OVERWRITE=${FLOWISE_SECRETKEY_OVERWRITE}
-            - LOG_LEVEL=${LOG_LEVEL}
-            - LOG_PATH=${LOG_PATH}
-            - BLOB_STORAGE_PATH=${BLOB_STORAGE_PATH}
-            - DISABLE_FLOWISE_TELEMETRY=${DISABLE_FLOWISE_TELEMETRY}
-            - MODEL_LIST_CONFIG_JSON=${MODEL_LIST_CONFIG_JSON}
-            - GLOBAL_AGENT_HTTP_PROXY=${GLOBAL_AGENT_HTTP_PROXY}
-            - GLOBAL_AGENT_HTTPS_PROXY=${GLOBAL_AGENT_HTTPS_PROXY}
-            - GLOBAL_AGENT_NO_PROXY=${GLOBAL_AGENT_NO_PROXY}
-            - DISABLED_NODES=${DISABLED_NODES}
-            - MODE=${MODE}
-            - WORKER_CONCURRENCY=${WORKER_CONCURRENCY}
-            - QUEUE_NAME=${QUEUE_NAME}
-            - QUEUE_REDIS_EVENT_STREAM_MAX_LEN=${QUEUE_REDIS_EVENT_STREAM_MAX_LEN}
-            - REDIS_URL=${REDIS_URL}
-            - REDIS_HOST=${REDIS_HOST}
-            - REDIS_PORT=${REDIS_PORT}
-            - REDIS_PASSWORD=${REDIS_PASSWORD}
-            - REDIS_USERNAME=${REDIS_USERNAME}
-            - REDIS_TLS=${REDIS_TLS}
-            - REDIS_CERT=${REDIS_CERT}
-            - REDIS_KEY=${REDIS_KEY}
-            - REDIS_CA=${REDIS_CA}
+            - FLOWISE_FILE_SIZE_LIMIT=${FLOWISE_FILE_SIZE_LIMIT:-50mb}
+            - DEBUG=${DEBUG:-false}
+            - DATABASE_PATH=${DATABASE_PATH:-/root/.flowise}
+            - DATABASE_TYPE=${DATABASE_TYPE:-sqlite}
+            - LOG_LEVEL=${LOG_LEVEL:-info}
+            - LOG_PATH=${LOG_PATH:-/root/.flowise/logs}
+            - BLOB_STORAGE_PATH=${BLOB_STORAGE_PATH:-/root/.flowise/storage}
+            - DISABLE_FLOWISE_TELEMETRY=${DISABLE_FLOWISE_TELEMETRY:-true}
         ports:
-            - '${PORT}:${PORT}'
+            - '${PORT:-3000}:${PORT:-3000}'
         volumes:
-            - ~/.flowise:/root/.flowise
-        entrypoint: /bin/sh -c "sleep 3; flowise start"
+            - flowise-data:/root/.flowise
+
+volumes:
+    flowise-data:
+        name: flowise-data

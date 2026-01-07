@@ -8,11 +8,33 @@ import {
     IconLock,
     IconRobot,
     IconVariable,
-    IconFiles
+    IconFiles,
+    IconUserCog,
+    IconChartBar,
+    IconGauge,
+    IconTemplate,
+    IconScale,
+    IconHistory
 } from '@tabler/icons-react'
 
 // constant
-const icons = { IconUsersGroup, IconHierarchy, IconBuildingStore, IconKey, IconTool, IconLock, IconRobot, IconVariable, IconFiles }
+const icons = {
+    IconUsersGroup,
+    IconHierarchy,
+    IconBuildingStore,
+    IconKey,
+    IconTool,
+    IconLock,
+    IconRobot,
+    IconVariable,
+    IconFiles,
+    IconUserCog,
+    IconChartBar,
+    IconGauge,
+    IconTemplate,
+    IconScale,
+    IconHistory
+}
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -23,7 +45,7 @@ const dashboard = {
     children: [
         {
             id: 'chatflows',
-            title: 'Chatflows',
+            title: 'menu.chatflows',
             type: 'item',
             url: '/chatflows',
             icon: icons.IconHierarchy,
@@ -31,7 +53,7 @@ const dashboard = {
         },
         {
             id: 'agentflows',
-            title: 'Agentflows',
+            title: 'menu.agentflows',
             type: 'item',
             url: '/agentflows',
             icon: icons.IconUsersGroup,
@@ -40,7 +62,7 @@ const dashboard = {
         },
         {
             id: 'assistants',
-            title: 'Assistants',
+            title: 'menu.assistants',
             type: 'item',
             url: '/assistants',
             icon: icons.IconRobot,
@@ -48,15 +70,31 @@ const dashboard = {
         },
         {
             id: 'marketplaces',
-            title: 'Marketplaces',
+            title: 'menu.marketplaces',
             type: 'item',
             url: '/marketplaces',
             icon: icons.IconBuildingStore,
             breadcrumbs: true
         },
         {
+            id: 'template-market',
+            title: 'menu.templateMarket',
+            type: 'item',
+            url: '/template-market',
+            icon: icons.IconTemplate,
+            breadcrumbs: true
+        },
+        {
+            id: 'model-evaluation',
+            title: 'menu.modelEvaluation',
+            type: 'item',
+            url: '/model-evaluation',
+            icon: icons.IconScale,
+            breadcrumbs: true
+        },
+        {
             id: 'tools',
-            title: 'Tools',
+            title: 'menu.tools',
             type: 'item',
             url: '/tools',
             icon: icons.IconTool,
@@ -64,7 +102,7 @@ const dashboard = {
         },
         {
             id: 'credentials',
-            title: 'Credentials',
+            title: 'menu.credentials',
             type: 'item',
             url: '/credentials',
             icon: icons.IconLock,
@@ -72,7 +110,7 @@ const dashboard = {
         },
         {
             id: 'variables',
-            title: 'Variables',
+            title: 'menu.variables',
             type: 'item',
             url: '/variables',
             icon: icons.IconVariable,
@@ -80,7 +118,7 @@ const dashboard = {
         },
         {
             id: 'apikey',
-            title: 'API Keys',
+            title: 'menu.apiKeys',
             type: 'item',
             url: '/apikey',
             icon: icons.IconKey,
@@ -88,11 +126,44 @@ const dashboard = {
         },
         {
             id: 'document-stores',
-            title: 'Document Stores',
+            title: 'menu.documentStores',
             type: 'item',
             url: '/document-stores',
             icon: icons.IconFiles,
             breadcrumbs: true
+        },
+        {
+            id: 'usage-stats',
+            title: 'menu.usageStats',
+            type: 'item',
+            url: '/usage-stats',
+            icon: icons.IconChartBar,
+            breadcrumbs: true
+        },
+        {
+            id: 'chat-history',
+            title: 'menu.chatHistory',
+            type: 'item',
+            url: '/chat-history',
+            icon: icons.IconHistory,
+            breadcrumbs: true
+        },
+        {
+            id: 'quota',
+            title: 'menu.quota',
+            type: 'item',
+            url: '/quota',
+            icon: icons.IconGauge,
+            breadcrumbs: true
+        },
+        {
+            id: 'admin-users',
+            title: 'menu.userManagement',
+            type: 'item',
+            url: '/admin/users',
+            icon: icons.IconUserCog,
+            breadcrumbs: true,
+            adminOnly: true
         }
     ]
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from '@/store/actions'
 import moment from 'moment'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { styled } from '@mui/material/styles'
@@ -75,6 +76,7 @@ const Credentials = () => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
+    const { t } = useTranslation()
     useNotifier()
 
     const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
@@ -104,7 +106,7 @@ const Credentials = () => {
 
     const listCredential = () => {
         const dialogProp = {
-            title: 'Add New Credential',
+            title: t('credential.create'),
             componentsCredentials
         }
         setCredentialListDialogProps(dialogProp)
@@ -114,8 +116,8 @@ const Credentials = () => {
     const addNew = (credentialComponent) => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add',
+            cancelButtonName: t('common.cancel'),
+            confirmButtonName: t('common.add'),
             credentialComponent
         }
         setSpecificCredentialDialogProps(dialogProp)
@@ -125,8 +127,8 @@ const Credentials = () => {
     const edit = (credential) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common.cancel'),
+            confirmButtonName: t('common.save'),
             data: credential
         }
         setSpecificCredentialDialogProps(dialogProp)
@@ -135,10 +137,10 @@ const Credentials = () => {
 
     const deleteCredential = async (credential) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete credential ${credential.name}?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('common.delete'),
+            description: `${t('dialog.confirmDeleteMessage')} ${credential.name}?`,
+            confirmButtonName: t('common.delete'),
+            cancelButtonName: t('common.cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -147,7 +149,7 @@ const Credentials = () => {
                 const deleteResp = await credentialsApi.deleteCredential(credential.id)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Credential deleted',
+                        message: t('notification.deleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -162,7 +164,7 @@ const Credentials = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete Credential: ${
+                    message: `${t('notification.error')}: ${
                         typeof error.response.data === 'object' ? error.response.data.message : error.response.data
                     }`,
                     options: {
@@ -231,8 +233,8 @@ const Credentials = () => {
                         <ViewHeader
                             onSearchChange={onSearchChange}
                             search={true}
-                            searchPlaceholder='Search Credentials'
-                            title='Credentials'
+                            searchPlaceholder={t('credential.searchPlaceholder')}
+                            titleKey='credential.title'
                         >
                             <StyledButton
                                 variant='contained'
@@ -240,7 +242,7 @@ const Credentials = () => {
                                 onClick={listCredential}
                                 startIcon={<IconPlus />}
                             >
-                                Add Credential
+                                {t('credential.create')}
                             </StyledButton>
                         </ViewHeader>
                         {!isLoading && credentials.length <= 0 ? (
@@ -252,7 +254,7 @@ const Credentials = () => {
                                         alt='CredentialEmptySVG'
                                     />
                                 </Box>
-                                <div>No Credentials Yet</div>
+                                <div>{t('credential.empty')}</div>
                             </Stack>
                         ) : (
                             <TableContainer
@@ -269,9 +271,9 @@ const Credentials = () => {
                                         }}
                                     >
                                         <TableRow>
-                                            <StyledTableCell>Name</StyledTableCell>
-                                            <StyledTableCell>Last Updated</StyledTableCell>
-                                            <StyledTableCell>Created</StyledTableCell>
+                                            <StyledTableCell>{t('table.name')}</StyledTableCell>
+                                            <StyledTableCell>{t('table.updatedDate')}</StyledTableCell>
+                                            <StyledTableCell>{t('table.createdDate')}</StyledTableCell>
                                             <StyledTableCell> </StyledTableCell>
                                             <StyledTableCell> </StyledTableCell>
                                         </TableRow>
@@ -358,13 +360,17 @@ const Credentials = () => {
                                                             {moment(credential.createdDate).format('MMMM Do, YYYY')}
                                                         </StyledTableCell>
                                                         <StyledTableCell>
-                                                            <IconButton title='Edit' color='primary' onClick={() => edit(credential)}>
+                                                            <IconButton
+                                                                title={t('common.edit')}
+                                                                color='primary'
+                                                                onClick={() => edit(credential)}
+                                                            >
                                                                 <IconEdit />
                                                             </IconButton>
                                                         </StyledTableCell>
                                                         <StyledTableCell>
                                                             <IconButton
-                                                                title='Delete'
+                                                                title={t('common.delete')}
                                                                 color='error'
                                                                 onClick={() => deleteCredential(credential)}
                                                             >

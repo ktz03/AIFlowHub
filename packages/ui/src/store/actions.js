@@ -1,3 +1,7 @@
+// action - auth reducer
+export const SET_USER = '@auth/SET_USER'
+export const CLEAR_USER = '@auth/CLEAR_USER'
+
 // action - customization reducer
 export const SET_MENU = '@customization/SET_MENU'
 export const MENU_TOGGLE = '@customization/MENU_TOGGLE'

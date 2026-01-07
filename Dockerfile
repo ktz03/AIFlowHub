@@ -1,32 +1,31 @@
 # Build local monorepo image
-# docker build --no-cache -t  flowise .
-
-# Run image
-# docker run -d -p 3000:3000 flowise
-
 FROM node:20-alpine
-RUN apk add --update libc6-compat python3 make g++
-# needed for pdfjs-dist
-RUN apk add --no-cache build-base cairo-dev pango-dev
 
-# Install Chromium
-RUN apk add --no-cache chromium
+# Install system dependencies
+RUN apk add --update --no-cache \
+    libc6-compat python3 make g++ \
+    build-base cairo-dev pango-dev \
+    chromium git
 
-#install PNPM globaly
+# Install PNPM globally
 RUN npm install -g pnpm
+
+# Configure pnpm
+RUN pnpm config set store-dir /root/.local/share/pnpm/store
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-
 ENV NODE_OPTIONS=--max-old-space-size=8192
 
 WORKDIR /usr/src
 
-# Copy app source
+# Copy all files first
 COPY . .
 
-RUN pnpm install
+# Install dependencies with shamefully-hoist to fix module resolution
+RUN pnpm install --shamefully-hoist
 
+# Build
 RUN pnpm build
 
 EXPOSE 3000

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import {
@@ -155,6 +156,7 @@ ExportDialog.propTypes = {
 
 const ProfileSection = ({ username, handleLogout }) => {
     const theme = useTheme()
+    const { t } = useTranslation()
 
     const customization = useSelector((state) => state.customization)
 
@@ -393,7 +395,9 @@ const ProfileSection = ({ username, handleLogout }) => {
                                                     <ListItemIcon>
                                                         <IconFileExport stroke={1.5} size='1.3rem' />
                                                     </ListItemIcon>
-                                                    <ListItemText primary={<Typography variant='body2'>Export</Typography>} />
+                                                    <ListItemText
+                                                        primary={<Typography variant='body2'>{t('settings.export')}</Typography>}
+                                                    />
                                                 </ListItemButton>
                                                 <ListItemButton
                                                     sx={{ borderRadius: `${customization.borderRadius}px` }}
@@ -404,7 +408,9 @@ const ProfileSection = ({ username, handleLogout }) => {
                                                     <ListItemIcon>
                                                         <IconFileUpload stroke={1.5} size='1.3rem' />
                                                     </ListItemIcon>
-                                                    <ListItemText primary={<Typography variant='body2'>Import</Typography>} />
+                                                    <ListItemText
+                                                        primary={<Typography variant='body2'>{t('settings.import')}</Typography>}
+                                                    />
                                                 </ListItemButton>
                                                 <input ref={inputRef} type='file' hidden onChange={fileChange} accept='.json' />
                                                 <ListItemButton
@@ -417,7 +423,9 @@ const ProfileSection = ({ username, handleLogout }) => {
                                                     <ListItemIcon>
                                                         <IconInfoCircle stroke={1.5} size='1.3rem' />
                                                     </ListItemIcon>
-                                                    <ListItemText primary={<Typography variant='body2'>About Flowise</Typography>} />
+                                                    <ListItemText
+                                                        primary={<Typography variant='body2'>{t('header.aboutFlowise')}</Typography>}
+                                                    />
                                                 </ListItemButton>
                                                 {localStorage.getItem('username') && localStorage.getItem('password') && (
                                                     <ListItemButton
@@ -427,7 +435,9 @@ const ProfileSection = ({ username, handleLogout }) => {
                                                         <ListItemIcon>
                                                             <IconLogout stroke={1.5} size='1.3rem' />
                                                         </ListItemIcon>
-                                                        <ListItemText primary={<Typography variant='body2'>Logout</Typography>} />
+                                                        <ListItemText
+                                                            primary={<Typography variant='body2'>{t('header.logout')}</Typography>}
+                                                        />
                                                     </ListItemButton>
                                                 )}
                                             </List>

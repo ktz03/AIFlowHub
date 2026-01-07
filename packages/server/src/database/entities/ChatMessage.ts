@@ -14,6 +14,13 @@ export class ChatMessage implements IChatMessage {
     @Column({ type: 'uuid' })
     chatflowid: string
 
+    @Index()
+    @Column({ type: 'varchar', nullable: true })
+    userId?: string
+
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    sessionTitle?: string
+
     @Column({ type: 'text' })
     content: string
 

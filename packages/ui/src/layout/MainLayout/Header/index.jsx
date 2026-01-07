@@ -1,19 +1,19 @@
 import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
-import { Avatar, Box, ButtonBase, Switch } from '@mui/material'
+import { Avatar, Box, ButtonBase, Switch, IconButton, Menu, MenuItem, Tooltip } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 // project imports
 import LogoSection from '../LogoSection'
-import ProfileSection from './ProfileSection'
+import UnifiedMenu from './UnifiedMenu'
 
 // assets
-import { IconMenu2 } from '@tabler/icons-react'
+import { IconMenu2, IconLanguage } from '@tabler/icons-react'
 
 // store
 import { SET_DARKMODE } from '@/store/actions'
@@ -69,11 +69,12 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 
 const Header = ({ handleLeftDrawerToggle }) => {
     const theme = useTheme()
-    const navigate = useNavigate()
+    const { t, i18n } = useTranslation()
 
     const customization = useSelector((state) => state.customization)
 
     const [isDark, setIsDark] = useState(customization.isDarkMode)
+    const [anchorEl, setAnchorEl] = useState(null)
     const dispatch = useDispatch()
 
     const changeDarkMode = () => {
@@ -82,11 +83,17 @@ const Header = ({ handleLeftDrawerToggle }) => {
         localStorage.setItem('isDarkMode', !isDark)
     }
 
-    const signOutClicked = () => {
-        localStorage.removeItem('username')
-        localStorage.removeItem('password')
-        navigate('/', { replace: true })
-        navigate(0)
+    const handleLanguageMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget)
+    }
+
+    const handleLanguageMenuClose = () => {
+        setAnchorEl(null)
+    }
+
+    const changeLanguage = (lng) => {
+        i18n.changeLanguage(lng)
+        handleLanguageMenuClose()
     }
 
     return (
@@ -126,9 +133,41 @@ const Header = ({ handleLeftDrawerToggle }) => {
                 </ButtonBase>
             </Box>
             <Box sx={{ flexGrow: 1 }} />
+            <Tooltip title={t('header.language')}>
+                <IconButton
+                    onClick={handleLanguageMenuOpen}
+                    sx={{
+                        color: theme.palette.text.primary,
+                        mr: 1
+                    }}
+                >
+                    <IconLanguage stroke={1.5} size='1.3rem' />
+                </IconButton>
+            </Tooltip>
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleLanguageMenuClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                }}
+            >
+                <MenuItem onClick={() => changeLanguage('en')} selected={i18n.language === 'en'}>
+                    English
+                </MenuItem>
+                <MenuItem onClick={() => changeLanguage('zh')} selected={i18n.language === 'zh'}>
+                    中文
+                </MenuItem>
+            </Menu>
             <MaterialUISwitch checked={isDark} onChange={changeDarkMode} />
-            <Box sx={{ ml: 2 }}></Box>
-            <ProfileSection handleLogout={signOutClicked} username={localStorage.getItem('username') ?? ''} />
+            <Box sx={{ ml: 1 }}>
+                <UnifiedMenu />
+            </Box>
         </>
     )
 }

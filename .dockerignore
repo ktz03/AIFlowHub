@@ -8,3 +8,16 @@ build
 
 packages/server/.env
 packages/ui/.env
+
+# 加速构建 - 排除不需要的文件
+.git
+.github
+.husky
+*.md
+images
+assets
+i18n
+metrics
+*.log
+.vscode
+.kiro

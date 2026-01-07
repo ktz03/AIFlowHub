@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
@@ -12,22 +13,47 @@ import NavCollapse from '../NavCollapse'
 
 const NavGroup = ({ item }) => {
     const theme = useTheme()
+    const { t } = useTranslation()
+
+    // 获取当前用户角色
+    const getUserRole = () => {
+        try {
+            const userStr = localStorage.getItem('user')
+            if (userStr) {
+                const user = JSON.parse(userStr)
+                return user.role
+            }
+        } catch (e) {
+            // ignore
+        }
+        return null
+    }
+
+    const userRole = getUserRole()
 
     // menu list collapse & items
-    const items = item.children?.map((menu) => {
-        switch (menu.type) {
-            case 'collapse':
-                return <NavCollapse key={menu.id} menu={menu} level={1} />
-            case 'item':
-                return <NavItem key={menu.id} item={menu} level={1} navType='MENU' />
-            default:
-                return (
-                    <Typography key={menu.id} variant='h6' color='error' align='center'>
-                        Menu Items Error
-                    </Typography>
-                )
-        }
-    })
+    const items = item.children
+        ?.filter((menu) => {
+            // 如果菜单项标记为 adminOnly，只有管理员可见
+            if (menu.adminOnly && userRole !== 'admin') {
+                return false
+            }
+            return true
+        })
+        .map((menu) => {
+            switch (menu.type) {
+                case 'collapse':
+                    return <NavCollapse key={menu.id} menu={menu} level={1} />
+                case 'item':
+                    return <NavItem key={menu.id} item={menu} level={1} navType='MENU' />
+                default:
+                    return (
+                        <Typography key={menu.id} variant='h6' color='error' align='center'>
+                            Menu Items Error
+                        </Typography>
+                    )
+            }
+        })
 
     return (
         <>
@@ -35,10 +61,10 @@ const NavGroup = ({ item }) => {
                 subheader={
                     item.title && (
                         <Typography variant='caption' sx={{ ...theme.typography.menuCaption }} display='block' gutterBottom>
-                            {item.title}
+                            {t(item.title, item.title)}
                             {item.caption && (
                                 <Typography variant='caption' sx={{ ...theme.typography.subMenuCaption }} display='block' gutterBottom>
-                                    {item.caption}
+                                    {t(item.caption, item.caption)}
                                 </Typography>
                             )}
                         </Typography>

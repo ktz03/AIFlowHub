@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { Box, Skeleton, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material'
@@ -34,6 +35,7 @@ import { IconPlus, IconLayoutGrid, IconList } from '@tabler/icons-react'
 const Chatflows = () => {
     const navigate = useNavigate()
     const theme = useTheme()
+    const { t } = useTranslation()
 
     const [isLoading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -131,7 +133,12 @@ const Chatflows = () => {
                 <ErrorBoundary error={error} />
             ) : (
                 <Stack flexDirection='column' sx={{ gap: 3 }}>
-                    <ViewHeader onSearchChange={onSearchChange} search={true} searchPlaceholder='Search Name or Category' title='Chatflows'>
+                    <ViewHeader
+                        onSearchChange={onSearchChange}
+                        search={true}
+                        searchPlaceholder={t('chatflow.searchPlaceholder')}
+                        title={t('chatflow.title')}
+                    >
                         <ToggleButtonGroup
                             sx={{ borderRadius: 2, maxHeight: 40 }}
                             value={view}
@@ -165,7 +172,7 @@ const Chatflows = () => {
                             </ToggleButton>
                         </ToggleButtonGroup>
                         <StyledButton variant='contained' onClick={addNew} startIcon={<IconPlus />} sx={{ borderRadius: 2, height: 40 }}>
-                            Add New
+                            {t('common.addNew')}
                         </StyledButton>
                     </ViewHeader>
                     {!view || view === 'card' ? (
@@ -203,7 +210,7 @@ const Chatflows = () => {
                                     alt='WorkflowEmptySVG'
                                 />
                             </Box>
-                            <div>No Chatflows Yet</div>
+                            <div>{t('chatflow.empty')}</div>
                         </Stack>
                     )}
                 </Stack>

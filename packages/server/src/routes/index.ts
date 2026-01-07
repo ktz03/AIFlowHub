@@ -1,6 +1,7 @@
 import express from 'express'
 import apikeyRouter from './apikey'
 import assistantsRouter from './assistants'
+import authRouter from './auth'
 import attachmentsRouter from './attachments'
 import chatMessageRouter from './chat-messages'
 import chatflowsRouter from './chatflows'
@@ -36,6 +37,8 @@ import promptListsRouter from './prompts-lists'
 import publicChatbotRouter from './public-chatbots'
 import publicChatflowsRouter from './public-chatflows'
 import statsRouter from './stats'
+import usageStatsRouter from './usage-stats'
+import quotaRouter from './quota'
 import toolsRouter from './tools'
 import upsertHistoryRouter from './upsert-history'
 import variablesRouter from './variables'
@@ -43,10 +46,14 @@ import vectorRouter from './vectors'
 import verifyRouter from './verify'
 import versionRouter from './versions'
 import nvidiaNimRouter from './nvidia-nim'
+import templateMarketRouter from './template-market'
+import modelEvaluationRouter from './model-evaluation'
+import chatHistoryRouter from './chat-history'
 
 const router = express.Router()
 
 router.use('/ping', pingRouter)
+router.use('/auth', authRouter)
 router.use('/apikey', apikeyRouter)
 router.use('/assistants', assistantsRouter)
 router.use('/attachments', attachmentsRouter)
@@ -83,6 +90,8 @@ router.use('/prompts-list', promptListsRouter)
 router.use('/public-chatbotConfig', publicChatbotRouter)
 router.use('/public-chatflows', publicChatflowsRouter)
 router.use('/stats', statsRouter)
+router.use('/usage-stats', usageStatsRouter)
+router.use('/quota', quotaRouter)
 router.use('/tools', toolsRouter)
 router.use('/variables', variablesRouter)
 router.use('/vector', vectorRouter)
@@ -90,5 +99,8 @@ router.use('/verify', verifyRouter)
 router.use('/version', versionRouter)
 router.use('/upsert-history', upsertHistoryRouter)
 router.use('/nvidia-nim', nvidiaNimRouter)
+router.use('/template-market', templateMarketRouter)
+router.use('/model-evaluation', modelEvaluationRouter)
+router.use('/chat-history', chatHistoryRouter)
 
 export default router

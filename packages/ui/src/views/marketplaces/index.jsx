@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import {
@@ -70,6 +71,7 @@ const SelectStyles = {
 const Marketplace = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const { t } = useTranslation()
     useNotifier()
 
     const theme = useTheme()
@@ -180,10 +182,10 @@ const Marketplace = () => {
 
     const onDeleteCustomTemplate = async (template) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete Custom Template ${template.name}?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('common.delete'),
+            description: `${t('dialog.confirmDeleteMessage')} ${template.name}?`,
+            confirmButtonName: t('common.delete'),
+            cancelButtonName: t('common.cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -192,7 +194,7 @@ const Marketplace = () => {
                 const deleteResp = await marketplacesApi.deleteCustomTemplate(template.id)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Custom Template deleted successfully!',
+                        message: t('notification.deleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -207,7 +209,7 @@ const Marketplace = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete custom template: ${
+                    message: `${t('notification.error')}: ${
                         typeof error.response.data === 'object' ? error.response.data.message : error.response.data
                     }`,
                     options: {
@@ -283,10 +285,10 @@ const Marketplace = () => {
 
     const onUseTemplate = (selectedTool) => {
         const dialogProp = {
-            title: 'Add New Tool',
+            title: t('tool.create'),
             type: 'IMPORT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add',
+            cancelButtonName: t('common.cancel'),
+            confirmButtonName: t('common.add'),
             data: selectedTool
         }
         setToolDialogProps(dialogProp)
@@ -417,7 +419,7 @@ const Marketplace = () => {
                                         }}
                                     >
                                         <InputLabel size='small' id='filter-badge-label'>
-                                            Tag
+                                            {t('marketplace.tag')}
                                         </InputLabel>
                                         <Select
                                             labelId='filter-badge-label'
@@ -426,8 +428,10 @@ const Marketplace = () => {
                                             multiple
                                             value={badgeFilter}
                                             onChange={handleBadgeFilterChange}
-                                            input={<OutlinedInput label='Badge' />}
-                                            renderValue={(selected) => selected.join(', ')}
+                                            input={<OutlinedInput label={t('marketplace.tag')} />}
+                                            renderValue={(selected) =>
+                                                selected.map((s) => t(`marketplace.badge.${s.toLowerCase()}`)).join(', ')
+                                            }
                                             MenuProps={MenuProps}
                                             sx={SelectStyles}
                                         >
@@ -438,7 +442,7 @@ const Marketplace = () => {
                                                     sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1 }}
                                                 >
                                                     <Checkbox checked={badgeFilter.indexOf(name) > -1} sx={{ p: 0 }} />
-                                                    <ListItemText primary={name} />
+                                                    <ListItemText primary={t(`marketplace.badge.${name.toLowerCase()}`)} />
                                                 </MenuItem>
                                             ))}
                                         </Select>
@@ -453,7 +457,7 @@ const Marketplace = () => {
                                         }}
                                     >
                                         <InputLabel size='small' id='type-badge-label'>
-                                            Type
+                                            {t('marketplace.type')}
                                         </InputLabel>
                                         <Select
                                             size='small'
@@ -462,7 +466,7 @@ const Marketplace = () => {
                                             multiple
                                             value={typeFilter}
                                             onChange={handleTypeFilterChange}
-                                            input={<OutlinedInput label='Badge' />}
+                                            input={<OutlinedInput label={t('marketplace.type')} />}
                                             renderValue={(selected) => selected.join(', ')}
                                             MenuProps={MenuProps}
                                             sx={SelectStyles}
@@ -489,7 +493,7 @@ const Marketplace = () => {
                                         }}
                                     >
                                         <InputLabel size='small' id='type-fw-label'>
-                                            Framework
+                                            {t('marketplace.framework')}
                                         </InputLabel>
                                         <Select
                                             size='small'
@@ -498,7 +502,7 @@ const Marketplace = () => {
                                             multiple
                                             value={frameworkFilter}
                                             onChange={handleFrameworkFilterChange}
-                                            input={<OutlinedInput label='Badge' />}
+                                            input={<OutlinedInput label={t('marketplace.framework')} />}
                                             renderValue={(selected) => selected.join(', ')}
                                             MenuProps={MenuProps}
                                             sx={SelectStyles}
@@ -519,8 +523,8 @@ const Marketplace = () => {
                             }
                             onSearchChange={onSearchChange}
                             search={true}
-                            searchPlaceholder='Search Name/Description/Node'
-                            title='Marketplace'
+                            searchPlaceholder={t('marketplace.searchPlaceholder')}
+                            titleKey='marketplace.title'
                         >
                             <ToggleButtonGroup
                                 sx={{ borderRadius: 2, height: '100%' }}
@@ -537,7 +541,7 @@ const Marketplace = () => {
                                     }}
                                     variant='contained'
                                     value='card'
-                                    title='Card View'
+                                    title={t('chatflow.cardView')}
                                 >
                                     <IconLayoutGrid />
                                 </ToggleButton>
@@ -549,15 +553,15 @@ const Marketplace = () => {
                                     }}
                                     variant='contained'
                                     value='list'
-                                    title='List View'
+                                    title={t('chatflow.listView')}
                                 >
                                     <IconList />
                                 </ToggleButton>
                             </ToggleButtonGroup>
                         </ViewHeader>
                         <Tabs value={activeTabValue} onChange={handleTabChange} textColor='primary' aria-label='tabs' centered>
-                            <Tab value={0} label='Community Templates'></Tab>
-                            <Tab value={1} label='My Templates' />
+                            <Tab value={0} label={t('marketplace.communityTemplates')}></Tab>
+                            <Tab value={1} label={t('marketplace.myTemplates')} />
                         </Tabs>
                         <TabPanel value={activeTabValue} index={0}>
                             <Stack direction='row' sx={{ gap: 2, my: 2, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -590,7 +594,7 @@ const Marketplace = () => {
                                     onClick={() => clearAllUsecases()}
                                     startIcon={<IconX />}
                                 >
-                                    Clear All
+                                    {t('marketplace.clearAll')}
                                 </Button>
                             )}
 
@@ -675,7 +679,7 @@ const Marketplace = () => {
                                             alt='WorkflowEmptySVG'
                                         />
                                     </Box>
-                                    <div>No Marketplace Yet</div>
+                                    <div>{t('marketplace.empty')}</div>
                                 </Stack>
                             )}
                         </TabPanel>
@@ -714,7 +718,7 @@ const Marketplace = () => {
                                     onClick={() => clearAllUsecases()}
                                     startIcon={<IconX />}
                                 >
-                                    Clear All
+                                    {t('marketplace.clearAll')}
                                 </Button>
                             )}
                             {!view || view === 'card' ? (
@@ -798,7 +802,7 @@ const Marketplace = () => {
                                             alt='WorkflowEmptySVG'
                                         />
                                     </Box>
-                                    <div>No Saved Custom Templates</div>
+                                    <div>{t('marketplace.emptyCustom')}</div>
                                 </Stack>
                             )}
                         </TabPanel>

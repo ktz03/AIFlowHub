@@ -858,14 +858,24 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
         const input = params.question
         const username = localStorage.getItem('username')
         const password = localStorage.getItem('password')
+        const accessToken = localStorage.getItem('accessToken')
         params.streaming = true
+
+        // 构建 Authorization header - 优先使用 JWT Token
+        let authHeader = undefined
+        if (accessToken) {
+            authHeader = `Bearer ${accessToken}`
+        } else if (username && password) {
+            authHeader = `Basic ${btoa(`${username}:${password}`)}`
+        }
+
         await fetchEventSource(`${baseURL}/api/v1/internal-prediction/${chatflowid}`, {
             openWhenHidden: true,
             method: 'POST',
             body: JSON.stringify(params),
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: username && password ? `Basic ${btoa(`${username}:${password}`)}` : undefined,
+                Authorization: authHeader,
                 'x-request-from': 'internal'
             },
             async onopen(response) {

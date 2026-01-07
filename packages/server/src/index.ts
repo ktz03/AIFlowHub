@@ -69,7 +69,7 @@ export class App {
         // Initialize database
         try {
             await this.AppDataSource.initialize()
-            logger.info('📦 [server]: Data Source is initializing...')
+            logger.info('[server]: Data Source is initializing...')
 
             // Run Migrations Scripts
             await this.AppDataSource.runMigrations({ transaction: 'each' })
@@ -114,9 +114,9 @@ export class App {
                 await this.redisSubscriber.connect()
             }
 
-            logger.info('📦 [server]: Data Source has been initialized!')
+            logger.info('[server]: Data Source has been initialized!')
         } catch (error) {
-            logger.error('❌ [server]: Error during Data Source initialization:', error)
+            logger.error('[server]: Error during Data Source initialization:', error)
         }
     }
 
@@ -231,10 +231,10 @@ export class App {
             }
             if (this.metricsProvider) {
                 await this.metricsProvider.initializeCounters()
-                logger.info(`📊 [server]: Metrics Provider [${this.metricsProvider.getName()}] has been initialized!`)
+                logger.info(`[server]: Metrics Provider [${this.metricsProvider.getName()}] has been initialized!`)
             } else {
                 logger.error(
-                    "❌ [server]: Metrics collection is enabled, but failed to initialize provider (valid values are 'prometheus' or 'open_telemetry'."
+                    "[server]: Metrics collection is enabled, but failed to initialize provider (valid values are 'prometheus' or 'open_telemetry'."
                 )
             }
         }
@@ -283,7 +283,7 @@ export class App {
             }
             await Promise.all(removePromises)
         } catch (e) {
-            logger.error(`❌[server]: Flowise Server shut down error: ${e}`)
+            logger.error(`[server]: Flowise Server shut down error: ${e}`)
         }
     }
 }
@@ -301,7 +301,7 @@ export async function start(): Promise<void> {
     await serverApp.config()
 
     server.listen(port, host, () => {
-        logger.info(`⚡️ [server]: Flowise Server is listening at ${host ? 'http://' + host : ''}:${port}`)
+        logger.info(`[server]: Flowise Server is listening at ${host ? 'http://' + host : ''}:${port}`)
     })
 }
 
