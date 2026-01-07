@@ -1,0 +1,15 @@
+{
+  "name": "代码格式化钩子",
+  "description": "AI 写入或编辑代码后自动格式化",
+  "PostToolUse": [
+    {
+      "matcher": "Write|Edit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "pnpm run format || true"
+        }
+      ]
+    }
+  ]
+}

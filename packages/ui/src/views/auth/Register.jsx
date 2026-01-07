@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
     Box,
@@ -12,10 +12,15 @@ import {
     CircularProgress,
     Divider,
     Stack,
-    LinearProgress
+    LinearProgress,
+    Collapse,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { IconEye, IconEyeOff, IconBrandGithub, IconMail, IconLock, IconUser } from '@tabler/icons-react'
+import { IconEye, IconEyeOff, IconBrandGithub, IconMail, IconLock, IconUser, IconCheck, IconX, IconAlertCircle } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 
 // API
@@ -24,6 +29,12 @@ import authApi from '@/api/auth'
 // Assets
 import logoDark from '@/assets/images/flowise_logo_dark.png'
 import logoLight from '@/assets/images/flowise_logo.png'
+
+// 邮箱验证正则
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// 用户名验证正则 (3-50位字母、数字或下划线)
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,50}$/
 
 // 密码强度计算
 const getPasswordStrength = (password) => {
@@ -49,6 +60,30 @@ const getStrengthLabel = (strength, t) => {
     return t('auth.passwordStrong') || '强'
 }
 
+// 密码要求检查
+const getPasswordRequirements = (password, t) => [
+    { 
+        met: password.length >= 6, 
+        text: t('auth.passwordReq6Chars') || '至少6个字符' 
+    },
+    { 
+        met: /[a-z]/.test(password), 
+        text: t('auth.passwordReqLowercase') || '包含小写字母' 
+    },
+    { 
+        met: /[A-Z]/.test(password), 
+        text: t('auth.passwordReqUppercase') || '包含大写字母' 
+    },
+    { 
+        met: /[0-9]/.test(password), 
+        text: t('auth.passwordReqNumber') || '包含数字' 
+    },
+    { 
+        met: /[^a-zA-Z0-9]/.test(password), 
+        text: t('auth.passwordReqSpecial') || '包含特殊字符（可选）' 
+    }
+]
+
 const Register = () => {
     const theme = useTheme()
     const navigate = useNavigate()
@@ -62,17 +97,132 @@ const Register = () => {
     })
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
+    
+    // 表单验证状态
+    const [touched, setTouched] = useState({
+        username: false,
+        email: false,
+        password: false,
+        confirmPassword: false
+    })
+    const [fieldErrors, setFieldErrors] = useState({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    })
 
     const passwordStrength = getPasswordStrength(formData.password)
+    const passwordRequirements = getPasswordRequirements(formData.password, t)
+
+    // 验证函数
+    const validateUsername = useCallback((value) => {
+        if (!value) {
+            return t('auth.usernameRequired') || '请输入用户名'
+        }
+        if (!USERNAME_REGEX.test(value)) {
+            return t('auth.usernameInvalid') || '用户名需为3-50位字母、数字或下划线'
+        }
+        return ''
+    }, [t])
+
+    const validateEmail = useCallback((value) => {
+        if (!value) {
+            return t('auth.emailRequired') || '请输入邮箱地址'
+        }
+        if (!EMAIL_REGEX.test(value)) {
+            return t('auth.emailInvalid') || '请输入有效的邮箱地址'
+        }
+        return ''
+    }, [t])
+
+    const validatePassword = useCallback((value) => {
+        if (!value) {
+            return t('auth.passwordRequired') || '请输入密码'
+        }
+        if (value.length < 6) {
+            return t('auth.passwordTooShort') || '密码长度至少为6位'
+        }
+        return ''
+    }, [t])
+
+    const validateConfirmPassword = useCallback((value, password) => {
+        if (!value) {
+            return t('auth.confirmPasswordRequired') || '请确认密码'
+        }
+        if (value !== password) {
+            return t('auth.passwordMismatch') || '两次输入的密码不一致'
+        }
+        return ''
+    }, [t])
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        })
+        const { name, value } = e.target
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }))
+        
+        // 实时验证已触碰的字段
+        if (touched[name]) {
+            let error = ''
+            switch (name) {
+                case 'username':
+                    error = validateUsername(value)
+                    break
+                case 'email':
+                    error = validateEmail(value)
+                    break
+                case 'password':
+                    error = validatePassword(value)
+                    // 同时更新确认密码的验证
+                    if (touched.confirmPassword && formData.confirmPassword) {
+                        setFieldErrors(prev => ({
+                            ...prev,
+                            confirmPassword: validateConfirmPassword(formData.confirmPassword, value)
+                        }))
+                    }
+                    break
+                case 'confirmPassword':
+                    error = validateConfirmPassword(value, formData.password)
+                    break
+                default:
+                    break
+            }
+            setFieldErrors(prev => ({ ...prev, [name]: error }))
+        }
+    }
+
+    const handleBlur = (field) => {
+        setTouched(prev => ({ ...prev, [field]: true }))
+        
+        let error = ''
+        switch (field) {
+            case 'username':
+                error = validateUsername(formData.username)
+                break
+            case 'email':
+                error = validateEmail(formData.email)
+                break
+            case 'password':
+                error = validatePassword(formData.password)
+                setShowPasswordRequirements(false)
+                break
+            case 'confirmPassword':
+                error = validateConfirmPassword(formData.confirmPassword, formData.password)
+                break
+            default:
+                break
+        }
+        setFieldErrors(prev => ({ ...prev, [field]: error }))
+    }
+
+    const handlePasswordFocus = () => {
+        setShowPasswordRequirements(true)
     }
 
     const handleSubmit = async (e) => {
@@ -80,14 +230,20 @@ const Register = () => {
         setError('')
         setSuccess('')
 
-        // 验证密码
-        if (formData.password !== formData.confirmPassword) {
-            setError(t('auth.passwordMismatch') || '两次输入的密码不一致')
-            return
+        // 触发所有字段验证
+        const newTouched = { username: true, email: true, password: true, confirmPassword: true }
+        setTouched(newTouched)
+        
+        const errors = {
+            username: validateUsername(formData.username),
+            email: validateEmail(formData.email),
+            password: validatePassword(formData.password),
+            confirmPassword: validateConfirmPassword(formData.confirmPassword, formData.password)
         }
+        setFieldErrors(errors)
 
-        if (formData.password.length < 6) {
-            setError(t('auth.passwordTooShort') || '密码长度至少为6位')
+        // 如果有验证错误，不提交
+        if (Object.values(errors).some(err => err)) {
             return
         }
 
