@@ -17,7 +17,7 @@ export default class Worker extends BaseCommand {
     upsertionWorkerId: string
 
     async run(): Promise<void> {
-        logger.info('Starting Flowise Worker...')
+        logger.info('Starting AIFlowHub Worker...')
 
         const { appDataSource, telemetry, componentNodes, cachePool, abortControllerPool } = await this.prepareData()
 

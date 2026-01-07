@@ -5,7 +5,7 @@ import { BaseCommand } from './base'
 
 export default class Start extends BaseCommand {
     async run(): Promise<void> {
-        logger.info('Starting Flowise...')
+        logger.info('Starting AIFlowHub...')
         await DataSource.init()
         await Server.start()
     }
