@@ -299,7 +299,7 @@ const Register = () => {
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
                     <img
                         src={theme.palette.mode === 'dark' ? logoDark : logoLight}
-                        alt='Flowise'
+                        alt='AIFlowHub'
                         style={{ height: 50, marginBottom: 16 }}
                     />
                     <Typography variant='h3' fontWeight='600' color='text.primary'>

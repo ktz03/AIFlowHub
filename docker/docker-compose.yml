@@ -1,10 +1,10 @@
 services:
-    flowise:
+    aiflow-hub:
         build:
             context: ..
             dockerfile: Dockerfile
-        image: flowise-local:latest
-        container_name: flowise
+        image: aiflow-hub:latest
+        container_name: aiflow-hub
         restart: unless-stopped
         environment:
             - PORT=${PORT:-3000}
@@ -23,8 +23,8 @@ services:
         ports:
             - '${PORT:-3000}:${PORT:-3000}'
         volumes:
-            - flowise-data:/root/.flowise
+            - aiflow-data:/root/.flowise
 
 volumes:
-    flowise-data:
-        name: flowise-data
+    aiflow-data:
+        name: aiflow-data
