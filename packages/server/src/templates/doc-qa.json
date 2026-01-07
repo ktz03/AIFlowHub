@@ -1,0 +1,199 @@
+{
+    "id": "official-doc-qa",
+    "name": "文档问答助手",
+    "description": "基于RAG技术的文档问答系统，支持PDF、Word、TXT等多种格式文档的智能问答，适用于知识库、文档检索场景",
+    "category": "rag",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["RAG", "文档", "知识库", "检索"],
+    "usecases": ["企业知识库", "文档检索", "技术文档问答", "政策法规查询"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel", "embeddings"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "pdfLoader_0",
+                "position": { "x": 100, "y": 200 },
+                "type": "customNode",
+                "data": {
+                    "id": "pdfLoader_0",
+                    "label": "PDF文档加载器",
+                    "version": 1,
+                    "name": "pdfLoader",
+                    "type": "PDFLoader",
+                    "baseClasses": ["PDFLoader", "DocumentLoader"],
+                    "category": "Document Loaders",
+                    "description": "加载PDF文档并提取文本内容",
+                    "inputParams": [{ "name": "pdfFile", "type": "file" }],
+                    "inputAnchors": [],
+                    "inputs": {},
+                    "outputAnchors": [{ "name": "output", "type": "Document" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "textSplitter_0",
+                "position": { "x": 400, "y": 200 },
+                "type": "customNode",
+                "data": {
+                    "id": "textSplitter_0",
+                    "label": "文本分割器",
+                    "version": 1,
+                    "name": "recursiveTextSplitter",
+                    "type": "RecursiveCharacterTextSplitter",
+                    "baseClasses": ["RecursiveCharacterTextSplitter", "TextSplitter"],
+                    "category": "Text Splitters",
+                    "description": "将长文档分割成适合处理的小块",
+                    "inputParams": [
+                        { "name": "chunkSize", "type": "number", "default": 1000 },
+                        { "name": "chunkOverlap", "type": "number", "default": 200 }
+                    ],
+                    "inputAnchors": [{ "name": "document", "type": "Document" }],
+                    "inputs": {
+                        "chunkSize": 1000,
+                        "chunkOverlap": 200
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "Document" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "embeddings_0",
+                "position": { "x": 400, "y": 400 },
+                "type": "customNode",
+                "data": {
+                    "id": "embeddings_0",
+                    "label": "文本嵌入",
+                    "version": 1,
+                    "name": "openAIEmbeddings",
+                    "type": "OpenAIEmbeddings",
+                    "baseClasses": ["OpenAIEmbeddings", "Embeddings"],
+                    "category": "Embeddings",
+                    "description": "将文本转换为向量表示，可替换为国产嵌入模型",
+                    "inputParams": [],
+                    "inputAnchors": [],
+                    "inputs": {},
+                    "outputAnchors": [{ "name": "output", "type": "Embeddings" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "vectorStore_0",
+                "position": { "x": 700, "y": 300 },
+                "type": "customNode",
+                "data": {
+                    "id": "vectorStore_0",
+                    "label": "向量数据库",
+                    "version": 1,
+                    "name": "faiss",
+                    "type": "Faiss",
+                    "baseClasses": ["Faiss", "VectorStore"],
+                    "category": "Vector Stores",
+                    "description": "存储文档向量，支持高效相似度检索",
+                    "inputParams": [],
+                    "inputAnchors": [
+                        { "name": "document", "type": "Document" },
+                        { "name": "embeddings", "type": "Embeddings" }
+                    ],
+                    "inputs": {},
+                    "outputAnchors": [{ "name": "output", "type": "VectorStore" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "chatModel_0",
+                "position": { "x": 700, "y": 500 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatModel_0",
+                    "label": "Chat Model",
+                    "version": 1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel"],
+                    "category": "Chat Models",
+                    "description": "大语言模型，可替换为通义千问、文心一言等",
+                    "inputParams": [
+                        { "name": "modelName", "type": "string", "default": "gpt-3.5-turbo" },
+                        { "name": "temperature", "type": "number", "default": 0.3 }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-3.5-turbo",
+                        "temperature": 0.3
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "ChatOpenAI" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "retrievalQA_0",
+                "position": { "x": 1000, "y": 400 },
+                "type": "customNode",
+                "data": {
+                    "id": "retrievalQA_0",
+                    "label": "检索问答链",
+                    "version": 1,
+                    "name": "retrievalQAChain",
+                    "type": "RetrievalQAChain",
+                    "baseClasses": ["RetrievalQAChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "结合向量检索和LLM的问答链",
+                    "inputParams": [{ "name": "returnSourceDocuments", "type": "boolean", "default": true }],
+                    "inputAnchors": [
+                        { "name": "model", "type": "BaseChatModel" },
+                        { "name": "vectorStore", "type": "VectorStore" }
+                    ],
+                    "inputs": {
+                        "returnSourceDocuments": true
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "RetrievalQAChain" }],
+                    "outputs": {}
+                }
+            }
+        ],
+        "edges": [
+            {
+                "id": "e1",
+                "source": "pdfLoader_0",
+                "sourceHandle": "output",
+                "target": "textSplitter_0",
+                "targetHandle": "document"
+            },
+            {
+                "id": "e2",
+                "source": "textSplitter_0",
+                "sourceHandle": "output",
+                "target": "vectorStore_0",
+                "targetHandle": "document"
+            },
+            {
+                "id": "e3",
+                "source": "embeddings_0",
+                "sourceHandle": "output",
+                "target": "vectorStore_0",
+                "targetHandle": "embeddings"
+            },
+            {
+                "id": "e4",
+                "source": "vectorStore_0",
+                "sourceHandle": "output",
+                "target": "retrievalQA_0",
+                "targetHandle": "vectorStore"
+            },
+            {
+                "id": "e5",
+                "source": "chatModel_0",
+                "sourceHandle": "output",
+                "target": "retrievalQA_0",
+                "targetHandle": "model"
+            }
+        ]
+    }
+}

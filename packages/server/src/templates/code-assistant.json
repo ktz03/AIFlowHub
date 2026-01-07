@@ -1,0 +1,135 @@
+{
+    "id": "official-code-assistant",
+    "name": "代码助手",
+    "description": "智能代码助手，支持代码生成、代码解释、Bug修复和代码优化，适用于开发者日常编程辅助",
+    "category": "code",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["代码", "编程", "开发", "AI助手"],
+    "usecases": ["代码生成", "代码解释", "Bug修复", "代码审查", "技术问答"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatModel_0",
+                "position": { "x": 800, "y": 300 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatModel_0",
+                    "label": "Chat Model",
+                    "version": 1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel"],
+                    "category": "Chat Models",
+                    "description": "大语言模型，推荐使用 GPT-4 或 DeepSeek Coder",
+                    "inputParams": [
+                        { "name": "modelName", "type": "string", "default": "gpt-4" },
+                        { "name": "temperature", "type": "number", "default": 0.2 }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-4",
+                        "temperature": 0.2
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "ChatOpenAI" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "systemPrompt_0",
+                "position": { "x": 400, "y": 200 },
+                "type": "customNode",
+                "data": {
+                    "id": "systemPrompt_0",
+                    "label": "代码助手提示词",
+                    "version": 1,
+                    "name": "promptTemplate",
+                    "type": "PromptTemplate",
+                    "baseClasses": ["PromptTemplate"],
+                    "category": "Prompts",
+                    "description": "代码助手专用系统提示词",
+                    "inputParams": [{ "name": "template", "type": "string" }],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "template": "你是一个专业的编程助手，精通多种编程语言和框架。\n\n你的能力包括：\n1. 代码生成：根据需求生成高质量代码\n2. 代码解释：详细解释代码逻辑和原理\n3. Bug修复：分析并修复代码中的问题\n4. 代码优化：提供性能和可读性优化建议\n5. 最佳实践：推荐行业最佳实践和设计模式\n\n回答要求：\n- 代码使用 markdown 代码块格式\n- 添加必要的注释说明\n- 考虑边界情况和错误处理\n- 遵循语言/框架的最佳实践\n\n用户问题：{question}"
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "PromptTemplate" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 1200, "y": 300 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "对话链",
+                    "version": 1,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "支持多轮对话的会话链",
+                    "inputParams": [],
+                    "inputAnchors": [
+                        { "name": "model", "type": "BaseChatModel" },
+                        { "name": "memory", "type": "BaseMemory" }
+                    ],
+                    "inputs": {},
+                    "outputAnchors": [{ "name": "output", "type": "ConversationChain" }],
+                    "outputs": {}
+                }
+            },
+            {
+                "id": "bufferWindowMemory_0",
+                "position": { "x": 800, "y": 500 },
+                "type": "customNode",
+                "data": {
+                    "id": "bufferWindowMemory_0",
+                    "label": "窗口记忆",
+                    "version": 1,
+                    "name": "bufferWindowMemory",
+                    "type": "BufferWindowMemory",
+                    "baseClasses": ["BufferWindowMemory", "BaseMemory"],
+                    "category": "Memory",
+                    "description": "保留最近K轮对话，适合代码上下文",
+                    "inputParams": [
+                        { "name": "memoryKey", "type": "string", "default": "chat_history" },
+                        { "name": "k", "type": "number", "default": 5 }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "memoryKey": "chat_history",
+                        "k": 5
+                    },
+                    "outputAnchors": [{ "name": "output", "type": "BufferWindowMemory" }],
+                    "outputs": {}
+                }
+            }
+        ],
+        "edges": [
+            {
+                "id": "e1",
+                "source": "chatModel_0",
+                "sourceHandle": "output",
+                "target": "conversationChain_0",
+                "targetHandle": "model"
+            },
+            {
+                "id": "e2",
+                "source": "bufferWindowMemory_0",
+                "sourceHandle": "output",
+                "target": "conversationChain_0",
+                "targetHandle": "memory"
+            }
+        ]
+    }
+}

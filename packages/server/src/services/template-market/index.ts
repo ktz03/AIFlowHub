@@ -7,6 +7,7 @@ import { InternalFlowiseError } from '../../errors/internalFlowiseError'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { getErrorMessage } from '../../errors/utils'
 import chatflowsService from '../chatflows'
+import { loadOfficialTemplates } from '../../templates'
 
 // 模板分类常量
 export const TEMPLATE_CATEGORIES = {
@@ -58,52 +59,80 @@ interface ShareTemplateParams {
     userId: string
 }
 
-// 获取公开模板列表
+// 获取公开模板列表（包含官方模板和用户分享的模板）
 const getPublicTemplates = async (params: TemplateQueryParams) => {
     try {
         const appServer = getRunningExpressApp()
         const templateRepo = appServer.AppDataSource.getRepository(CustomTemplate)
 
+        // 1. 加载官方模板
+        let officialTemplates = loadOfficialTemplates()
+
+        // 对官方模板应用筛选
+        if (params.category) {
+            officialTemplates = officialTemplates.filter((t) => t.category === params.category)
+        }
+        if (params.type) {
+            officialTemplates = officialTemplates.filter((t) => t.type === params.type)
+        }
+        if (params.search) {
+            const searchLower = params.search.toLowerCase()
+            officialTemplates = officialTemplates.filter(
+                (t) =>
+                    t.name.toLowerCase().includes(searchLower) ||
+                    t.description.toLowerCase().includes(searchLower) ||
+                    t.tags.some((tag) => tag.toLowerCase().includes(searchLower))
+            )
+        }
+
+        // 转换官方模板格式
+        const processedOfficialTemplates = officialTemplates.map((t) => ({
+            ...t,
+            isOfficial: true,
+            flowData: typeof t.flowData === 'string' ? t.flowData : JSON.stringify(t.flowData)
+        }))
+
+        // 2. 查询用户分享的公开模板
         const queryBuilder = templateRepo.createQueryBuilder('template').where('template.isPublic = :isPublic', { isPublic: true })
 
-        // 分类筛选
         if (params.category) {
             queryBuilder.andWhere('template.category = :category', { category: params.category })
         }
-
-        // 类型筛选
         if (params.type) {
             queryBuilder.andWhere('template.type = :type', { type: params.type })
         }
-
-        // 搜索
         if (params.search) {
             queryBuilder.andWhere('(template.name LIKE :search OR template.description LIKE :search OR template.tags LIKE :search)', {
                 search: `%${params.search}%`
             })
         }
 
-        // 排序
         const sortBy = params.sortBy || 'useCount'
         const sortOrder = params.sortOrder || 'DESC'
         queryBuilder.orderBy(`template.${sortBy}`, sortOrder)
 
+        const userTemplates = await queryBuilder.getMany()
+
+        // 处理用户模板数据
+        const processedUserTemplates = userTemplates.map((template) => ({
+            ...template,
+            tags: template.tags ? JSON.parse(template.tags) : [],
+            usecases: template.usecases ? JSON.parse(template.usecases) : [],
+            isOfficial: false
+        }))
+
+        // 3. 合并模板（官方模板优先显示）
+        const allTemplates = [...processedOfficialTemplates, ...processedUserTemplates]
+        const total = allTemplates.length
+
         // 分页
         const page = params.page || 1
         const limit = params.limit || 20
-        queryBuilder.skip((page - 1) * limit).take(limit)
-
-        const [templates, total] = await queryBuilder.getManyAndCount()
-
-        // 处理返回数据
-        const processedTemplates = templates.map((template) => ({
-            ...template,
-            tags: template.tags ? JSON.parse(template.tags) : [],
-            usecases: template.usecases ? JSON.parse(template.usecases) : []
-        }))
+        const startIndex = (page - 1) * limit
+        const paginatedTemplates = allTemplates.slice(startIndex, startIndex + limit)
 
         return {
-            templates: processedTemplates,
+            templates: paginatedTemplates,
             total,
             page,
             limit,
