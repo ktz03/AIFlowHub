@@ -3,6 +3,7 @@ import { lazy } from 'react'
 // project imports
 import MainLayout from '@/layout/MainLayout'
 import Loadable from '@/ui-component/loading/Loadable'
+import PrivateRoute from './PrivateRoute'
 
 // chatflows routing
 const Chatflows = Loadable(lazy(() => import('@/views/chatflows')))
@@ -61,7 +62,11 @@ const ChatHistory = Loadable(lazy(() => import('@/views/chat-history')))
 
 const MainRoutes = {
     path: '/',
-    element: <MainLayout />,
+    element: (
+        <PrivateRoute>
+            <MainLayout />
+        </PrivateRoute>
+    ),
     children: [
         {
             path: '/',

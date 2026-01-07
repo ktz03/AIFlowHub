@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import {
@@ -12,10 +12,13 @@ import {
     IconButton,
     CircularProgress,
     Divider,
-    Stack
+    Stack,
+    FormControlLabel,
+    Checkbox,
+    Collapse
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { IconEye, IconEyeOff, IconBrandGithub, IconMail, IconLock } from '@tabler/icons-react'
+import { IconEye, IconEyeOff, IconBrandGithub, IconMail, IconLock, IconAlertCircle } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 
 // API
@@ -28,6 +31,9 @@ import { SET_USER } from '@/store/actions'
 import logoDark from '@/assets/images/flowise_logo_dark.png'
 import logoLight from '@/assets/images/flowise_logo.png'
 
+// 邮箱验证正则
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 const Login = () => {
     const theme = useTheme()
     const navigate = useNavigate()
@@ -37,12 +43,90 @@ const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const [rememberMe, setRememberMe] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    
+    // 表单验证状态
+    const [emailError, setEmailError] = useState('')
+    const [passwordError, setPasswordError] = useState('')
+    const [touched, setTouched] = useState({ email: false, password: false })
+
+    // 从 localStorage 恢复记住的邮箱
+    useEffect(() => {
+        const savedEmail = localStorage.getItem('rememberedEmail')
+        if (savedEmail) {
+            setEmail(savedEmail)
+            setRememberMe(true)
+        }
+    }, [])
+
+    // 邮箱验证
+    const validateEmail = (value) => {
+        if (!value) {
+            return t('auth.emailRequired') || '请输入邮箱地址'
+        }
+        if (!EMAIL_REGEX.test(value)) {
+            return t('auth.emailInvalid') || '请输入有效的邮箱地址'
+        }
+        return ''
+    }
+
+    // 密码验证
+    const validatePassword = (value) => {
+        if (!value) {
+            return t('auth.passwordRequired') || '请输入密码'
+        }
+        if (value.length < 6) {
+            return t('auth.passwordTooShort') || '密码长度至少为6位'
+        }
+        return ''
+    }
+
+    // 处理邮箱变化
+    const handleEmailChange = (e) => {
+        const value = e.target.value
+        setEmail(value)
+        if (touched.email) {
+            setEmailError(validateEmail(value))
+        }
+    }
+
+    // 处理密码变化
+    const handlePasswordChange = (e) => {
+        const value = e.target.value
+        setPassword(value)
+        if (touched.password) {
+            setPasswordError(validatePassword(value))
+        }
+    }
+
+    // 处理失焦验证
+    const handleBlur = (field) => {
+        setTouched({ ...touched, [field]: true })
+        if (field === 'email') {
+            setEmailError(validateEmail(email))
+        } else if (field === 'password') {
+            setPasswordError(validatePassword(password))
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
+
+        // 触发所有字段验证
+        setTouched({ email: true, password: true })
+        const emailErr = validateEmail(email)
+        const passwordErr = validatePassword(password)
+        setEmailError(emailErr)
+        setPasswordError(passwordErr)
+
+        // 如果有验证错误，不提交
+        if (emailErr || passwordErr) {
+            return
+        }
+
         setLoading(true)
 
         try {
@@ -57,6 +141,13 @@ const Login = () => {
 
                 // 保存用户信息到 localStorage（用于菜单权限判断）
                 localStorage.setItem('user', JSON.stringify(user))
+
+                // 处理记住密码
+                if (rememberMe) {
+                    localStorage.setItem('rememberedEmail', email)
+                } else {
+                    localStorage.removeItem('rememberedEmail')
+                }
 
                 // 更新 Redux store
                 dispatch({ type: SET_USER, user })
@@ -113,9 +204,16 @@ const Login = () => {
                 </Box>
 
                 {error && (
-                    <Alert severity='error' sx={{ mb: 3, borderRadius: 2 }}>
-                        {error}
-                    </Alert>
+                    <Collapse in={!!error}>
+                        <Alert 
+                            severity='error' 
+                            sx={{ mb: 3, borderRadius: 2 }}
+                            icon={<IconAlertCircle size={20} />}
+                            onClose={() => setError('')}
+                        >
+                            {error}
+                        </Alert>
+                    </Collapse>
                 )}
 
                 <form onSubmit={handleSubmit}>
@@ -124,7 +222,10 @@ const Login = () => {
                         label={t('auth.email') || '邮箱地址'}
                         type='email'
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={handleEmailChange}
+                        onBlur={() => handleBlur('email')}
+                        error={touched.email && !!emailError}
+                        helperText={touched.email && emailError}
                         required
                         autoComplete='email'
                         autoFocus
@@ -143,10 +244,13 @@ const Login = () => {
                         label={t('auth.password') || '密码'}
                         type={showPassword ? 'text' : 'password'}
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={handlePasswordChange}
+                        onBlur={() => handleBlur('password')}
+                        error={touched.password && !!passwordError}
+                        helperText={touched.password && passwordError}
                         required
                         autoComplete='current-password'
-                        sx={{ mb: 3 }}
+                        sx={{ mb: 2 }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position='start'>
@@ -163,12 +267,29 @@ const Login = () => {
                         }}
                     />
 
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                color='primary'
+                                size='small'
+                            />
+                        }
+                        label={
+                            <Typography variant='body2' color='text.secondary'>
+                                {t('auth.rememberMe') || '记住我'}
+                            </Typography>
+                        }
+                        sx={{ mb: 2 }}
+                    />
+
                     <Button
                         type='submit'
                         fullWidth
                         variant='contained'
                         size='large'
-                        disabled={loading}
+                        disabled={loading || (touched.email && !!emailError) || (touched.password && !!passwordError)}
                         sx={{
                             py: 1.5,
                             borderRadius: 2,
