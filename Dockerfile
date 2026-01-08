@@ -5,7 +5,7 @@ FROM node:20-alpine
 RUN apk add --update --no-cache \
     libc6-compat python3 py3-pip py3-setuptools make g++ \
     build-base cairo-dev pango-dev \
-    chromium git
+    chromium git cmake
 
 # Configure npm/pnpm to use Aliyun mirror (for faster downloads in China)
 RUN npm config set registry https://registry.npm.taobao.org
