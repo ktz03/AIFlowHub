@@ -3,9 +3,12 @@ FROM node:20-alpine
 
 # Install system dependencies
 RUN apk add --update --no-cache \
-    libc6-compat python3 py3-pip py3-setuptools make g++ \
+    libc6-compat python3 python3-dev py3-pip make g++ \
     build-base cairo-dev pango-dev \
     chromium git cmake
+
+# Install Python setuptools (required for node-gyp/sqlite3)
+RUN pip3 install setuptools --break-system-packages
 
 # Configure npm/pnpm to use Aliyun mirror (for faster downloads in China)
 RUN npm config set registry https://registry.npm.taobao.org
