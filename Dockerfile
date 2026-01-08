@@ -7,15 +7,15 @@ RUN apk add --update --no-cache \
     build-base cairo-dev pango-dev \
     chromium git
 
-# Configure npm/pnpm to use China mirror (for faster downloads in China)
-RUN npm config set registry https://registry.npmmirror.com
+# Configure npm/pnpm to use Aliyun mirror (for faster downloads in China)
+RUN npm config set registry https://registry.npm.taobao.org
 
 # Install PNPM globally
 RUN npm install -g pnpm
 
-# Configure pnpm with China mirror and increased timeout
+# Configure pnpm with Aliyun mirror and increased timeout
 RUN pnpm config set store-dir /root/.local/share/pnpm/store && \
-    pnpm config set registry https://registry.npmmirror.com && \
+    pnpm config set registry https://registry.npm.taobao.org && \
     pnpm config set fetch-timeout 600000 && \
     pnpm config set fetch-retries 5
 
