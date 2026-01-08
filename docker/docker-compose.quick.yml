@@ -1,0 +1,32 @@
+version: '3.8'
+
+# 快速部署版本 - 使用官方 Flowise 镜像
+# 用于快速验证服务器环境，后续再替换为自定义镜像
+
+services:
+    aiflow-hub:
+        image: flowiseai/flowise:latest
+        container_name: aiflow-hub
+        restart: unless-stopped
+        environment:
+            - PORT=${PORT:-3000}
+            - CORS_ORIGINS=${CORS_ORIGINS:-*}
+            - IFRAME_ORIGINS=${IFRAME_ORIGINS:-*}
+            - FLOWISE_USERNAME=${FLOWISE_USERNAME}
+            - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
+            - FLOWISE_FILE_SIZE_LIMIT=${FLOWISE_FILE_SIZE_LIMIT:-50mb}
+            - DEBUG=${DEBUG:-false}
+            - DATABASE_PATH=/root/.flowise
+            - DATABASE_TYPE=sqlite
+            - LOG_LEVEL=${LOG_LEVEL:-info}
+            - LOG_PATH=/root/.flowise/logs
+            - BLOB_STORAGE_PATH=/root/.flowise/storage
+            - DISABLE_FLOWISE_TELEMETRY=true
+        ports:
+            - '${PORT:-3000}:3000'
+        volumes:
+            - aiflow-data:/root/.flowise
+
+volumes:
+    aiflow-data:
+        name: aiflow-data
