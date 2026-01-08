@@ -3,7 +3,7 @@ FROM node:20-alpine
 
 # Install system dependencies
 RUN apk add --update --no-cache \
-    libc6-compat python3 make g++ \
+    libc6-compat python3 py3-pip py3-setuptools make g++ \
     build-base cairo-dev pango-dev \
     chromium git
 
