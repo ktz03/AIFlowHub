@@ -1,9 +1,6 @@
 services:
     aiflow-hub:
-        build:
-            context: ..
-            dockerfile: Dockerfile
-        image: aiflow-hub:latest
+        image: registry.cn-hangzhou.aliyuncs.com/aiflow-hub/aiflow_hub:latest
         container_name: aiflow-hub
         restart: unless-stopped
         environment:
