@@ -32,30 +32,13 @@ const isValidUrl = (urlString: string) => {
 }
 
 const getModelConfig = async (category: MODEL_TYPE, name: string) => {
-    const modelFile = process.env.MODEL_LIST_CONFIG_JSON || MASTER_MODEL_LIST
+    const modelFile = process.env.MODEL_LIST_CONFIG_JSON
 
-    if (!modelFile) {
-        throw new Error('MODEL_LIST_CONFIG_JSON not set')
-    }
-    if (isValidUrl(modelFile)) {
-        try {
-            const resp = await axios.get(modelFile)
-            if (resp.status === 200 && resp.data) {
-                const models = resp.data
-                const categoryModels = models[category]
-                return categoryModels.find((model: INodeOptionsValue) => model.name === name)
-            } else {
-                throw new Error('Error fetching model list')
-            }
-        } catch (e) {
-            const models = await fs.promises.readFile(getModelsJSONPath(), 'utf8')
-            if (models) {
-                const categoryModels = JSON.parse(models)[category]
-                return categoryModels.find((model: INodeOptionsValue) => model.name === name)
-            }
-            return {}
-        }
-    } else {
+    // 优先使用本地 models.json 文件，避免网络问题导致加载失败
+    const localModelsPath = getModelsJSONPath()
+
+    // 如果设置了环境变量且不是 URL，优先使用环境变量指定的文件
+    if (modelFile && !isValidUrl(modelFile)) {
         try {
             if (fs.existsSync(modelFile)) {
                 const models = await fs.promises.readFile(modelFile, 'utf8')
@@ -64,16 +47,39 @@ const getModelConfig = async (category: MODEL_TYPE, name: string) => {
                     return categoryModels.find((model: INodeOptionsValue) => model.name === name)
                 }
             }
-            return {}
         } catch (e) {
-            const models = await fs.promises.readFile(getModelsJSONPath(), 'utf8')
-            if (models) {
-                const categoryModels = JSON.parse(models)[category]
-                return categoryModels.find((model: INodeOptionsValue) => model.name === name)
-            }
-            return {}
+            console.warn(`Failed to load models from ${modelFile}, falling back to local file`)
         }
     }
+
+    // 优先使用本地文件
+    if (localModelsPath) {
+        try {
+            const models = await fs.promises.readFile(localModelsPath, 'utf8')
+            if (models) {
+                const categoryModels = JSON.parse(models)[category]
+                const found = categoryModels.find((model: INodeOptionsValue) => model.name === name)
+                if (found) return found
+            }
+        } catch (e) {
+            console.warn(`Failed to load local models.json: ${e}`)
+        }
+    }
+
+    // 最后尝试从远程获取（如果设置了 URL 或使用默认 URL）
+    const remoteUrl = modelFile && isValidUrl(modelFile) ? modelFile : MASTER_MODEL_LIST
+    try {
+        const resp = await axios.get(remoteUrl, { timeout: 5000 })
+        if (resp.status === 200 && resp.data) {
+            const models = resp.data
+            const categoryModels = models[category]
+            return categoryModels.find((model: INodeOptionsValue) => model.name === name)
+        }
+    } catch (e) {
+        console.warn(`Failed to fetch models from remote: ${e}`)
+    }
+
+    return {}
 }
 
 export const getModels = async (category: MODEL_TYPE, name: string) => {
