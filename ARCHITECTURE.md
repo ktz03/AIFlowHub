@@ -327,10 +327,10 @@ docker-compose up -d
 4. 完善 API 文档
 5. 添加 E2E 测试
 
-## 联系方式
+## 维护者
 
--   **开发者**: 李林钊
--   **学校**: 广西大学
+-   **Maintainer**: 李林钊（[@ktz03](https://github.com/ktz03)）
+-   **Repository**: https://github.com/ktz03/AIFlowHub
 
 ---
 

@@ -1,6 +1,6 @@
 /**
- * 毕业设计论文实测数据采集（扩展版）：意图、布局引擎、校验器、代理策略、Ollama 探测、表格用数据行。
- * 运行：在 packages/server 目录执行  node scripts/thesis-benchmark.mjs
+ * Platform benchmark harness: intent, layout engine, validator, proxy strategy, Ollama probe, table rows.
+ * Run from packages/server: node scripts/platform-benchmark.mjs
  */
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
@@ -18,7 +18,7 @@ const { TemplateMatcher } = require(path.join(rootDir, 'dist/services/workflow-g
 const { WorkflowValidator } = require(path.join(rootDir, 'dist/services/workflow-generator/workflow-validator.js'))
 const { autoLayoutWorkflow } = require(path.join(rootDir, 'dist/services/workflow-generator/layout-engine.js'))
 
-const outPath = path.join(rootDir, '..', '..', '..', 'thesis_metrics.json')
+const outPath = path.join(rootDir, '..', '..', '..', 'platform_metrics.json')
 
 function baselineClassify(description) {
     const lower = (description || '')
@@ -327,7 +327,7 @@ async function main() {
             }
         }
     } catch (e) {
-        console.warn('[thesis-benchmark] workflow-patterns.json:', e.message)
+        console.warn('[platform-benchmark] workflow-patterns.json:', e.message)
     }
 
     const ruleEngineWeights = {
