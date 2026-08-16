@@ -2,7 +2,7 @@
 
 [English](../CONTRIBUTING.md) | 中文
 
-感谢关注。AIFlowHub 是 [Flowise](https://github.com/FlowiseAI/Flowise) 在 2026-08 官方 EOL / Archive 之后的**社区延续仓库**（公告：[Future of Flowise](https://github.com/FlowiseAI/Flowise/discussions/6727)）。
+感谢关注。AIFlowHub 是 [Flowise](https://github.com/FlowiseAI/Flowise) 的**社区延续仓库**：**2026-01 起即已独立维护**（早于官方 2026-07 Code Freeze / 2026-08 Archive）。公告：[Future of Flowise](https://github.com/FlowiseAI/Flowise/discussions/6727)。
 
 原先计划贡献给 Flowise 的改动，欢迎提交到本仓库。
 
