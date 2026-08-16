@@ -1,12 +1,18 @@
 # AIFlowHub
 
-支持多源异构大模型的可视化应用构建平台（基于 [Flowise](https://github.com/FlowiseAI/Flowise) 深度二次开发）。
+🚀 下一代多模型 AI 应用工厂：说话即搭建，拖拽即上线，云端+本地一盘棋，内置企业级用量与评测闭环。
 
-覆盖需求描述、工作流生成、可视化编排、执行调优与平台治理的完整链路，支持云端与本地模型混合接入。
+**Community continuation of [Flowise](https://github.com/FlowiseAI/Flowise)**（官方已于 2026-08 EOL / Archive，详见 [Future of Flowise](https://github.com/FlowiseAI/Flowise/discussions/6727)）。本仓库在 Apache-2.0 基础上继续演进：Skill-driven NL→Workflow、多源异构 LLM、Cloud+Local Hybrid Inference，以及 Quota / Cost / Eval 治理闭环。
+
+[![GitHub stars](https://img.shields.io/github/stars/ktz03/AIFlowHub?style=social)](https://github.com/ktz03/AIFlowHub)
+[![License](https://img.shields.io/github/license/ktz03/AIFlowHub)](./LICENSE.md)
+[![Issues](https://img.shields.io/github/issues/ktz03/AIFlowHub)](https://github.com/ktz03/AIFlowHub/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
 ## 目录
 
 -   [项目概述](#项目概述)
+-   [相对 Flowise 的定位](#相对-flowise-的定位)
 -   [核心能力](#核心能力)
 -   [功能模块](#功能模块)
 -   [与原版 Flowise 的差异](#与原版-flowise-的差异)
@@ -18,6 +24,7 @@
 -   [内置模板](#内置模板)
 -   [安全与治理](#安全与治理)
 -   [文档索引](#文档索引)
+-   [贡献](#贡献)
 -   [许可证与致谢](#许可证与致谢)
 
 ## 项目概述
@@ -26,10 +33,19 @@ AIFlowHub 在 Flowise 之上扩展「多模型统一接入 + 自然语言生成�
 
 -   云端大模型与本地/离线模型混合编排
 -   拖拽式工作流快速搭建与迭代
--   自然语言到可执行工作流的自动生成
+-   自然语言到可执行工作流的自动生成（Skill-driven Intent Routing）
 -   配额、成本、评测、审计等运营治理场景
 
-当前版本基于 Flowise `2.2.7`，采用 PNPM Monorepo 组织前后端与组件库。
+当前版本基于 Flowise `2.2.7` 演进，采用 PNPM Monorepo 组织前后端与组件库。
+
+## 相对 Flowise 的定位
+
+| 项目                | 状态           | 说明                                                              |
+| ------------------- | -------------- | ----------------------------------------------------------------- |
+| FlowiseAI/Flowise   | Archived / EOL | 官方不再接受 PR                                                   |
+| **ktz03/AIFlowHub** | **Active**     | 社区延续仓：接受 Issue / PR，持续合入模型节点、生成链路与治理能力 |
+
+欢迎把原计划贡献给 Flowise 的 Chat Model / Tool / Bugfix 提交到本仓库。
 
 ## 核心能力
 
@@ -270,8 +286,20 @@ docker compose -f docker-compose.offline.yml up -d
 | [`docs/SYSTEM-CONFIG.md`](./docs/SYSTEM-CONFIG.md)                             | 系统配置设计       |
 | [`docker/README.md`](./docker/README.md)                                       | Docker 使用说明    |
 | [`docker/OFFLINE-LLM.zh-CN.md`](./docker/OFFLINE-LLM.zh-CN.md)                 | 离线 LLM 部署      |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md)                                         | 贡献指南           |
+
+## 贡献
+
+AIFlowHub 接受社区贡献。推荐优先提交：
+
+-   新的 Chat Model / Tool 节点（尤其是 OpenAI-compatible 国内模型）
+-   Workflow Generator / Skill Registry 增强
+-   Bugfix、文档、测试与 Docker/Offline 部署改进
+
+详见 [`CONTRIBUTING.md`](./CONTRIBUTING.md)。欢迎直接开 [Issue](https://github.com/ktz03/AIFlowHub/issues) / [Pull Request](https://github.com/ktz03/AIFlowHub/pulls)。
 
 ## 许可证与致谢
 
--   本项目基于 [Flowise](https://github.com/FlowiseAI/Flowise) 二次开发。
+-   本项目为 [Flowise](https://github.com/FlowiseAI/Flowise)（Apache-2.0）的社区延续演进，保留对上游作者与全体贡献者的致谢。
 -   源码许可证与第三方依赖声明以仓库内 [`LICENSE.md`](./LICENSE.md) 及相关文件为准。
+-   Flowise 官方 EOL 说明：[Discussion #6727](https://github.com/FlowiseAI/Flowise/discussions/6727)。
