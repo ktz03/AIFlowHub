@@ -1,0 +1,123 @@
+{
+    "id": "official-email-assistant",
+    "name": "邮件写作助手",
+    "description": "专业的邮件写作助手，帮助撰写各类商务邮件、正式信函，确保格式规范、语气得体、表达清晰",
+    "category": "writing",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["邮件写作", "商务信函", "正式邮件", "邮件模板"],
+    "usecases": ["商务邮件", "求职信", "邀请函", "感谢信", "投诉信", "道歉信"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatOpenAI_0",
+                "position": { "x": 100, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatOpenAI_0",
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
+                    "category": "Chat Models",
+                    "description": "邮件写作模型",
+                    "inputParams": [
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-3.5-turbo"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.5
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-3.5-turbo",
+                        "temperature": 0.5
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 500, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "Conversation Chain",
+                    "version": 3.0,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "LLMChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "邮件写作对话链",
+                    "inputParams": [
+                        {
+                            "label": "System Message",
+                            "name": "systemMessagePrompt",
+                            "type": "string",
+                            "rows": 4,
+                            "default": "你是一个专业的邮件写作助手，擅长撰写各类商务邮件、正式信函。写作要求：\n1. 格式规范，包含称呼、正文、结尾、署名\n2. 语气得体，根据场景选择正式或友好的语气\n3. 表达清晰，逻辑清楚，重点突出\n4. 注意礼貌用语和商务礼仪\n5. 根据需要提供中英文版本"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Chat Model",
+                            "name": "model",
+                            "type": "BaseChatModel"
+                        }
+                    ],
+                    "inputs": {
+                        "systemMessagePrompt": "你是一个专业的邮件写作助手，擅长撰写各类商务邮件、正式信函。写作要求：\n1. 格式规范，包含称呼、正文、结尾、署名\n2. 语气得体，根据场景选择正式或友好的语气\n3. 表达清晰，逻辑清楚，重点突出\n4. 注意礼貌用语和商务礼仪\n5. 根据需要提供中英文版本"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "conversationChain_0-output-conversationChain-ConversationChain|LLMChain|BaseChain",
+                            "name": "conversationChain",
+                            "label": "ConversationChain",
+                            "type": "ConversationChain | LLMChain | BaseChain"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            }
+        ],
+        "edges": [
+            {
+                "id": "chatOpenAI_0-conversationChain_0",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-model-BaseChatModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            }
+        ]
+    }
+}

@@ -16,6 +16,7 @@ import { UsageLog } from './UsageLog'
 import { TemplateFavorite } from './TemplateFavorite'
 import { TemplateRating } from './TemplateRating'
 import { ModelEvaluation } from './ModelEvaluation'
+import { SystemConfig } from './SystemConfig'
 
 export const entities = {
     ChatFlow,
@@ -35,5 +36,6 @@ export const entities = {
     UsageLog,
     TemplateFavorite,
     TemplateRating,
-    ModelEvaluation
+    ModelEvaluation,
+    SystemConfig
 }

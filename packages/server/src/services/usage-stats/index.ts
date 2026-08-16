@@ -7,27 +7,47 @@ import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { getErrorMessage } from '../../errors/utils'
 
 // 模型定价配置 (每1000 tokens的价格，单位：美元)
-const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-    // OpenAI
-    'gpt-4': { input: 0.03, output: 0.06 },
-    'gpt-4-turbo': { input: 0.01, output: 0.03 },
-    'gpt-4o': { input: 0.005, output: 0.015 },
-    'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
-    'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-    // Claude
-    'claude-3-opus': { input: 0.015, output: 0.075 },
-    'claude-3-sonnet': { input: 0.003, output: 0.015 },
-    'claude-3-haiku': { input: 0.00025, output: 0.00125 },
+// 支持缓存定价：input 为缓存未命中价格，cacheRead 为缓存命中价格
+// 注：缓存命中价格通常为未命中价格的 10%-50%，具体取决于模型提供商
+const MODEL_PRICING: Record<string, { input: number; output: number; cacheRead?: number }> = {
+    // OpenAI - 支持 Prompt Caching (缓存命中价格为未命中的 50%)
+    'gpt-4': { input: 0.03, output: 0.06, cacheRead: 0.015 },
+    'gpt-4-turbo': { input: 0.01, output: 0.03, cacheRead: 0.005 },
+    'gpt-4o': { input: 0.005, output: 0.015, cacheRead: 0.0025 },
+    'gpt-4o-mini': { input: 0.00015, output: 0.0006, cacheRead: 0.000075 },
+    'gpt-3.5-turbo': { input: 0.0005, output: 0.0015, cacheRead: 0.00025 },
+
+    // Claude - 支持 Prompt Caching (缓存命中价格为未命中的 10%)
+    'claude-3-opus': { input: 0.015, output: 0.075, cacheRead: 0.0015 },
+    'claude-3-sonnet': { input: 0.003, output: 0.015, cacheRead: 0.0003 },
+    'claude-3-haiku': { input: 0.00025, output: 0.00125, cacheRead: 0.000025 },
+
     // 国产模型 (人民币转美元，汇率约7.2)
-    'qwen-turbo': { input: 0.0003, output: 0.0006 },
-    'qwen-plus': { input: 0.0006, output: 0.0012 },
-    'qwen-max': { input: 0.0028, output: 0.0083 },
+    // 阿里通义千问 - 支持缓存 (缓存命中价格为未命中的 10%)
+    'qwen-turbo': { input: 0.0003, output: 0.0006, cacheRead: 0.00003 },
+    'qwen-plus': { input: 0.0006, output: 0.0012, cacheRead: 0.00006 },
+    'qwen-max': { input: 0.0028, output: 0.0083, cacheRead: 0.00028 },
+
+    // 百度文心 - 暂不支持缓存
     'ernie-bot': { input: 0.0017, output: 0.0017 },
     'ernie-bot-4': { input: 0.017, output: 0.017 },
-    'glm-4': { input: 0.014, output: 0.014 },
-    'glm-3-turbo': { input: 0.0007, output: 0.0007 },
+
+    // 智谱 GLM - 支持缓存 (缓存命中价格为未命中的 10%)
+    'glm-4': { input: 0.014, output: 0.014, cacheRead: 0.0014 },
+    'glm-3-turbo': { input: 0.0007, output: 0.0007, cacheRead: 0.00007 },
+
+    // 讯飞星火 - 暂不支持缓存
     'spark-v3': { input: 0.005, output: 0.005 },
-    'deepseek-chat': { input: 0.00014, output: 0.00028 },
+
+    // DeepSeek - 支持缓存 (2025年1月更新)
+    // 输入（缓存未命中）: ¥2/百万tokens = $0.0002857/千tokens
+    // 输入（缓存命中）: ¥0.2/百万tokens = $0.00002857/千tokens (10%)
+    // 输出: ¥3/百万tokens = $0.0004286/千tokens
+    // 换算基于 1 USD = 7 CNY
+    'deepseek-chat': { input: 0.0002857, output: 0.0004286, cacheRead: 0.00002857 },
+    'deepseek-coder': { input: 0.0002857, output: 0.0004286, cacheRead: 0.00002857 },
+    'deepseek-reasoner': { input: 0.0002857, output: 0.0004286, cacheRead: 0.00002857 },
+
     // 本地模型
     ollama: { input: 0, output: 0 }
 }
@@ -39,6 +59,8 @@ interface UsageLogInput {
     model: string
     inputTokens: number
     outputTokens: number
+    cacheReadTokens?: number
+    cacheCreationTokens?: number
     latencyMs?: number
     status?: UsageStatus
     errorMessage?: string
@@ -107,12 +129,20 @@ const inferProvider = (modelName: string): string => {
     return 'unknown'
 }
 
-// 计算成本
-const calculateCost = (model: string, inputTokens: number, outputTokens: number): number => {
+// 计算成本（支持缓存定价）
+const calculateCost = (model: string, inputTokens: number, outputTokens: number, cacheReadTokens?: number): number => {
     const pricing = MODEL_PRICING[model.toLowerCase()] || MODEL_PRICING['gpt-3.5-turbo']
+
+    // 计算缓存未命中的输入成本
     const inputCost = (inputTokens / 1000) * pricing.input
+
+    // 计算缓存命中的输入成本（如果有）
+    const cacheReadCost = cacheReadTokens && pricing.cacheRead ? (cacheReadTokens / 1000) * pricing.cacheRead : 0
+
+    // 计算输出成本
     const outputCost = (outputTokens / 1000) * pricing.output
-    return Number((inputCost + outputCost).toFixed(6))
+
+    return Number((inputCost + cacheReadCost + outputCost).toFixed(6))
 }
 
 // 记录使用日志
@@ -122,9 +152,9 @@ const logUsage = async (input: UsageLogInput): Promise<UsageLog> => {
         const usageLogRepository = appServer.AppDataSource.getRepository(UsageLog)
         const userRepository = appServer.AppDataSource.getRepository(User)
 
-        // 计算成本
-        const cost = calculateCost(input.model, input.inputTokens, input.outputTokens)
-        const totalTokens = input.inputTokens + input.outputTokens
+        // 计算成本（支持缓存定价）
+        const cost = calculateCost(input.model, input.inputTokens, input.outputTokens, input.cacheReadTokens)
+        const totalTokens = input.inputTokens + input.outputTokens + (input.cacheReadTokens || 0)
 
         const usageLog = usageLogRepository.create({
             userId: input.userId,

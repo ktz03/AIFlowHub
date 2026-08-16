@@ -25,6 +25,7 @@ import {
 import { formatLogToString } from 'langchain/agents/format_scratchpad/log'
 import { IUsedTool } from './Interface'
 import { getErrorMessage } from './error'
+import { toolOutputPostProcessor } from './imageUrlProcessor'
 
 export const SOURCE_DOCUMENTS_PREFIX = '\n\n----FLOWISE_SOURCE_DOCUMENTS----\n\n'
 export const ARTIFACTS_PREFIX = '\n\n----FLOWISE_ARTIFACTS----\n\n'
@@ -269,6 +270,8 @@ export class AgentExecutor extends BaseChain<ChainValues, AgentExecutorOutput> {
 
     isXML?: boolean
 
+    flowConfig?: any
+
     /**
      * How to handle errors raised by the agent's output parser.
         Defaults to `False`, which raises the error.
@@ -291,7 +294,7 @@ export class AgentExecutor extends BaseChain<ChainValues, AgentExecutorOutput> {
         return this.agent.returnValues
     }
 
-    constructor(input: AgentExecutorInput & { sessionId?: string; chatId?: string; input?: string; isXML?: boolean }) {
+    constructor(input: AgentExecutorInput & { sessionId?: string; chatId?: string; input?: string; isXML?: boolean; flowConfig?: any }) {
         let agent: BaseSingleActionAgent | BaseMultiActionAgent
         if (Runnable.isRunnable(input.agent)) {
             agent = new RunnableAgent({ runnable: input.agent })
@@ -320,16 +323,18 @@ export class AgentExecutor extends BaseChain<ChainValues, AgentExecutorOutput> {
         this.chatId = input.chatId
         this.input = input.input
         this.isXML = input.isXML
+        this.flowConfig = input.flowConfig
     }
 
     static fromAgentAndTools(
-        fields: AgentExecutorInput & { sessionId?: string; chatId?: string; input?: string; isXML?: boolean }
+        fields: AgentExecutorInput & { sessionId?: string; chatId?: string; input?: string; isXML?: boolean; flowConfig?: any }
     ): AgentExecutor {
         const newInstance = new AgentExecutor(fields)
         if (fields.sessionId) newInstance.sessionId = fields.sessionId
         if (fields.chatId) newInstance.chatId = fields.chatId
         if (fields.input) newInstance.input = fields.input
         if (fields.isXML) newInstance.isXML = fields.isXML
+        if (fields.flowConfig) newInstance.flowConfig = fields.flowConfig
         return newInstance
     }
 
@@ -502,6 +507,30 @@ export class AgentExecutor extends BaseChain<ChainValues, AgentExecutorOutput> {
                             console.error('Error parsing source documents from tool')
                         }
                     }
+
+                    // 使用通用图片 URL 处理器处理工具输出
+                    if (typeof observation === 'string') {
+                        try {
+                            console.log('[AgentExecutor] Original observation length:', observation.length)
+                            console.log('[AgentExecutor] Original observation:', observation.substring(0, 500))
+
+                            // 自动检测并转换图片 URL 为 Markdown
+                            const processedObservation = toolOutputPostProcessor.process(observation, {
+                                enabled: true,
+                                maxImages: 10
+                            })
+
+                            console.log('[AgentExecutor] Processed observation length:', processedObservation.length)
+                            console.log('[AgentExecutor] Processed observation:', processedObservation.substring(0, 500))
+                            console.log('[AgentExecutor] Observation changed:', observation !== processedObservation)
+
+                            observation = processedObservation
+                        } catch (e) {
+                            console.error('[AgentExecutor] Error processing tool output:', e)
+                            // 失败时继续使用原始输出
+                        }
+                    }
+
                     return { action, observation: observation ?? '' }
                 })
             )

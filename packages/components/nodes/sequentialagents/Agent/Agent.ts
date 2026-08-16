@@ -680,6 +680,7 @@ async function createAgent(
             sessionId: flowObj?.sessionId,
             chatId: flowObj?.chatId,
             input: flowObj?.input,
+            flowConfig: options.flowConfig,
             verbose: process.env.DEBUG === 'true',
             maxIterations: maxIterations ? parseFloat(maxIterations) : undefined
         })

@@ -21,7 +21,8 @@ interface RegisterInput {
 }
 
 interface LoginInput {
-    email: string
+    email?: string
+    username?: string
     password: string
 }
 
@@ -81,22 +82,28 @@ const register = async (input: RegisterInput): Promise<AuthResponse> => {
 
 const login = async (input: LoginInput): Promise<AuthResponse> => {
     try {
-        const { email, password } = input
-        if (!email || !password) {
-            throw new InternalFlowiseError(StatusCodes.BAD_REQUEST, '请输入邮箱和密码')
+        const { email, username, password } = input
+        const loginId = (email || username || '').trim()
+        if (!loginId || !password) {
+            throw new InternalFlowiseError(StatusCodes.BAD_REQUEST, '请输入邮箱/用户名和密码')
         }
         const appServer = getRunningExpressApp()
         const userRepository = appServer.AppDataSource.getRepository(User)
-        const user = await userRepository.findOne({ where: { email } })
+        // Support both email login and username login to reduce 401 caused by identifier mismatch.
+        const user = await userRepository
+            .createQueryBuilder('user')
+            .where('LOWER(user.email) = LOWER(:loginId)', { loginId })
+            .orWhere('LOWER(user.username) = LOWER(:loginId)', { loginId })
+            .getOne()
         if (!user) {
-            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, '邮箱或密码错误')
+            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, '账号或密码错误')
         }
         if (user.status !== UserStatus.ACTIVE) {
             throw new InternalFlowiseError(StatusCodes.FORBIDDEN, '账户已被禁用')
         }
         const isPasswordValid = await verifyPassword(password, user.password)
         if (!isPasswordValid) {
-            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, '邮箱或密码错误')
+            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, '账号或密码错误')
         }
         const tokens = generateTokenPair(user)
         user.refreshToken = tokens.refreshToken

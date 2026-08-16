@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { Card, CardContent, Stack } from '@mui/material'
@@ -11,30 +12,6 @@ import ViewHeader from '@/layout/MainLayout/ViewHeader'
 
 // icons
 import { IconRobotFace, IconBrandOpenai, IconBrandAzure } from '@tabler/icons-react'
-
-const cards = [
-    {
-        title: 'Custom Assistant',
-        description: 'Create custom assistant using your choice of LLMs',
-        icon: <IconRobotFace />,
-        iconText: 'Custom',
-        gradient: 'linear-gradient(135deg, #fff8e14e 0%, #ffcc802f 100%)'
-    },
-    {
-        title: 'OpenAI Assistant',
-        description: 'Create assistant using OpenAI Assistant API',
-        icon: <IconBrandOpenai />,
-        iconText: 'OpenAI',
-        gradient: 'linear-gradient(135deg, #c9ffd85f 0%, #a0f0b567 100%)'
-    },
-    {
-        title: 'Azure Assistant (Coming Soon)',
-        description: 'Create assistant using Azure Assistant API',
-        icon: <IconBrandAzure />,
-        iconText: 'Azure',
-        gradient: 'linear-gradient(135deg, #c4e1ff57 0%, #80b7ff5a 100%)'
-    }
-]
 
 const StyledCard = styled(Card)(({ gradient }) => ({
     height: '300px',
@@ -62,11 +39,36 @@ const FeatureCards = () => {
     const navigate = useNavigate()
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
+    const { t } = useTranslation()
+
+    const cards = [
+        {
+            title: t('assistants.customAssistant'),
+            description: t('assistants.customDescription'),
+            icon: <IconRobotFace />,
+            iconText: t('assistants.custom'),
+            gradient: 'linear-gradient(135deg, #fff8e14e 0%, #ffcc802f 100%)'
+        },
+        {
+            title: t('assistants.openaiAssistant'),
+            description: t('assistants.openaiDescription'),
+            icon: <IconBrandOpenai />,
+            iconText: 'OpenAI',
+            gradient: 'linear-gradient(135deg, #c9ffd85f 0%, #a0f0b567 100%)'
+        },
+        {
+            title: t('assistants.azureAssistant'),
+            description: t('assistants.azureDescription'),
+            icon: <IconBrandAzure />,
+            iconText: 'Azure',
+            gradient: 'linear-gradient(135deg, #c4e1ff57 0%, #80b7ff5a 100%)'
+        }
+    ]
 
     const onCardClick = (index) => {
         if (index === 0) navigate('/assistants/custom')
         if (index === 1) navigate('/assistants/openai')
-        if (index === 2) alert('Under Development')
+        if (index === 2) alert(t('assistants.underDevelopment'))
     }
 
     return (
@@ -118,11 +120,13 @@ const FeatureCards = () => {
 // ==============================|| ASSISTANTS ||============================== //
 
 const Assistants = () => {
+    const { t } = useTranslation()
+
     return (
         <>
             <MainCard>
                 <Stack flexDirection='column' sx={{ gap: 3 }}>
-                    <ViewHeader title='Assistants' />
+                    <ViewHeader title={t('assistant.title')} />
                     <FeatureCards />
                 </Stack>
             </MainCard>

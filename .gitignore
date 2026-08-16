@@ -47,6 +47,22 @@
 
 ## compressed
 **/*.tgz
+**/*.tar
+
+## local databases
+*.sqlite
+*.sqlite3
+*.db
+
+## local helper / one-off scripts
+packages/server/update-admin.js
+
+## docker local artifacts
+docker/aiflow-hub.tar
+docker/*.tar
+
+## IDE / AI assistant local configs
+.kiro/
 
 ## vscode
 .vscode/*

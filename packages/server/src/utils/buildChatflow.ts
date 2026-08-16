@@ -58,7 +58,6 @@ import {
 import { validateChatflowAPIKey } from './validateKey'
 import logger from './logger'
 import { utilAddChatMessage } from './addChatMesage'
-import { trackUsage, extractModelFromFlowData } from './usageTracking'
 import { buildAgentGraph } from './buildAgentGraph'
 import { getErrorMessage } from '../errors/utils'
 import { FLOWISE_METRIC_COUNTERS, FLOWISE_COUNTER_STATUS, IMetricsProvider } from '../Interface.Metrics'
@@ -236,7 +235,8 @@ export const executeFlow = async ({
     baseURL,
     isInternal,
     files,
-    signal
+    signal,
+    userId
 }: IExecuteFlowParams) => {
     // Ensure incomingInput has all required properties with default values
     incomingInput = {
@@ -429,6 +429,9 @@ export const executeFlow = async ({
         sessionId,
         chatHistory,
         apiMessageId,
+        sseStreamer: sseStreamer,
+        baseURL,
+        userId, // Pass userId for usage tracking
         ...incomingInput.overrideConfig
     }
 
@@ -488,6 +491,10 @@ export const executeFlow = async ({
 
         if (streamResults) {
             const { finalResult, finalAction, sourceDocuments, artifacts, usedTools, agentReasoning } = streamResults
+            // Generate session title from first message
+            const sessionTitle =
+                incomingInput.question.length > 20 ? incomingInput.question.substring(0, 20) + '...' : incomingInput.question
+
             const userMessage: Omit<IChatMessage, 'id'> = {
                 role: 'userMessage',
                 content: incomingInput.question,
@@ -496,6 +503,8 @@ export const executeFlow = async ({
                 chatId,
                 memoryType,
                 sessionId,
+                sessionTitle,
+                userId,
                 createdDate: userMessageDateTime,
                 fileUploads: incomingInput.uploads ? JSON.stringify(fileUploads) : undefined,
                 leadEmail: incomingInput.leadEmail
@@ -510,11 +519,36 @@ export const executeFlow = async ({
                 chatType: isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
                 chatId,
                 memoryType,
-                sessionId
+                sessionId,
+                sessionTitle,
+                userId
             }
 
             if (sourceDocuments?.length) apiMessage.sourceDocuments = JSON.stringify(sourceDocuments)
-            if (artifacts?.length) apiMessage.artifacts = JSON.stringify(artifacts)
+            if (artifacts?.length) {
+                apiMessage.artifacts = JSON.stringify(artifacts)
+
+                // 转换图片路径并通过 SSE 发送到前端
+                const processedArtifacts = artifacts.map((artifact: any) => {
+                    if ((artifact.type === 'png' || artifact.type === 'jpeg' || artifact.type === 'webp') && artifact.data) {
+                        // 如果是 FILE-STORAGE:: 格式，转换为可访问的 URL
+                        if (artifact.data.startsWith('FILE-STORAGE::')) {
+                            const fileName = artifact.data.replace('FILE-STORAGE::', '')
+                            return {
+                                ...artifact,
+                                data: `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${fileName}`
+                            }
+                        }
+                    }
+                    return artifact
+                })
+
+                // 通过 SSE 发送 artifacts 事件
+                if (sseStreamer && chatId) {
+                    sseStreamer.streamArtifactsEvent(chatId, processedArtifacts)
+                    logger.info(`[buildChatflow] Sent ${processedArtifacts.length} artifacts via SSE`)
+                }
+            }
             if (usedTools?.length) apiMessage.usedTools = JSON.stringify(usedTools)
             if (agentReasoning?.length) apiMessage.agentReasoning = JSON.stringify(agentReasoning)
             if (finalAction && Object.keys(finalAction).length) apiMessage.action = JSON.stringify(finalAction)
@@ -629,6 +663,8 @@ export const executeFlow = async ({
             analytic: chatflow.analytic,
             uploads,
             prependMessages,
+            baseURL,
+            userId, // Pass userId for usage tracking
             ...(isStreamValid && { sseStreamer, shouldStreamResponse: isStreamValid })
         }
 
@@ -642,6 +678,9 @@ export const executeFlow = async ({
             sessionId = result.assistant.threadId
         }
 
+        // Generate session title from first message
+        const sessionTitle = question.length > 20 ? question.substring(0, 20) + '...' : question
+
         const userMessage: Omit<IChatMessage, 'id'> = {
             role: 'userMessage',
             content: question,
@@ -650,6 +689,8 @@ export const executeFlow = async ({
             chatId,
             memoryType,
             sessionId,
+            sessionTitle,
+            userId,
             createdDate: userMessageDateTime,
             fileUploads: uploads ? JSON.stringify(fileUploads) : undefined,
             leadEmail: incomingInput.leadEmail
@@ -698,12 +739,37 @@ export const executeFlow = async ({
             chatType: isInternal ? ChatType.INTERNAL : ChatType.EXTERNAL,
             chatId,
             memoryType,
-            sessionId
+            sessionId,
+            sessionTitle,
+            userId
         }
         if (result?.sourceDocuments) apiMessage.sourceDocuments = JSON.stringify(result.sourceDocuments)
         if (result?.usedTools) apiMessage.usedTools = JSON.stringify(result.usedTools)
         if (result?.fileAnnotations) apiMessage.fileAnnotations = JSON.stringify(result.fileAnnotations)
-        if (result?.artifacts) apiMessage.artifacts = JSON.stringify(result.artifacts)
+        if (result?.artifacts) {
+            apiMessage.artifacts = JSON.stringify(result.artifacts)
+
+            // 转换图片路径并通过 SSE 发送到前端
+            const processedArtifacts = result.artifacts.map((artifact: any) => {
+                if ((artifact.type === 'png' || artifact.type === 'jpeg' || artifact.type === 'webp') && artifact.data) {
+                    // 如果是 FILE-STORAGE:: 格式，转换为可访问的 URL
+                    if (artifact.data.startsWith('FILE-STORAGE::')) {
+                        const fileName = artifact.data.replace('FILE-STORAGE::', '')
+                        return {
+                            ...artifact,
+                            data: `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${fileName}`
+                        }
+                    }
+                }
+                return artifact
+            })
+
+            // 通过 SSE 发送 artifacts 事件
+            if (sseStreamer && chatId) {
+                sseStreamer.streamArtifactsEvent(chatId, processedArtifacts)
+                logger.info(`[buildChatflow] Sent ${processedArtifacts.length} artifacts via SSE (non-stream)`)
+            }
+        }
         if (chatflow.followUpPrompts) {
             const followUpPromptsConfig = JSON.parse(chatflow.followUpPrompts)
             const followUpPrompts = await generateFollowUpPrompts(followUpPromptsConfig, apiMessage.content, {
@@ -834,6 +900,7 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             baseURL,
             isInternal,
             files,
+            userId: (req as any).user?.userId, // Pass userId for usage tracking
             appDataSource: appServer.AppDataSource,
             sseStreamer: appServer.sseStreamer,
             telemetry: appServer.telemetry,
@@ -868,52 +935,12 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
             appServer.abortControllerPool.remove(abortControllerId)
             incrementSuccessMetricCounter(appServer.metricsProvider, isInternal, isAgentFlow)
 
-            // 记录使用统计 (异步，不阻塞主流程)
-            const userId = (req as any).user?.userId
-            logger.info(`[UsageTracking] Checking userId from request: ${userId}, isInternal: ${isInternal}`)
-            if (userId) {
-                const question = incomingInput.question || ''
-                const answer = result?.text || ''
-                const modelName = extractModelFromFlowData(chatflow.flowData)
-                logger.info(`[UsageTracking] Calling trackUsage for userId: ${userId}, model: ${modelName}`)
-
-                trackUsage({
-                    userId,
-                    chatflowId: chatflowid,
-                    question,
-                    answer,
-                    modelName,
-                    latencyMs,
-                    status: 'success'
-                }).catch((err) => logger.warn(`[UsageTracking] Error: ${err}`))
-            } else {
-                logger.info(`[UsageTracking] No userId found, skipping usage tracking`)
-            }
-
             return result
         }
     } catch (e) {
         logger.error('[server]: Error:', e)
         appServer.abortControllerPool.remove(`${chatflow.id}_${chatId}`)
         incrementFailedMetricCounter(appServer.metricsProvider, isInternal, isAgentFlow)
-
-        // 记录失败的使用统计
-        const userId = (req as any).user?.userId
-        if (userId) {
-            const question = incomingInput.question || ''
-            const modelName = extractModelFromFlowData(chatflow.flowData)
-
-            trackUsage({
-                userId,
-                chatflowId: chatflowid,
-                question,
-                answer: '',
-                modelName,
-                latencyMs: 0,
-                status: 'failed',
-                errorMessage: getErrorMessage(e)
-            }).catch((err) => logger.warn(`[UsageTracking] Error: ${err}`))
-        }
 
         if (e instanceof InternalFlowiseError && e.statusCode === StatusCodes.UNAUTHORIZED) {
             throw e

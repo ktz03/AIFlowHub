@@ -9,6 +9,7 @@ import remarkMath from 'remark-math'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source'
+import { useTranslation } from 'react-i18next'
 
 import {
     Box,
@@ -159,9 +160,10 @@ CardWithDeleteOverlay.propTypes = {
     onDelete: PropTypes.func
 }
 
-export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setPreviews }) => {
+export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setPreviews, initialChatId }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
+    const { t } = useTranslation()
 
     const ps = useRef()
 
@@ -183,8 +185,16 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
     const [isChatFlowAvailableForSpeech, setIsChatFlowAvailableForSpeech] = useState(false)
     const [sourceDialogOpen, setSourceDialogOpen] = useState(false)
     const [sourceDialogProps, setSourceDialogProps] = useState({})
-    const [chatId, setChatId] = useState(uuidv4())
+    const [chatId, setChatId] = useState(initialChatId || uuidv4())
     const [isMessageStopping, setIsMessageStopping] = useState(false)
+
+    const toProxiedImageSrc = (src) => {
+        if (!src) return src
+        // Jimeng/Volcengine signed URLs often fail to load directly in browser due to anti-hotlinking.
+        const needsProxy = src.includes('byteimg.com') || src.includes('volcengineapi.com')
+        if (!needsProxy) return src
+        return `/api/v1/image-proxy?url=${encodeURIComponent(src)}`
+    }
     const [uploadedFiles, setUploadedFiles] = useState([])
     const [imageUploadAllowedTypes, setImageUploadAllowedTypes] = useState('')
     const [fileUploadAllowedTypes, setFileUploadAllowedTypes] = useState('')
@@ -556,7 +566,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
 
     const updateLastMessageArtifacts = (artifacts) => {
         artifacts.forEach((artifact) => {
-            if (artifact.type === 'png' || artifact.type === 'jpeg') {
+            if (artifact.type === 'png' || artifact.type === 'jpeg' || artifact.type === 'webp') {
                 artifact.data = `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${artifact.data.replace(
                     'FILE-STORAGE::',
                     ''
@@ -599,7 +609,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
             inputRef.current?.focus()
         }, 100)
         enqueueSnackbar({
-            message: 'Message stopped',
+            message: t('chatMessage.messageStopped'),
             options: {
                 key: new Date().getTime() + Math.random(),
                 variant: 'success',
@@ -1045,7 +1055,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                 if (message.artifacts) {
                     obj.artifacts = message.artifacts
                     obj.artifacts.forEach((artifact) => {
-                        if (artifact.type === 'png' || artifact.type === 'jpeg') {
+                        if (artifact.type === 'png' || artifact.type === 'jpeg' || artifact.type === 'webp') {
                             artifact.data = `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${artifact.data.replace(
                                 'FILE-STORAGE::',
                                 ''
@@ -1442,7 +1452,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
         const newArtifacts = cloneDeep(artifacts)
         for (let i = 0; i < newArtifacts.length; i++) {
             const artifact = newArtifacts[i]
-            if (artifact && (artifact.type === 'png' || artifact.type === 'jpeg')) {
+            if (artifact && (artifact.type === 'png' || artifact.type === 'jpeg' || artifact.type === 'webp')) {
                 const data = artifact.data
                 newArtifacts[i].data = `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${data.replace(
                     'FILE-STORAGE::',
@@ -1454,7 +1464,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
     }
 
     const renderArtifacts = (item, index, isAgentReasoning) => {
-        if (item.type === 'png' || item.type === 'jpeg') {
+        if (item.type === 'png' || item.type === 'jpeg' || item.type === 'webp') {
             return (
                 <Card
                     key={index}
@@ -1506,6 +1516,22 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                 <code className={className} {...props}>
                                     {children}
                                 </code>
+                            )
+                        },
+                        img({ src, alt, ...props }) {
+                            return (
+                                <img
+                                    src={toProxiedImageSrc(src)}
+                                    alt={alt || '生成的图片'}
+                                    style={{
+                                        maxWidth: '100%',
+                                        height: 'auto',
+                                        borderRadius: '8px',
+                                        marginTop: '8px',
+                                        marginBottom: '8px'
+                                    }}
+                                    {...props}
+                                />
                             )
                         }
                     }}
@@ -1769,6 +1795,22 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                                                                         {children}
                                                                                     </code>
                                                                                 )
+                                                                            },
+                                                                            img({ src, alt, ...props }) {
+                                                                                return (
+                                                                                    <img
+                                                                                        src={toProxiedImageSrc(src)}
+                                                                                        alt={alt || '生成的图片'}
+                                                                                        style={{
+                                                                                            maxWidth: '100%',
+                                                                                            height: 'auto',
+                                                                                            borderRadius: '8px',
+                                                                                            marginTop: '8px',
+                                                                                            marginBottom: '8px'
+                                                                                        }}
+                                                                                        {...props}
+                                                                                    />
+                                                                                )
                                                                             }
                                                                         }}
                                                                     >
@@ -1895,7 +1937,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                                                 id='leadName'
                                                                 type='text'
                                                                 fullWidth
-                                                                placeholder='Name'
+                                                                placeholder={t('chatMessage.name')}
                                                                 name='leadName'
                                                                 value={leadName}
                                                                 // eslint-disable-next-line
@@ -1908,7 +1950,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                                                 id='leadEmail'
                                                                 type='email'
                                                                 fullWidth
-                                                                placeholder='Email Address'
+                                                                placeholder={t('chatMessage.email')}
                                                                 name='leadEmail'
                                                                 value={leadEmail}
                                                                 onChange={(e) => setLeadEmail(e.target.value)}
@@ -1919,7 +1961,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                                                 id='leadPhone'
                                                                 type='number'
                                                                 fullWidth
-                                                                placeholder='Phone Number'
+                                                                placeholder={t('chatMessage.phone')}
                                                                 name='leadPhone'
                                                                 value={leadPhone}
                                                                 onChange={(e) => setLeadPhone(e.target.value)}
@@ -1937,7 +1979,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                                                 type='submit'
                                                                 sx={{ borderRadius: '20px' }}
                                                             >
-                                                                {isLeadSaving ? 'Saving...' : 'Save'}
+                                                                {isLeadSaving ? t('chatMessage.saving') : t('common.save')}
                                                             </Button>
                                                         </Box>
                                                     </form>
@@ -1945,31 +1987,117 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                             ) : (
                                                 <>
                                                     {/* Messages are being rendered in Markdown format */}
-                                                    <MemoizedReactMarkdown
-                                                        remarkPlugins={[remarkGfm, remarkMath]}
-                                                        rehypePlugins={[rehypeMathjax, rehypeRaw]}
-                                                        components={{
-                                                            code({ inline, className, children, ...props }) {
-                                                                const match = /language-(\w+)/.exec(className || '')
-                                                                return !inline ? (
-                                                                    <CodeBlock
-                                                                        key={Math.random()}
-                                                                        chatflowid={chatflowid}
-                                                                        isDialog={isDialog}
-                                                                        language={(match && match[1]) || ''}
-                                                                        value={String(children).replace(/\n$/, '')}
-                                                                        {...props}
-                                                                    />
-                                                                ) : (
-                                                                    <code className={className} {...props}>
-                                                                        {children}
-                                                                    </code>
-                                                                )
+                                                    {(() => {
+                                                        // 调试日志
+                                                        console.log('[ChatMessage] ===== MESSAGE DEBUG =====')
+                                                        console.log('[ChatMessage] Full original message:', message.message)
+                                                        console.log('[ChatMessage] Message length:', message.message?.length)
+                                                        console.log('[ChatMessage] Message type:', typeof message.message)
+
+                                                        // 处理消息中的图片 URL
+                                                        let processedMessage = message.message || ''
+
+                                                        // 检查是否已经包含 Markdown 图片
+                                                        const hasMarkdownImage = /!\[.*?\]\(https?:\/\/[^\s)]+\)/.test(processedMessage)
+                                                        console.log('[ChatMessage] Has markdown image:', hasMarkdownImage)
+
+                                                        if (hasMarkdownImage) {
+                                                            // 已经有 Markdown 格式，直接使用
+                                                            console.log('[ChatMessage] Message already contains markdown images')
+                                                        } else {
+                                                            // 尝试检测各种格式的图片 URL
+                                                            const patterns = [
+                                                                // 标准图片扩展名
+                                                                /https?:\/\/[^\s<>"'`]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)(?:[?#][^\s<>"'`]*)?/gi,
+                                                                // 即梦 AI 域名
+                                                                /https?:\/\/[^\s<>"'`]*byteimg\.com[^\s<>"'`]*/gi,
+                                                                /https?:\/\/[^\s<>"'`]*p\d+-aiop-sign\.byteimg\.com[^\s<>"'`]*/gi,
+                                                                // 火山引擎域名
+                                                                /https?:\/\/[^\s<>"'`]*volcengineapi\.com[^\s<>"'`]*/gi,
+                                                                /https?:\/\/[^\s<>"'`]*visual\.volcengineapi\.com[^\s<>"'`]*/gi
+                                                            ]
+
+                                                            let allUrls = []
+                                                            patterns.forEach((pattern, idx) => {
+                                                                const matches = processedMessage.match(pattern) || []
+                                                                console.log(`[ChatMessage] Pattern ${idx} found:`, matches)
+                                                                allUrls = allUrls.concat(matches)
+                                                            })
+
+                                                            // 去重
+                                                            const uniqueUrls = [...new Set(allUrls)]
+                                                            console.log('[ChatMessage] Unique URLs found:', uniqueUrls)
+
+                                                            // 转换为 Markdown
+                                                            if (uniqueUrls.length > 0) {
+                                                                uniqueUrls.forEach((url, index) => {
+                                                                    const markdown = `\n\n![生成的图片${index + 1}](${url})\n\n`
+                                                                    console.log('[ChatMessage] Converting:', url)
+                                                                    processedMessage = processedMessage.replace(url, markdown)
+                                                                })
+                                                                console.log('[ChatMessage] Conversion complete')
+                                                            } else {
+                                                                console.log('[ChatMessage] No URLs found to convert')
                                                             }
-                                                        }}
-                                                    >
-                                                        {message.message}
-                                                    </MemoizedReactMarkdown>
+                                                        }
+
+                                                        console.log('[ChatMessage] Final processed message:', processedMessage)
+                                                        console.log('[ChatMessage] ===== END DEBUG =====')
+
+                                                        return (
+                                                            <MemoizedReactMarkdown
+                                                                remarkPlugins={[remarkGfm, remarkMath]}
+                                                                rehypePlugins={[rehypeMathjax, rehypeRaw]}
+                                                                components={{
+                                                                    code({ inline, className, children, ...props }) {
+                                                                        const match = /language-(\w+)/.exec(className || '')
+                                                                        return !inline ? (
+                                                                            <CodeBlock
+                                                                                key={Math.random()}
+                                                                                chatflowid={chatflowid}
+                                                                                isDialog={isDialog}
+                                                                                language={(match && match[1]) || ''}
+                                                                                value={String(children).replace(/\n$/, '')}
+                                                                                {...props}
+                                                                            />
+                                                                        ) : (
+                                                                            <code className={className} {...props}>
+                                                                                {children}
+                                                                            </code>
+                                                                        )
+                                                                    },
+                                                                    img({ src, alt, ...props }) {
+                                                                        console.log('[ChatMessage] Rendering image:', src)
+                                                                        return (
+                                                                            <img
+                                                                                src={toProxiedImageSrc(src)}
+                                                                                alt={alt || '生成的图片'}
+                                                                                style={{
+                                                                                    maxWidth: '100%',
+                                                                                    height: 'auto',
+                                                                                    borderRadius: '8px',
+                                                                                    marginTop: '8px',
+                                                                                    marginBottom: '8px'
+                                                                                }}
+                                                                                onLoad={() =>
+                                                                                    console.log(
+                                                                                        '[ChatMessage] Image loaded successfully:',
+                                                                                        src
+                                                                                    )
+                                                                                }
+                                                                                onError={(e) =>
+                                                                                    console.error('[ChatMessage] Image load error:', src, e)
+                                                                                }
+                                                                                {...props}
+                                                                            />
+                                                                        )
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {processedMessage}
+                                                            </MemoizedReactMarkdown>
+                                                        )
+                                                    })()}
                                                 </>
                                             )}
                                         </div>
@@ -2148,7 +2276,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                         <Stack sx={{ flexDirection: 'row', alignItems: 'center', px: 1.5, gap: 0.5 }}>
                             <IconSparkles size={12} />
                             <Typography sx={{ fontSize: '0.75rem' }} variant='body2'>
-                                Try these prompts
+                                {t('chatMessage.tryThesePrompts')}
                             </Typography>
                         </Stack>
                         <FollowUpPromptsCard
@@ -2176,9 +2304,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                         {recordingNotSupported ? (
                             <div className='overlay'>
                                 <div className='browser-not-supporting-audio-recording-box'>
-                                    <Typography variant='body1'>
-                                        To record audio, use modern browsers like Chrome or Firefox that support audio recording.
-                                    </Typography>
+                                    <Typography variant='body1'>{t('chatMessage.audioNotSupported')}</Typography>
                                     <Button
                                         variant='contained'
                                         color='error'
@@ -2186,7 +2312,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                         type='button'
                                         onClick={() => onRecordingCancelled()}
                                     >
-                                        Okay
+                                        {t('chatMessage.okay')}
                                     </Button>
                                 </div>
                             </div>
@@ -2210,7 +2336,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                         <IconCircleDot />
                                     </span>
                                     <Typography id='elapsed-time'>00:00</Typography>
-                                    {isLoadingRecording && <Typography ml={1.5}>Sending...</Typography>}
+                                    {isLoadingRecording && <Typography ml={1.5}>{t('chatMessage.sending')}</Typography>}
                                 </div>
                                 <div className='recording-control-buttons-container'>
                                     <IconButton onClick={onRecordingCancelled} size='small'>
@@ -2238,7 +2364,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                             onKeyDown={handleEnter}
                             id='userInput'
                             name='userInput'
-                            placeholder={loading ? 'Waiting for response...' : 'Type your question...'}
+                            placeholder={loading ? t('chatMessage.waiting') : t('chatMessage.placeholder')}
                             value={userInput}
                             onChange={onChange}
                             multiline={true}
@@ -2357,7 +2483,7 @@ export const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, preview
                                                 <InputAdornment position='end' sx={{ padding: '15px', mr: 1 }}>
                                                     <IconButton
                                                         edge='end'
-                                                        title={isMessageStopping ? 'Stopping...' : 'Stop'}
+                                                        title={isMessageStopping ? t('chatMessage.stopping') : t('common.stop')}
                                                         style={{ border: !isMessageStopping ? '2px solid red' : 'none' }}
                                                         onClick={() => handleAbort()}
                                                         disabled={isMessageStopping}
@@ -2416,5 +2542,6 @@ ChatMessage.propTypes = {
     isAgentCanvas: PropTypes.bool,
     isDialog: PropTypes.bool,
     previews: PropTypes.array,
-    setPreviews: PropTypes.func
+    setPreviews: PropTypes.func,
+    initialChatId: PropTypes.string
 }

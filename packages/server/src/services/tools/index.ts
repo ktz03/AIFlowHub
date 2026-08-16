@@ -7,11 +7,15 @@ import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { FLOWISE_METRIC_COUNTERS, FLOWISE_COUNTER_STATUS } from '../../Interface.Metrics'
 import { QueryRunner } from 'typeorm'
 
-const createTool = async (requestBody: any): Promise<any> => {
+const createTool = async (requestBody: any, userId?: string): Promise<any> => {
     try {
         const appServer = getRunningExpressApp()
         const newTool = new Tool()
         Object.assign(newTool, requestBody)
+        // 设置用户ID
+        if (userId) {
+            newTool.userId = userId
+        }
         const tool = await appServer.AppDataSource.getRepository(Tool).create(newTool)
         const dbResponse = await appServer.AppDataSource.getRepository(Tool).save(tool)
         await appServer.telemetry.sendTelemetry('tool_created', {
@@ -26,9 +30,21 @@ const createTool = async (requestBody: any): Promise<any> => {
     }
 }
 
-const deleteTool = async (toolId: string): Promise<any> => {
+const deleteTool = async (toolId: string, userId?: string): Promise<any> => {
     try {
         const appServer = getRunningExpressApp()
+
+        // 检查权限
+        if (userId) {
+            const tool = await appServer.AppDataSource.getRepository(Tool).findOneBy({ id: toolId })
+            if (!tool) {
+                throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Tool ${toolId} not found`)
+            }
+            if (tool.userId && tool.userId !== userId) {
+                throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to delete this tool`)
+            }
+        }
+
         const dbResponse = await appServer.AppDataSource.getRepository(Tool).delete({
             id: toolId
         })
@@ -38,17 +54,24 @@ const deleteTool = async (toolId: string): Promise<any> => {
     }
 }
 
-const getAllTools = async (): Promise<Tool[]> => {
+const getAllTools = async (userId?: string): Promise<Tool[]> => {
     try {
         const appServer = getRunningExpressApp()
-        const dbResponse = await appServer.AppDataSource.getRepository(Tool).find()
+
+        let queryBuilder = appServer.AppDataSource.getRepository(Tool).createQueryBuilder('t')
+
+        if (userId) {
+            queryBuilder = queryBuilder.where('t.userId = :userId OR t.userId IS NULL', { userId })
+        }
+
+        const dbResponse = await queryBuilder.getMany()
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(StatusCodes.INTERNAL_SERVER_ERROR, `Error: toolsService.getAllTools - ${getErrorMessage(error)}`)
     }
 }
 
-const getToolById = async (toolId: string): Promise<any> => {
+const getToolById = async (toolId: string, userId?: string): Promise<any> => {
     try {
         const appServer = getRunningExpressApp()
         const dbResponse = await appServer.AppDataSource.getRepository(Tool).findOneBy({
@@ -57,13 +80,19 @@ const getToolById = async (toolId: string): Promise<any> => {
         if (!dbResponse) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Tool ${toolId} not found`)
         }
+
+        // 检查权限
+        if (userId && dbResponse.userId && dbResponse.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to access this tool`)
+        }
+
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(StatusCodes.INTERNAL_SERVER_ERROR, `Error: toolsService.getToolById - ${getErrorMessage(error)}`)
     }
 }
 
-const updateTool = async (toolId: string, toolBody: any): Promise<any> => {
+const updateTool = async (toolId: string, toolBody: any, userId?: string): Promise<any> => {
     try {
         const appServer = getRunningExpressApp()
         const tool = await appServer.AppDataSource.getRepository(Tool).findOneBy({
@@ -72,6 +101,12 @@ const updateTool = async (toolId: string, toolBody: any): Promise<any> => {
         if (!tool) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Tool ${toolId} not found`)
         }
+
+        // 检查权限
+        if (userId && tool.userId && tool.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to update this tool`)
+        }
+
         const updateTool = new Tool()
         Object.assign(updateTool, toolBody)
         await appServer.AppDataSource.getRepository(Tool).merge(tool, updateTool)

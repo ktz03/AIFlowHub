@@ -19,116 +19,156 @@
         "nodes": [
             {
                 "id": "chatOpenAI_0",
-                "position": { "x": 800, "y": 300 },
+                "position": { "x": 100, "y": 100 },
                 "type": "customNode",
                 "data": {
                     "id": "chatOpenAI_0",
-                    "label": "Chat Model",
-                    "version": 1,
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
                     "name": "chatOpenAI",
                     "type": "ChatOpenAI",
-                    "baseClasses": ["ChatOpenAI", "BaseChatModel"],
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
                     "category": "Chat Models",
-                    "description": "大语言模型节点，可替换为通义千问、文心一言等国产模型",
+                    "description": "大语言模型节点",
                     "inputParams": [
-                        { "name": "modelName", "type": "string", "default": "gpt-3.5-turbo" },
-                        { "name": "temperature", "type": "number", "default": 0.7 }
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-3.5-turbo"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.7
+                        }
                     ],
                     "inputAnchors": [],
                     "inputs": {
                         "modelName": "gpt-3.5-turbo",
                         "temperature": 0.7
                     },
-                    "outputAnchors": [{ "name": "output", "type": "ChatOpenAI" }],
-                    "outputs": {}
-                }
-            },
-            {
-                "id": "promptTemplate_0",
-                "position": { "x": 400, "y": 200 },
-                "type": "customNode",
-                "data": {
-                    "id": "promptTemplate_0",
-                    "label": "客服提示词",
-                    "version": 1,
-                    "name": "promptTemplate",
-                    "type": "PromptTemplate",
-                    "baseClasses": ["PromptTemplate"],
-                    "category": "Prompts",
-                    "description": "客服场景专用提示词模板",
-                    "inputParams": [{ "name": "template", "type": "string" }],
-                    "inputAnchors": [],
-                    "inputs": {
-                        "template": "你是一个专业的客服助手。请根据以下信息回答用户问题：\n\n用户问题：{question}\n\n回答要求：\n1. 语气友好、专业\n2. 回答简洁明了\n3. 如果不确定，请建议用户联系人工客服\n4. 适当使用表情符号增加亲和力"
-                    },
-                    "outputAnchors": [{ "name": "output", "type": "PromptTemplate" }],
-                    "outputs": {}
-                }
-            },
-            {
-                "id": "conversationChain_0",
-                "position": { "x": 1200, "y": 300 },
-                "type": "customNode",
-                "data": {
-                    "id": "conversationChain_0",
-                    "label": "对话链",
-                    "version": 1,
-                    "name": "conversationChain",
-                    "type": "ConversationChain",
-                    "baseClasses": ["ConversationChain", "BaseChain"],
-                    "category": "Chains",
-                    "description": "支持多轮对话的会话链",
-                    "inputParams": [],
-                    "inputAnchors": [
-                        { "name": "model", "type": "BaseChatModel" },
-                        { "name": "memory", "type": "BaseMemory" }
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
                     ],
-                    "inputs": {},
-                    "outputAnchors": [{ "name": "output", "type": "ConversationChain" }],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
             },
             {
                 "id": "bufferMemory_0",
-                "position": { "x": 800, "y": 500 },
+                "position": { "x": 100, "y": 700 },
                 "type": "customNode",
                 "data": {
                     "id": "bufferMemory_0",
-                    "label": "对话记忆",
-                    "version": 1,
+                    "label": "Buffer Memory",
+                    "version": 2.0,
                     "name": "bufferMemory",
                     "type": "BufferMemory",
                     "baseClasses": ["BufferMemory", "BaseMemory"],
                     "category": "Memory",
                     "description": "存储对话历史，支持多轮对话",
                     "inputParams": [
-                        { "name": "memoryKey", "type": "string", "default": "chat_history" },
-                        { "name": "k", "type": "number", "default": 10 }
+                        {
+                            "label": "Memory Key",
+                            "name": "memoryKey",
+                            "type": "string",
+                            "default": "chat_history"
+                        }
                     ],
                     "inputAnchors": [],
                     "inputs": {
-                        "memoryKey": "chat_history",
-                        "k": 10
+                        "memoryKey": "chat_history"
                     },
-                    "outputAnchors": [{ "name": "output", "type": "BufferMemory" }],
+                    "outputAnchors": [
+                        {
+                            "id": "bufferMemory_0-output-bufferMemory-BufferMemory|BaseMemory",
+                            "name": "bufferMemory",
+                            "label": "BufferMemory",
+                            "type": "BufferMemory | BaseMemory"
+                        }
+                    ],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 500, "y": 250 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "Conversation Chain",
+                    "version": 3.0,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "LLMChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "支持多轮对话的会话链",
+                    "inputParams": [
+                        {
+                            "label": "System Message",
+                            "name": "systemMessagePrompt",
+                            "type": "string",
+                            "rows": 4,
+                            "default": "你是一个专业的客服助手。请根据以下信息回答用户问题。\n\n回答要求：\n1. 语气友好、专业\n2. 回答简洁明了\n3. 如果不确定，请建议用户联系人工客服\n4. 适当使用表情符号增加亲和力"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Chat Model",
+                            "name": "model",
+                            "type": "BaseChatModel"
+                        },
+                        {
+                            "label": "Memory",
+                            "name": "memory",
+                            "type": "BaseMemory"
+                        }
+                    ],
+                    "inputs": {
+                        "systemMessagePrompt": "你是一个专业的客服助手。请根据以下信息回答用户问题。\n\n回答要求：\n1. 语气友好、专业\n2. 回答简洁明了\n3. 如果不确定，请建议用户联系人工客服\n4. 适当使用表情符号增加亲和力"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "conversationChain_0-output-conversationChain-ConversationChain|LLMChain|BaseChain",
+                            "name": "conversationChain",
+                            "label": "ConversationChain",
+                            "type": "ConversationChain | LLMChain | BaseChain"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
             }
         ],
         "edges": [
             {
-                "id": "e1",
+                "id": "chatOpenAI_0-conversationChain_0",
                 "source": "chatOpenAI_0",
-                "sourceHandle": "output",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
                 "target": "conversationChain_0",
-                "targetHandle": "model"
+                "targetHandle": "conversationChain_0-input-model-BaseChatModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
             },
             {
-                "id": "e2",
+                "id": "bufferMemory_0-conversationChain_0",
                 "source": "bufferMemory_0",
-                "sourceHandle": "output",
+                "sourceHandle": "bufferMemory_0-output-bufferMemory-BufferMemory|BaseMemory",
                 "target": "conversationChain_0",
-                "targetHandle": "memory"
+                "targetHandle": "conversationChain_0-input-memory-BaseMemory",
+                "type": "buttonedge",
+                "data": { "label": "" }
             }
         ]
     }

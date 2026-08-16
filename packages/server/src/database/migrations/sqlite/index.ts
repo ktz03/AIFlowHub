@@ -34,6 +34,12 @@ import { AddQuotaWarningFields1735600000000 } from './1735600000000-AddQuotaWarn
 import { EnhanceCustomTemplate1735700000000 } from './1735700000000-EnhanceCustomTemplate'
 import { AddModelEvaluation1735800000000 } from './1735800000000-AddModelEvaluation'
 import { AddChatHistoryUserFields1735900000000 } from './1735900000000-AddChatHistoryUserFields'
+import { AddUserIdToChatFlow1736000000000 } from './1736000000000-AddUserIdToChatFlow'
+import { AddUserIdToEntities1736100000000 } from './1736100000000-AddUserIdToEntities'
+import { AddUserIdToDocStoreAssistant1736200000000 } from './1736200000000-AddUserIdToDocStoreAssistant'
+import { AddCacheTokensToUsageLog1736300000000 } from './1736300000000-AddCacheTokensToUsageLog'
+import { AddSystemConfig1736400000000 } from './1736400000000-AddSystemConfig'
+import { AddProviderToSystemConfig1736500000000 } from './1736500000000-AddProviderToSystemConfig'
 
 export const sqliteMigrations = [
     Init1693835579790,
@@ -71,5 +77,11 @@ export const sqliteMigrations = [
     AddQuotaWarningFields1735600000000,
     EnhanceCustomTemplate1735700000000,
     AddModelEvaluation1735800000000,
-    AddChatHistoryUserFields1735900000000
+    AddChatHistoryUserFields1735900000000,
+    AddUserIdToChatFlow1736000000000,
+    AddUserIdToEntities1736100000000,
+    AddUserIdToDocStoreAssistant1736200000000,
+    AddCacheTokensToUsageLog1736300000000,
+    AddSystemConfig1736400000000,
+    AddProviderToSystemConfig1736500000000
 ]

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as PropTypes from 'prop-types'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import {
@@ -126,6 +127,7 @@ const DocumentStoreDetails = () => {
     const customization = useSelector((state) => state.customization)
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const { t } = useTranslation()
     useNotifier()
     const { confirm } = useConfirm()
 
@@ -175,7 +177,7 @@ const DocumentStoreDetails = () => {
 
     const listLoaders = () => {
         const dialogProp = {
-            title: 'Select Document Loader'
+            title: t('docStore.selectDocLoader')
         }
         setDocumentLoaderListDialogProps(dialogProp)
         setShowDocumentLoaderListDialog(true)
@@ -201,7 +203,7 @@ const DocumentStoreDetails = () => {
                 setBackdropLoading(false)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Store, Loader and associated document chunks deleted',
+                        message: t('docStore.storeDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -239,7 +241,7 @@ const DocumentStoreDetails = () => {
                 setBackdropLoading(false)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Loader and associated document chunks deleted',
+                        message: t('docStore.loaderDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -276,8 +278,8 @@ const DocumentStoreDetails = () => {
 
     const onLoaderDelete = (file, vectorStoreConfig, recordManagerConfig) => {
         const props = {
-            title: `Delete`,
-            description: `Delete Loader ${file.loaderName} ? This will delete all the associated document chunks.`,
+            title: t('docStore.delete'),
+            description: t('docStore.deleteLoaderDesc', { loaderName: file.loaderName }),
             vectorStoreConfig,
             recordManagerConfig,
             type: 'LOADER',
@@ -290,8 +292,8 @@ const DocumentStoreDetails = () => {
 
     const onStoreDelete = (vectorStoreConfig, recordManagerConfig) => {
         const props = {
-            title: `Delete`,
-            description: `Delete Store ${getSpecificDocumentStore.data?.name} ? This will delete all the associated loaders and document chunks.`,
+            title: t('docStore.delete'),
+            description: t('docStore.deleteStoreDesc', { storeName: getSpecificDocumentStore.data?.name }),
             vectorStoreConfig,
             recordManagerConfig,
             type: 'STORE'
@@ -303,10 +305,10 @@ const DocumentStoreDetails = () => {
 
     const onStoreRefresh = async (storeId) => {
         const confirmPayload = {
-            title: `Refresh all loaders and upsert all chunks?`,
-            description: `This will re-process all loaders and upsert all chunks. This action might take some time.`,
-            confirmButtonName: 'Refresh',
-            cancelButtonName: 'Cancel'
+            title: t('docStore.refreshTitle'),
+            description: t('docStore.refreshDesc'),
+            confirmButtonName: t('docStore.refresh'),
+            cancelButtonName: t('docStore.cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -317,7 +319,7 @@ const DocumentStoreDetails = () => {
                 const resp = await documentsApi.refreshLoader(storeId)
                 if (resp.data) {
                     enqueueSnackbar({
-                        message: 'Document store refresh successfully!',
+                        message: t('docStore.refreshSuccess'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -357,10 +359,10 @@ const DocumentStoreDetails = () => {
             id: documentStore.id
         }
         const dialogProp = {
-            title: 'Edit Document Store',
+            title: t('docStore.editDocStore'),
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Update',
+            cancelButtonName: t('docStore.cancel'),
+            confirmButtonName: t('docStore.update'),
             data: data
         }
         setDialogProps(dialogProp)
@@ -380,7 +382,7 @@ const DocumentStoreDetails = () => {
 
     const onViewUpsertAPI = (storeId, loaderId) => {
         const props = {
-            title: `Upsert API`,
+            title: t('docStore.upsertApi'),
             storeId,
             loaderId
         }

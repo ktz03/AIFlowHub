@@ -67,6 +67,8 @@ export interface IChatMessage {
     chatId: string
     memoryType?: string
     sessionId?: string
+    sessionTitle?: string
+    userId?: string
     createdDate: Date
     leadEmail?: string
     action?: string | null
@@ -315,6 +317,9 @@ export interface IFlowConfig {
     chatHistory: IMessage[]
     apiMessageId: string
     overrideConfig?: ICommonObject
+    sseStreamer?: IServerSideEventStreamer
+    baseURL?: string
+    userId?: string
 }
 
 export interface IPredictionQueueAppServer {
@@ -334,6 +339,7 @@ export interface IExecuteFlowParams extends IPredictionQueueAppServer {
     signal?: AbortController
     files?: Express.Multer.File[]
     isUpsert?: boolean
+    userId?: string
 }
 
 export interface INodeOverrides {

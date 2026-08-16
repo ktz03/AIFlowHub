@@ -25,9 +25,10 @@ import {
 // project imports
 import MainCard from '@/ui-component/cards/MainCard'
 import Transitions from '@/ui-component/extended/Transitions'
+import WorkflowGeneratorManagementDialog from '@/ui-component/dialog/WorkflowGeneratorManagementDialog'
 
 // assets
-import { IconUser, IconLogout, IconSettings, IconUserCircle, IconLogin, IconUserPlus } from '@tabler/icons-react'
+import { IconUser, IconLogout, IconSettings, IconUserCircle, IconLogin, IconUserPlus, IconRobot } from '@tabler/icons-react'
 
 // store
 import { CLEAR_USER } from '@/store/actions'
@@ -45,6 +46,14 @@ const UserSection = () => {
     const customization = useSelector((state) => state.customization)
 
     const [open, setOpen] = useState(false)
+    const [showWorkflowManagement, setShowWorkflowManagement] = useState(false)
+
+    // 调试日志
+    useEffect(() => {
+        console.log('[UserSection] 用户信息:', user)
+        console.log('[UserSection] 是否认证:', isAuthenticated)
+        console.log('[UserSection] 用户角色:', user?.role)
+    }, [user, isAuthenticated])
     const anchorRef = useRef(null)
     const prevOpen = useRef(open)
 
@@ -218,6 +227,40 @@ const UserSection = () => {
                                                             }
                                                         />
                                                     </ListItemButton>
+
+                                                    {/* 管理员专用：工作流生成管理 */}
+                                                    {user?.role === 'admin' && (
+                                                        <ListItemButton
+                                                            sx={{ borderRadius: `${customization.borderRadius}px` }}
+                                                            onClick={() => {
+                                                                console.log('[WorkflowManagement] 点击工作流生成管理')
+                                                                setOpen(false)
+                                                                setShowWorkflowManagement(true)
+                                                            }}
+                                                            data-testid='workflow-management-button'
+                                                        >
+                                                            <ListItemIcon>
+                                                                <IconRobot stroke={1.5} size='1.3rem' />
+                                                            </ListItemIcon>
+                                                            <ListItemText
+                                                                primary={<Typography variant='body2'>工作流生成管理</Typography>}
+                                                            />
+                                                        </ListItemButton>
+                                                    )}
+
+                                                    {/* 调试信息 - 生产环境请删除 */}
+                                                    {process.env.NODE_ENV === 'development' && (
+                                                        <ListItemButton disabled>
+                                                            <ListItemText
+                                                                primary={
+                                                                    <Typography variant='caption' color='text.secondary'>
+                                                                        调试: 角色={user?.role || '未知'}
+                                                                    </Typography>
+                                                                }
+                                                            />
+                                                        </ListItemButton>
+                                                    )}
+
                                                     <ListItemButton
                                                         sx={{ borderRadius: `${customization.borderRadius}px` }}
                                                         onClick={handleLogout}
@@ -290,6 +333,11 @@ const UserSection = () => {
                     </Transitions>
                 )}
             </Popper>
+
+            {/* 工作流生成管理对话框（仅管理员） */}
+            {user?.role === 'admin' && (
+                <WorkflowGeneratorManagementDialog show={showWorkflowManagement} onCancel={() => setShowWorkflowManagement(false)} />
+            )}
         </>
     )
 }

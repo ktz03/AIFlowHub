@@ -42,6 +42,7 @@ const VectorStoreQuery = Loadable(lazy(() => import('@/views/docstore/VectorStor
 
 // admin routing
 const UserManagement = Loadable(lazy(() => import('@/views/admin/UserManagement')))
+const SystemConfig = Loadable(lazy(() => import('@/views/system-config')))
 
 // usage stats routing
 const UsageStats = Loadable(lazy(() => import('@/views/usage-stats')))
@@ -167,6 +168,10 @@ const MainRoutes = {
         {
             path: '/chat-history',
             element: <ChatHistory />
+        },
+        {
+            path: '/system-config',
+            element: <SystemConfig />
         }
     ]
 }

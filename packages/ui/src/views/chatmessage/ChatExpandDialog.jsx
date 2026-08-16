@@ -7,7 +7,7 @@ import { ChatMessage } from './ChatMessage'
 import { StyledButton } from '@/ui-component/button/StyledButton'
 import { IconEraser } from '@tabler/icons-react'
 
-const ChatExpandDialog = ({ show, dialogProps, isAgentCanvas, onClear, onCancel, previews, setPreviews }) => {
+const ChatExpandDialog = ({ show, dialogProps, isAgentCanvas, onClear, onCancel, previews, setPreviews, initialChatId }) => {
     const portalElement = document.getElementById('portal')
     const customization = useSelector((state) => state.customization)
 
@@ -54,6 +54,7 @@ const ChatExpandDialog = ({ show, dialogProps, isAgentCanvas, onClear, onCancel,
                     chatflowid={dialogProps.chatflowid}
                     previews={previews}
                     setPreviews={setPreviews}
+                    initialChatId={initialChatId}
                 />
             </DialogContent>
         </Dialog>
@@ -69,7 +70,8 @@ ChatExpandDialog.propTypes = {
     onClear: PropTypes.func,
     onCancel: PropTypes.func,
     previews: PropTypes.array,
-    setPreviews: PropTypes.func
+    setPreviews: PropTypes.func,
+    initialChatId: PropTypes.string
 }
 
 export default ChatExpandDialog

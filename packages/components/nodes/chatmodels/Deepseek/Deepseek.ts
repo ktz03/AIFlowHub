@@ -145,14 +145,14 @@ class Deepseek_ChatModels implements INode {
             nodeData.credential = nodeData.inputs?.credentialId
         }
         const credentialData = await getCredentialData(nodeData.credential ?? '', options)
-        const openAIApiKey = getCredentialParam('deepseekApiKey', credentialData, nodeData)
+        const deepseekApiKey = getCredentialParam('deepseekApiKey', credentialData, nodeData)
 
         const cache = nodeData.inputs?.cache as BaseCache
 
         const obj: ChatOpenAIFields = {
             temperature: parseFloat(temperature),
             modelName,
-            openAIApiKey,
+            openAIApiKey: deepseekApiKey, // 使用 deepseekApiKey 作为 openAIApiKey
             streaming: streaming ?? true
         }
 

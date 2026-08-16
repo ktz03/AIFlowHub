@@ -8,25 +8,39 @@ const TOKENS_PER_WORD = 1.3
 const TOKENS_PER_CHINESE_CHAR = 0.5
 
 // 模型定价配置 (每1000 tokens的价格，单位：美元)
-const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-    // OpenAI
-    'gpt-4': { input: 0.03, output: 0.06 },
-    'gpt-4-turbo': { input: 0.01, output: 0.03 },
-    'gpt-4o': { input: 0.005, output: 0.015 },
-    'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
-    'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-    // Claude
-    'claude-3-opus': { input: 0.015, output: 0.075 },
-    'claude-3-sonnet': { input: 0.003, output: 0.015 },
-    'claude-3-haiku': { input: 0.00025, output: 0.00125 },
-    // 国产模型
-    'qwen-turbo': { input: 0.0003, output: 0.0006 },
-    'qwen-plus': { input: 0.0006, output: 0.0012 },
-    'qwen-max': { input: 0.0028, output: 0.0083 },
-    'deepseek-chat': { input: 0.00014, output: 0.00028 },
-    'glm-4': { input: 0.014, output: 0.014 },
-    'glm-3-turbo': { input: 0.0007, output: 0.0007 },
-    // 默认
+// 支持缓存定价：input 为缓存未命中价格，cacheRead 为缓存命中价格
+// 注：缓存命中价格通常为未命中价格的 10%-50%，具体取决于模型提供商
+const MODEL_PRICING: Record<string, { input: number; output: number; cacheRead?: number }> = {
+    // OpenAI - 支持 Prompt Caching (缓存命中价格为未命中的 50%)
+    'gpt-4': { input: 0.03, output: 0.06, cacheRead: 0.015 },
+    'gpt-4-turbo': { input: 0.01, output: 0.03, cacheRead: 0.005 },
+    'gpt-4o': { input: 0.005, output: 0.015, cacheRead: 0.0025 },
+    'gpt-4o-mini': { input: 0.00015, output: 0.0006, cacheRead: 0.000075 },
+    'gpt-3.5-turbo': { input: 0.0005, output: 0.0015, cacheRead: 0.00025 },
+
+    // Claude - 支持 Prompt Caching (缓存命中价格为未命中的 10%)
+    'claude-3-opus': { input: 0.015, output: 0.075, cacheRead: 0.0015 },
+    'claude-3-sonnet': { input: 0.003, output: 0.015, cacheRead: 0.0003 },
+    'claude-3-haiku': { input: 0.00025, output: 0.00125, cacheRead: 0.000025 },
+
+    // 阿里通义千问 - 支持缓存 (缓存命中价格为未命中的 10%)
+    'qwen-turbo': { input: 0.0003, output: 0.0006, cacheRead: 0.00003 },
+    'qwen-plus': { input: 0.0006, output: 0.0012, cacheRead: 0.00006 },
+    'qwen-max': { input: 0.0028, output: 0.0083, cacheRead: 0.00028 },
+
+    // DeepSeek - 支持缓存 (2025年1月更新)
+    // 输入（缓存未命中）: ¥2/百万tokens = $0.0002857/千tokens
+    // 输入（缓存命中）: ¥0.2/百万tokens = $0.00002857/千tokens (10%)
+    // 输出: ¥3/百万tokens = $0.0004286/千tokens
+    'deepseek-chat': { input: 0.0002857, output: 0.0004286, cacheRead: 0.00002857 },
+    'deepseek-coder': { input: 0.0002857, output: 0.0004286, cacheRead: 0.00002857 },
+    'deepseek-reasoner': { input: 0.0002857, output: 0.0004286, cacheRead: 0.00002857 },
+
+    // 智谱 GLM - 支持缓存 (缓存命中价格为未命中的 10%)
+    'glm-4': { input: 0.014, output: 0.014, cacheRead: 0.0014 },
+    'glm-3-turbo': { input: 0.0007, output: 0.0007, cacheRead: 0.00007 },
+
+    // 默认定价（不支持缓存）
     default: { input: 0.001, output: 0.002 }
 }
 
@@ -59,9 +73,13 @@ export const inferProvider = (modelName: string): string => {
 }
 
 /**
- * 计算成本
+ * 计算成本（支持缓存定价）
+ * @param model 模型名称
+ * @param inputTokens 输入 token 数（缓存未命中）
+ * @param outputTokens 输出 token 数
+ * @param cacheReadTokens 缓存命中的输入 token 数（可选）
  */
-export const calculateCost = (model: string, inputTokens: number, outputTokens: number): number => {
+export const calculateCost = (model: string, inputTokens: number, outputTokens: number, cacheReadTokens?: number): number => {
     const lowerModel = (model || '').toLowerCase()
     let pricing = MODEL_PRICING['default']
 
@@ -72,9 +90,16 @@ export const calculateCost = (model: string, inputTokens: number, outputTokens: 
         }
     }
 
+    // 计算缓存未命中的输入成本
     const inputCost = (inputTokens / 1000) * pricing.input
+
+    // 计算缓存命中的输入成本（如果有）
+    const cacheReadCost = cacheReadTokens && pricing.cacheRead ? (cacheReadTokens / 1000) * pricing.cacheRead : 0
+
+    // 计算输出成本
     const outputCost = (outputTokens / 1000) * pricing.output
-    return Number((inputCost + outputCost).toFixed(6))
+
+    return Number((inputCost + cacheReadCost + outputCost).toFixed(6))
 }
 
 interface UsageTrackingParams {

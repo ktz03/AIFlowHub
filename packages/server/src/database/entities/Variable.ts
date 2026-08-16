@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm'
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn, Index } from 'typeorm'
 import { IVariable } from '../../Interface'
 
 @Entity()
@@ -9,6 +9,10 @@ export class Variable implements IVariable {
 
     @Column()
     name: string
+
+    @Column({ nullable: true })
+    @Index()
+    userId?: string
 
     @Column({ nullable: true, type: 'text' })
     value: string

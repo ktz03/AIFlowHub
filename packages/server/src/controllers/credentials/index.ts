@@ -11,7 +11,9 @@ const createCredential = async (req: Request, res: Response, next: NextFunction)
                 `Error: credentialsController.createCredential - body not provided!`
             )
         }
-        const apiResponse = await credentialsService.createCredential(req.body)
+        // 获取当前用户ID
+        const userId = req.user?.userId
+        const apiResponse = await credentialsService.createCredential(req.body, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -26,7 +28,9 @@ const deleteCredentials = async (req: Request, res: Response, next: NextFunction
                 `Error: credentialsController.deleteCredentials - id not provided!`
             )
         }
-        const apiResponse = await credentialsService.deleteCredentials(req.params.id)
+        // 获取当前用户ID（所有用户包括管理员都只能删除自己的凭证）
+        const userId = req.user?.userId
+        const apiResponse = await credentialsService.deleteCredentials(req.params.id, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -35,7 +39,9 @@ const deleteCredentials = async (req: Request, res: Response, next: NextFunction
 
 const getAllCredentials = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const apiResponse = await credentialsService.getAllCredentials(req.query.credentialName)
+        // 获取当前用户ID（所有用户包括管理员都只能看到自己的凭证）
+        const userId = req.user?.userId
+        const apiResponse = await credentialsService.getAllCredentials(req.query.credentialName, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -50,7 +56,9 @@ const getCredentialById = async (req: Request, res: Response, next: NextFunction
                 `Error: credentialsController.getCredentialById - id not provided!`
             )
         }
-        const apiResponse = await credentialsService.getCredentialById(req.params.id)
+        // 获取当前用户ID（所有用户包括管理员都只能访问自己的凭证）
+        const userId = req.user?.userId
+        const apiResponse = await credentialsService.getCredentialById(req.params.id, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -71,7 +79,9 @@ const updateCredential = async (req: Request, res: Response, next: NextFunction)
                 `Error: credentialsController.updateCredential - body not provided!`
             )
         }
-        const apiResponse = await credentialsService.updateCredential(req.params.id, req.body)
+        // 获取当前用户ID（所有用户包括管理员都只能更新自己的凭证）
+        const userId = req.user?.userId
+        const apiResponse = await credentialsService.updateCredential(req.params.id, req.body, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)

@@ -111,12 +111,15 @@ importers:
 
     packages/api-documentation:
         dependencies:
+            express:
+                specifier: ^4.17.3
+                version: 4.21.1
             swagger-jsdoc:
                 specifier: ^6.2.8
                 version: 6.2.8(openapi-types@12.1.3)
             swagger-ui-express:
-                specifier: ^5.0.0
-                version: 5.0.1(express@5.0.1)
+                specifier: ^4.6.3
+                version: 4.6.3(express@4.21.1)
         devDependencies:
             '@types/swagger-jsdoc':
                 specifier: ^6.0.1
@@ -530,6 +533,9 @@ importers:
             babel-register:
                 specifier: ^6.26.0
                 version: 6.26.0
+            cross-env:
+                specifier: ^10.1.0
+                version: 10.1.0
             gulp:
                 specifier: ^4.0.2
                 version: 4.0.2
@@ -972,7 +978,7 @@ importers:
                 version: 4.2.1(vite@5.1.6(@types/node@22.13.9)(sass@1.71.1)(terser@5.29.1))
             pretty-quick:
                 specifier: ^3.1.3
-                version: 3.3.1(prettier@3.2.5)
+                version: 3.3.1(prettier@2.8.8)
             react-scripts:
                 specifier: ^5.0.1
                 version: 5.0.1(@babel/plugin-syntax-flow@7.23.3(@babel/core@7.24.0))(@babel/plugin-transform-react-jsx@7.25.9(@babel/core@7.24.0))(@swc/core@1.4.6)(@types/babel__core@7.20.5)(bufferutil@4.0.8)(canvas@2.11.2(encoding@0.1.13))(eslint@8.57.0)(react@18.2.0)(sass@1.71.1)(ts-node@10.9.2(@swc/core@1.4.6)(@types/node@22.13.9)(typescript@5.5.2))(type-fest@4.12.0)(typescript@5.5.2)(utf-8-validate@6.0.4)
@@ -3147,6 +3153,9 @@ packages:
 
     '@emotion/weak-memoize@0.3.1':
         resolution: { integrity: sha512-EsBwpc7hBUJWAsNPBmJy4hxWx12v6bshQsldrVmjxJoc3isbxhOrF2IcCpaXxfvq03NwkI7sbsOLXbYuqF/8Ww== }
+
+    '@epic-web/invariant@1.0.0':
+        resolution: { integrity: sha512-lrTPqgvfFQtR/eY/qkIzp98OGdNJu0m5ji3q/nJI8v3SXkRKEnWiOxMmbvcSoAIzv/cGiuvRy57k4suKQSAdwA== }
 
     '@esbuild/aix-ppc64@0.19.12':
         resolution: { integrity: sha512-bmoCYyWdEL3wDQIVbcyzRyeKLgk2WtWLTWz1ZIAZF/EGbNOwSA6ew3PftJ1PqMiOOGu0OyFMzG53L0zqIpPeNA== }
@@ -9173,6 +9182,11 @@ packages:
     cron-parser@4.9.0:
         resolution: { integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q== }
         engines: { node: '>=12.0.0' }
+
+    cross-env@10.1.0:
+        resolution: { integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw== }
+        engines: { node: '>=20' }
+        hasBin: true
 
     cross-env@7.0.3:
         resolution: { integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw== }
@@ -16567,8 +16581,8 @@ packages:
     swagger-ui-dist@5.17.14:
         resolution: { integrity: sha512-CVbSfaLpstV65OnSjbXfVd6Sta3q3F7Cj/yYuvHMp1P90LztOLs6PfUnKEVAeiIVQt9u2SaPwv0LiH/OyMjHRw== }
 
-    swagger-ui-express@5.0.1:
-        resolution: { integrity: sha512-SrNU3RiBGTLLmFU8GIJdOdanJTl4TOmT27tt3bWWHppqYmAZ6IDuEuBvMU6nZq0zLEe6b/1rACXCgLZqO6ZfrA== }
+    swagger-ui-express@4.6.3:
+        resolution: { integrity: sha512-CDje4PndhTD2HkgyKH3pab+LKspDeB/NhPN2OF1j+piYIamQqBYwAXWESOT1Yju2xFg51bRW9sUng2WxDjzArw== }
         engines: { node: '>= v0.10.32' }
         peerDependencies:
             express: '>=4.0.0 || >=5.0.0-beta'
@@ -20488,7 +20502,7 @@ snapshots:
             '@babel/core': 7.24.0
             '@babel/helper-compilation-targets': 7.23.6
             '@babel/helper-plugin-utils': 7.25.9
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             lodash.debounce: 4.0.8
             resolve: 1.22.8
         transitivePeerDependencies:
@@ -20499,7 +20513,7 @@ snapshots:
             '@babel/core': 7.24.0
             '@babel/helper-compilation-targets': 7.23.6
             '@babel/helper-plugin-utils': 7.25.9
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             lodash.debounce: 4.0.8
             resolve: 1.22.8
         transitivePeerDependencies:
@@ -20510,7 +20524,7 @@ snapshots:
             '@babel/core': 7.24.0
             '@babel/helper-compilation-targets': 7.23.6
             '@babel/helper-plugin-utils': 7.25.9
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             lodash.debounce: 4.0.8
             resolve: 1.22.8
         transitivePeerDependencies:
@@ -22196,6 +22210,8 @@ snapshots:
     '@emotion/utils@1.2.1': {}
 
     '@emotion/weak-memoize@0.3.1': {}
+
+    '@epic-web/invariant@1.0.0': {}
 
     '@esbuild/aix-ppc64@0.19.12':
         optional: true
@@ -27541,7 +27557,7 @@ snapshots:
         dependencies:
             '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.5.2)
             '@typescript-eslint/utils': 5.62.0(eslint@8.57.0)(typescript@5.5.2)
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             eslint: 8.57.0
             tsutils: 3.21.0(typescript@5.5.2)
         optionalDependencies:
@@ -27557,7 +27573,7 @@ snapshots:
         dependencies:
             '@typescript-eslint/types': 5.62.0
             '@typescript-eslint/visitor-keys': 5.62.0
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             globby: 11.1.0
             is-glob: 4.0.3
             semver: 7.7.1
@@ -27694,7 +27710,7 @@ snapshots:
             '@vue/shared': 3.4.31
             entities: 4.5.0
             estree-walker: 2.0.2
-            source-map-js: 1.2.0
+            source-map-js: 1.2.1
 
     '@vue/compiler-dom@3.4.31':
         dependencies:
@@ -27710,8 +27726,8 @@ snapshots:
             '@vue/shared': 3.4.31
             estree-walker: 2.0.2
             magic-string: 0.30.10
-            postcss: 8.4.39
-            source-map-js: 1.2.0
+            postcss: 8.4.49
+            source-map-js: 1.2.1
 
     '@vue/compiler-ssr@3.4.31':
         dependencies:
@@ -27923,7 +27939,7 @@ snapshots:
 
     agent-base@7.1.0:
         dependencies:
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
         transitivePeerDependencies:
             - supports-color
 
@@ -29662,6 +29678,11 @@ snapshots:
         dependencies:
             luxon: 3.5.0
 
+    cross-env@10.1.0:
+        dependencies:
+            '@epic-web/invariant': 1.0.0
+            cross-spawn: 7.0.6
+
     cross-env@7.0.3:
         dependencies:
             cross-spawn: 7.0.6
@@ -29780,7 +29801,7 @@ snapshots:
     css-tree@2.3.1:
         dependencies:
             mdn-data: 2.0.30
-            source-map-js: 1.2.0
+            source-map-js: 1.2.1
 
     css-what@3.4.2: {}
 
@@ -31952,7 +31973,7 @@ snapshots:
         dependencies:
             basic-ftp: 5.0.5
             data-uri-to-buffer: 6.0.2
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             fs-extra: 11.2.0
         transitivePeerDependencies:
             - supports-color
@@ -32621,7 +32642,7 @@ snapshots:
     http-proxy-agent@7.0.2:
         dependencies:
             agent-base: 7.1.0
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
         transitivePeerDependencies:
             - supports-color
 
@@ -33184,7 +33205,7 @@ snapshots:
 
     istanbul-lib-source-maps@4.0.1:
         dependencies:
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             istanbul-lib-coverage: 3.2.2
             source-map: 0.6.1
         transitivePeerDependencies:
@@ -35130,7 +35151,7 @@ snapshots:
 
     micromark@2.11.4:
         dependencies:
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             parse-entities: 2.0.0
         transitivePeerDependencies:
             - supports-color
@@ -35138,7 +35159,7 @@ snapshots:
     micromark@3.2.0:
         dependencies:
             '@types/debug': 4.1.12
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             decode-named-character-reference: 1.0.2
             micromark-core-commonmark: 1.1.0
             micromark-factory-space: 1.1.0
@@ -36177,7 +36198,7 @@ snapshots:
         dependencies:
             '@tootallnate/quickjs-emscripten': 0.23.0
             agent-base: 7.1.0
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             get-uri: 6.0.3
             http-proxy-agent: 7.0.2
             https-proxy-agent: 7.0.4
@@ -37118,17 +37139,6 @@ snapshots:
             picocolors: 1.0.0
             picomatch: 3.0.1
             prettier: 2.8.8
-            tslib: 2.6.2
-
-    pretty-quick@3.3.1(prettier@3.2.5):
-        dependencies:
-            execa: 4.1.0
-            find-up: 4.1.0
-            ignore: 5.3.1
-            mri: 1.2.0
-            picocolors: 1.0.0
-            picomatch: 3.0.1
-            prettier: 3.2.5
             tslib: 2.6.2
 
     prism-react-renderer@1.3.5(react@18.2.0):
@@ -38679,7 +38689,7 @@ snapshots:
     socks-proxy-agent@8.0.2:
         dependencies:
             agent-base: 7.1.0
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             socks: 2.8.1
         transitivePeerDependencies:
             - supports-color
@@ -38777,7 +38787,7 @@ snapshots:
 
     spdy-transport@3.0.0:
         dependencies:
-            debug: 4.3.7(supports-color@8.1.1)
+            debug: 4.4.0
             detect-node: 2.1.0
             hpack.js: 2.1.6
             obuf: 1.1.2
@@ -39246,9 +39256,9 @@ snapshots:
 
     swagger-ui-dist@5.17.14: {}
 
-    swagger-ui-express@5.0.1(express@5.0.1):
+    swagger-ui-express@4.6.3(express@4.21.1):
         dependencies:
-            express: 5.0.1
+            express: 4.21.1
             swagger-ui-dist: 5.17.14
 
     swr@2.2.0(react@18.2.0):

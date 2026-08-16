@@ -1,0 +1,226 @@
+{
+    "version": "1.0.0",
+    "description": "工作流模式知识库 - 基于 Claude Skills Registry 和最佳实践",
+    "categories": {
+        "chatbot": {
+            "name": "聊天机器人",
+            "description": "用于对话交互、客服问答、多轮对话的工作流",
+            "keywords": ["聊天", "对话", "客服", "机器人", "助手", "交互", "问答", "咨询", "闲聊", "陪聊", "语音助手", "智能问答"],
+            "aliases": ["chatbot", "assistant", "copilot", "客服机器人", "问答机器人"],
+            "indicators": ["需要记忆", "多轮对话", "上下文", "会话", "历史", "角色设定", "system prompt"],
+            "negativeKeywords": ["检索增强", "文档库", "向量库", "批处理", "定时任务"],
+            "requiredNodes": ["ChatModel", "Memory", "ConversationChain"],
+            "optionalNodes": ["SystemMessage", "HumanMessage"],
+            "confidence_boost": 0.1,
+            "complexity": "simple",
+            "bestPractices": [
+                "必须包含记忆节点以支持多轮对话",
+                "使用 ConversationChain 而不是普通 LLMChain",
+                "设置合适的 System Message 定义角色",
+                "考虑添加对话历史长度限制"
+            ]
+        },
+        "rag": {
+            "name": "检索增强生成",
+            "description": "基于知识库的问答、文档检索、语义搜索",
+            "keywords": ["文档", "知识库", "检索", "问答", "搜索", "向量", "RAG", "查询", "召回", "重排", "索引", "embedding", "retrieval"],
+            "aliases": ["doc qa", "knowledge qa", "retrieval qa", "document qa"],
+            "indicators": ["基于文档", "查询", "向量", "嵌入", "相似度", "语义检索", "chunk", "topk"],
+            "negativeKeywords": ["图像生成", "文生图", "自动调度", "cron"],
+            "requiredNodes": ["VectorStore", "Retriever", "ChatModel", "DocumentLoader"],
+            "optionalNodes": ["TextSplitter", "Embeddings"],
+            "confidence_boost": 0.15,
+            "complexity": "medium",
+            "bestPractices": [
+                "选择合适的文档分割策略",
+                "使用高质量的嵌入模型",
+                "设置合理的检索数量（top_k）",
+                "考虑添加重排序（reranking）"
+            ]
+        },
+        "agent": {
+            "name": "AI 智能体",
+            "description": "具有工具调用和多步推理能力的智能体",
+            "keywords": ["智能体", "agent", "工具", "推理", "决策", "自主", "函数调用", "tool calling", "function call", "任务分解"],
+            "aliases": ["react agent", "tool agent", "plan and execute"],
+            "indicators": ["使用工具", "多步骤", "规划", "执行", "反思", "调用外部API", "自动决策"],
+            "negativeKeywords": ["纯聊天", "闲聊", "仅问答"],
+            "requiredNodes": ["Agent", "Tools", "ChatModel"],
+            "optionalNodes": ["Memory", "Planner"],
+            "confidence_boost": 0.12,
+            "complexity": "complex",
+            "bestPractices": [
+                "明确定义工具的功能和参数",
+                "设置合理的最大迭代次数",
+                "添加错误处理和重试机制",
+                "考虑使用 ReAct 或 Plan-and-Execute 模式"
+            ]
+        },
+        "automation": {
+            "name": "自动化流程",
+            "description": "任务自动化、批处理、定时任务",
+            "keywords": ["自动化", "批处理", "定时", "任务", "流程", "调度", "cron", "工作流编排", "触发器", "审批流"],
+            "aliases": ["workflow automation", "scheduled job", "cron job"],
+            "indicators": ["批量", "定时", "自动", "循环", "触发", "重试", "告警"],
+            "negativeKeywords": ["对话机器人", "图像生成", "代码解释"],
+            "requiredNodes": ["Trigger", "Action", "Condition"],
+            "optionalNodes": ["Loop", "Delay"],
+            "confidence_boost": 0.08,
+            "complexity": "medium",
+            "bestPractices": ["添加错误处理和日志记录", "设置合理的超时时间", "考虑幂等性设计", "添加监控和告警"]
+        },
+        "data-analysis": {
+            "name": "数据分析",
+            "description": "数据处理、报表生成、可视化",
+            "keywords": ["数据", "分析", "处理", "报表", "可视化", "统计", "CSV", "Excel", "BI", "dashboard", "指标", "聚合", "ETL"],
+            "aliases": ["data analytics", "business intelligence", "数据洞察"],
+            "indicators": ["数据集", "分析", "统计", "图表", "报告", "维度", "指标体系", "趋势"],
+            "negativeKeywords": ["文生图", "图像生成", "聊天机器人"],
+            "requiredNodes": ["DataLoader", "DataProcessor", "ChatModel"],
+            "optionalNodes": ["Visualizer", "Exporter"],
+            "confidence_boost": 0.1,
+            "complexity": "medium",
+            "bestPractices": ["验证数据格式和质量", "处理缺失值和异常值", "选择合适的分析方法", "提供清晰的结果展示"]
+        },
+        "image-generation": {
+            "name": "图片生成",
+            "description": "AI 绘画、图片处理、视觉内容生成",
+            "keywords": ["图片", "图像", "绘画", "画", "生成", "image", "视觉", "艺术", "海报", "插画", "封面", "文生图"],
+            "aliases": ["text2image", "t2i", "image generation"],
+            "indicators": ["生成图片", "画一张", "创作", "设计", "分辨率", "长宽比", "风格化"],
+            "negativeKeywords": ["数据图表", "统计图", "报表图"],
+            "requiredNodes": ["ImageGenerator"],
+            "optionalNodes": ["PromptEnhancer", "ImageProcessor"],
+            "confidence_boost": 0.15,
+            "complexity": "simple",
+            "bestPractices": ["优化提示词以获得更好效果", "设置合适的图片尺寸和质量", "考虑添加负面提示词", "处理生成失败的情况"]
+        },
+        "code-assistant": {
+            "name": "代码助手",
+            "description": "代码生成、代码解释、编程辅助",
+            "keywords": ["代码", "编程", "code", "程序", "开发", "函数", "类", "接口", "重构", "调试", "单元测试", "脚本"],
+            "aliases": ["coding assistant", "copilot", "developer assistant"],
+            "indicators": ["写代码", "生成代码", "编程", "实现", "修复bug", "解释代码", "优化性能"],
+            "negativeKeywords": ["图片生成", "文档检索", "定时任务"],
+            "requiredNodes": ["ChatModel"],
+            "optionalNodes": ["CodeExecutor", "CodeValidator"],
+            "confidence_boost": 0.12,
+            "complexity": "simple",
+            "bestPractices": ["使用专门的代码模型（如 deepseek-coder）", "提供清晰的需求描述", "包含代码注释和文档", "添加单元测试"]
+        }
+    },
+    "fallback_rules": [
+        {
+            "condition": "包含'图片'或'图像'或'画'",
+            "category": "image-generation",
+            "confidence": 0.85,
+            "reason": "明确的图片生成需求"
+        },
+        {
+            "condition": "包含'代码'或'编程'或'函数'",
+            "category": "code-assistant",
+            "confidence": 0.82,
+            "reason": "明确的代码相关需求"
+        },
+        {
+            "condition": "包含'文档'或'知识库'或'检索'",
+            "category": "rag",
+            "confidence": 0.8,
+            "reason": "明确的文档检索需求"
+        },
+        {
+            "condition": "包含'数据'和('分析'或'处理'或'统计')",
+            "category": "data-analysis",
+            "confidence": 0.78,
+            "reason": "明确的数据分析需求"
+        },
+        {
+            "condition": "包含'自动化'或'批处理'或'定时'",
+            "category": "automation",
+            "confidence": 0.75,
+            "reason": "明确的自动化需求"
+        }
+    ],
+    "node_compatibility": {
+        "ChatDeepseek": {
+            "compatibleWith": ["BufferMemory", "ConversationChain", "LLMChain"],
+            "bestFor": ["chatbot", "code-assistant", "rag"],
+            "models": {
+                "deepseek-chat": "通用对话",
+                "deepseek-coder": "代码生成"
+            }
+        },
+        "BufferMemory": {
+            "compatibleWith": ["ConversationChain"],
+            "bestFor": ["chatbot"],
+            "config": {
+                "memoryKey": "chat_history",
+                "inputKey": "input"
+            }
+        },
+        "JimengImageGen": {
+            "compatibleWith": [],
+            "bestFor": ["image-generation"],
+            "standalone": true
+        }
+    },
+    "layout_guidelines": {
+        "simple": {
+            "description": "简单工作流（1-3个节点）",
+            "positions": {
+                "input": { "x": 400, "y": 400 },
+                "process": { "x": 1000, "y": 400 },
+                "output": { "x": 1600, "y": 400 }
+            },
+            "spacing": {
+                "horizontal": 600,
+                "vertical": 300
+            }
+        },
+        "medium": {
+            "description": "中等复杂度（4-6个节点）",
+            "positions": {
+                "input": { "x": 400, "y": 200 },
+                "memory": { "x": 400, "y": 750 },
+                "process": { "x": 1000, "y": 400 },
+                "output": { "x": 1600, "y": 400 }
+            },
+            "spacing": {
+                "horizontal": 600,
+                "vertical": 300
+            }
+        },
+        "complex": {
+            "description": "复杂工作流（7+个节点）",
+            "grid": {
+                "columns": 3,
+                "startX": 400,
+                "startY": 200,
+                "spacingX": 600,
+                "spacingY": 400
+            }
+        }
+    },
+    "validation_rules": {
+        "node": {
+            "required_fields": ["id", "type", "data", "position"],
+            "id_pattern": "^[a-zA-Z]+_\\d+$",
+            "position_constraints": {
+                "x_min": 0,
+                "y_min": 0,
+                "x_max": 2400,
+                "y_max": 2000
+            }
+        },
+        "edge": {
+            "required_fields": ["source", "target", "type", "id"],
+            "required_type": "buttonedge",
+            "no_cycles": true
+        },
+        "workflow": {
+            "min_nodes": 1,
+            "max_nodes": 20,
+            "must_have_output": true
+        }
+    }
+}

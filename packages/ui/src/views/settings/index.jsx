@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
@@ -17,10 +18,24 @@ import settings from '@/menu-items/settings'
 import agentsettings from '@/menu-items/agentsettings'
 import customAssistantSettings from '@/menu-items/customassistant'
 
+// 设置菜单项的翻译映射
+const settingsTranslationKeys = {
+    viewMessages: 'settingsMenu.viewMessages',
+    viewLeads: 'settingsMenu.viewLeads',
+    viewUpsertHistory: 'settingsMenu.upsertHistory',
+    chatflowConfiguration: 'settingsMenu.configuration',
+    saveAsTemplate: 'settingsMenu.saveAsTemplate',
+    duplicateChatflow: 'settingsMenu.duplicate',
+    loadChatflow: 'settingsMenu.load',
+    exportChatflow: 'settingsMenu.export',
+    deleteChatflow: 'settingsMenu.delete'
+}
+
 // ==============================|| SETTINGS ||============================== //
 
 const Settings = ({ chatflow, isSettingsOpen, isCustomAssistant, anchorEl, isAgentCanvas, onSettingsItemClick, onUploadFile, onClose }) => {
     const theme = useTheme()
+    const { t } = useTranslation()
     const [settingsMenu, setSettingsMenu] = useState([])
     const customization = useSelector((state) => state.customization)
     const inputFile = useRef(null)
@@ -76,6 +91,10 @@ const Settings = ({ chatflow, isSettingsOpen, isCustomAssistant, anchorEl, isAge
                 fontSize={'inherit'}
             />
         )
+        // 获取翻译后的标题
+        const translationKey = settingsTranslationKeys[menu.id]
+        const translatedTitle = translationKey ? t(translationKey) : menu.title
+
         return (
             <ListItemButton
                 key={menu.id}
@@ -95,7 +114,7 @@ const Settings = ({ chatflow, isSettingsOpen, isCustomAssistant, anchorEl, isAge
                 }}
             >
                 <ListItemIcon sx={{ my: 'auto', minWidth: !menu?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon>
-                <ListItemText primary={<Typography color='inherit'>{menu.title}</Typography>} />
+                <ListItemText primary={<Typography color='inherit'>{translatedTitle}</Typography>} />
             </ListItemButton>
         )
     })

@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import { Between, Like, In, IsNull, Not } from 'typeorm'
+import { Between, Like, In } from 'typeorm'
 import { ChatMessage } from '../../database/entities/ChatMessage'
 import { ChatFlow } from '../../database/entities/ChatFlow'
 import { InternalFlowiseError } from '../../errors/internalFlowiseError'
@@ -61,7 +61,7 @@ const getSessions = async (
             queryBuilder.andWhere('(msg.content LIKE :search OR msg.sessionTitle LIKE :search)', { search: `%${search}%` })
         }
 
-        queryBuilder.groupBy('msg.sessionId').addGroupBy('msg.chatflowid').orderBy('lastMessageTime', 'DESC')
+        queryBuilder.groupBy('msg.sessionId').addGroupBy('msg.chatflowid').orderBy('MAX(msg.createdDate)', 'DESC')
 
         // 获取总数
         const totalQuery = await queryBuilder.getRawMany()

@@ -14,7 +14,8 @@ import {
     IconGauge,
     IconTemplate,
     IconScale,
-    IconHistory
+    IconHistory,
+    IconSettings
 } from '@tabler/icons-react'
 
 // constant
@@ -33,7 +34,8 @@ const icons = {
     IconGauge,
     IconTemplate,
     IconScale,
-    IconHistory
+    IconHistory,
+    IconSettings
 }
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
@@ -57,8 +59,7 @@ const dashboard = {
             type: 'item',
             url: '/agentflows',
             icon: icons.IconUsersGroup,
-            breadcrumbs: true,
-            isBeta: true
+            breadcrumbs: true
         },
         {
             id: 'assistants',
@@ -162,6 +163,15 @@ const dashboard = {
             type: 'item',
             url: '/admin/users',
             icon: icons.IconUserCog,
+            breadcrumbs: true,
+            adminOnly: true
+        },
+        {
+            id: 'system-config',
+            title: 'menu.systemConfig',
+            type: 'item',
+            url: '/system-config',
+            icon: icons.IconSettings,
             breadcrumbs: true,
             adminOnly: true
         }

@@ -1,18 +1,20 @@
 import express from 'express'
 import credentialsController from '../../controllers/credentials'
+import { optionalAuth } from '../../middlewares/auth.middleware'
+
 const router = express.Router()
 
-// CREATE
-router.post('/', credentialsController.createCredential)
+// CREATE - 需要认证以关联用户
+router.post('/', optionalAuth, credentialsController.createCredential)
 
-// READ
-router.get('/', credentialsController.getAllCredentials)
-router.get(['/', '/:id'], credentialsController.getCredentialById)
+// READ - 可选认证，用于过滤用户数据
+router.get('/', optionalAuth, credentialsController.getAllCredentials)
+router.get(['/', '/:id'], optionalAuth, credentialsController.getCredentialById)
 
-// UPDATE
-router.put(['/', '/:id'], credentialsController.updateCredential)
+// UPDATE - 可选认证，用于权限检查
+router.put(['/', '/:id'], optionalAuth, credentialsController.updateCredential)
 
-// DELETE
-router.delete(['/', '/:id'], credentialsController.deleteCredentials)
+// DELETE - 可选认证，用于权限检查
+router.delete(['/', '/:id'], optionalAuth, credentialsController.deleteCredentials)
 
 export default router

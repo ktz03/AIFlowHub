@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow'
 import { useEffect, useRef, useState, useContext } from 'react'
 import { useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { useTheme, styled } from '@mui/material/styles'
@@ -78,6 +79,7 @@ const NodeInputHandler = ({
 }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
+    const { t } = useTranslation()
     const ref = useRef(null)
     const { reactFlowInstance, deleteEdge } = useContext(flowContext)
     const updateNodeInternals = useUpdateNodeInternals()
@@ -397,18 +399,18 @@ const NodeInputHandler = ({
     const editAsyncOption = (inputParamName, inputValue) => {
         if (inputParamName === 'selectedTool') {
             setAsyncOptionEditDialogProps({
-                title: 'Edit Tool',
+                title: t('nodeInput.editTool'),
                 type: 'EDIT',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Save',
+                cancelButtonName: t('common.cancel'),
+                confirmButtonName: t('common.save'),
                 toolId: inputValue
             })
         } else if (inputParamName === 'selectedAssistant') {
             setAsyncOptionEditDialogProps({
-                title: 'Edit Assistant',
+                title: t('nodeInput.editAssistant'),
                 type: 'EDIT',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Save',
+                cancelButtonName: t('common.cancel'),
+                confirmButtonName: t('common.save'),
                 assistantId: inputValue
             })
         }
@@ -418,17 +420,17 @@ const NodeInputHandler = ({
     const addAsyncOption = (inputParamName) => {
         if (inputParamName === 'selectedTool') {
             setAsyncOptionEditDialogProps({
-                title: 'Add New Tool',
+                title: t('nodeInput.addNewTool'),
                 type: 'ADD',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Add'
+                cancelButtonName: t('common.cancel'),
+                confirmButtonName: t('common.add')
             })
         } else if (inputParamName === 'selectedAssistant') {
             setAsyncOptionEditDialogProps({
-                title: 'Add New Assistant',
+                title: t('nodeInput.addNewAssistant'),
                 type: 'ADD',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Add'
+                cancelButtonName: t('common.cancel'),
+                confirmButtonName: t('common.add')
             })
         }
         setAsyncOptionEditDialog(inputParamName)

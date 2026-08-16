@@ -1,19 +1,20 @@
 import express from 'express'
 import toolsController from '../../controllers/tools'
+import { optionalAuth } from '../../middlewares/auth.middleware'
 
 const router = express.Router()
 
-// CREATE
-router.post('/', toolsController.createTool)
+// CREATE - 需要认证以关联用户
+router.post('/', optionalAuth, toolsController.createTool)
 
-// READ
-router.get('/', toolsController.getAllTools)
-router.get(['/', '/:id'], toolsController.getToolById)
+// READ - 可选认证，用于过滤用户数据
+router.get('/', optionalAuth, toolsController.getAllTools)
+router.get(['/', '/:id'], optionalAuth, toolsController.getToolById)
 
-// UPDATE
-router.put(['/', '/:id'], toolsController.updateTool)
+// UPDATE - 可选认证，用于权限检查
+router.put(['/', '/:id'], optionalAuth, toolsController.updateTool)
 
-// DELETE
-router.delete(['/', '/:id'], toolsController.deleteTool)
+// DELETE - 可选认证，用于权限检查
+router.delete(['/', '/:id'], optionalAuth, toolsController.deleteTool)
 
 export default router

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from '@/store/actions'
@@ -54,18 +55,7 @@ import useApi from '@/hooks/useApi'
 import useNotifier from '@/utils/useNotifier'
 
 // Icons
-import {
-    IconChartBar,
-    IconCoin,
-    IconClock,
-    IconCheck,
-    IconDownload,
-    IconX,
-    IconActivity,
-    IconBrandOpenai,
-    IconRobot,
-    IconTrash
-} from '@tabler/icons-react'
+import { IconChartBar, IconCoin, IconClock, IconCheck, IconDownload, IconX, IconActivity, IconTrash } from '@tabler/icons-react'
 
 // Charts
 import ReactECharts from 'echarts-for-react'
@@ -549,6 +539,7 @@ const UsageStats = () => {
                                                 <StyledTableCell>{t('stats.provider')}</StyledTableCell>
                                                 <StyledTableCell>{t('stats.model')}</StyledTableCell>
                                                 <StyledTableCell align='right'>{t('stats.inputTokens')}</StyledTableCell>
+                                                <StyledTableCell align='right'>{t('stats.cacheReadTokens')}</StyledTableCell>
                                                 <StyledTableCell align='right'>{t('stats.outputTokens')}</StyledTableCell>
                                                 <StyledTableCell align='right'>{t('stats.cost')}</StyledTableCell>
                                                 <StyledTableCell align='right'>{t('stats.latency')}</StyledTableCell>
@@ -559,7 +550,7 @@ const UsageStats = () => {
                                             {logsApi.loading ? (
                                                 [1, 2, 3, 4, 5].map((i) => (
                                                     <StyledTableRow key={i}>
-                                                        {[1, 2, 3, 4, 5, 6, 7, 8].map((j) => (
+                                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((j) => (
                                                             <StyledTableCell key={j}>
                                                                 <Skeleton variant='text' />
                                                             </StyledTableCell>
@@ -578,6 +569,18 @@ const UsageStats = () => {
                                                         <StyledTableCell>{log.model}</StyledTableCell>
                                                         <StyledTableCell align='right'>{log.inputTokens?.toLocaleString()}</StyledTableCell>
                                                         <StyledTableCell align='right'>
+                                                            {log.cacheReadTokens ? (
+                                                                <Chip
+                                                                    label={log.cacheReadTokens.toLocaleString()}
+                                                                    size='small'
+                                                                    color='success'
+                                                                    variant='outlined'
+                                                                />
+                                                            ) : (
+                                                                '-'
+                                                            )}
+                                                        </StyledTableCell>
+                                                        <StyledTableCell align='right'>
                                                             {log.outputTokens?.toLocaleString()}
                                                         </StyledTableCell>
                                                         <StyledTableCell align='right'>${Number(log.cost).toFixed(6)}</StyledTableCell>
@@ -595,7 +598,7 @@ const UsageStats = () => {
                                                 ))
                                             ) : (
                                                 <StyledTableRow>
-                                                    <StyledTableCell colSpan={8} align='center'>
+                                                    <StyledTableCell colSpan={9} align='center'>
                                                         <Typography color='text.secondary'>{t('stats.noData')}</Typography>
                                                     </StyledTableCell>
                                                 </StyledTableRow>

@@ -5,9 +5,13 @@ import { InternalFlowiseError } from '../../errors/internalFlowiseError'
 import { getErrorMessage } from '../../errors/utils'
 import { QueryRunner } from 'typeorm'
 
-const createVariable = async (newVariable: Variable) => {
+const createVariable = async (newVariable: Variable, userId?: string) => {
     try {
         const appServer = getRunningExpressApp()
+        // 设置用户ID
+        if (userId) {
+            newVariable.userId = userId
+        }
         const variable = await appServer.AppDataSource.getRepository(Variable).create(newVariable)
         const dbResponse = await appServer.AppDataSource.getRepository(Variable).save(variable)
         return dbResponse
@@ -19,9 +23,21 @@ const createVariable = async (newVariable: Variable) => {
     }
 }
 
-const deleteVariable = async (variableId: string): Promise<any> => {
+const deleteVariable = async (variableId: string, userId?: string): Promise<any> => {
     try {
         const appServer = getRunningExpressApp()
+
+        // 检查权限
+        if (userId) {
+            const variable = await appServer.AppDataSource.getRepository(Variable).findOneBy({ id: variableId })
+            if (!variable) {
+                throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Variable ${variableId} not found`)
+            }
+            if (variable.userId && variable.userId !== userId) {
+                throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to delete this variable`)
+            }
+        }
+
         const dbResponse = await appServer.AppDataSource.getRepository(Variable).delete({ id: variableId })
         return dbResponse
     } catch (error) {
@@ -32,10 +48,17 @@ const deleteVariable = async (variableId: string): Promise<any> => {
     }
 }
 
-const getAllVariables = async () => {
+const getAllVariables = async (userId?: string) => {
     try {
         const appServer = getRunningExpressApp()
-        const dbResponse = await appServer.AppDataSource.getRepository(Variable).find()
+
+        let queryBuilder = appServer.AppDataSource.getRepository(Variable).createQueryBuilder('v')
+
+        if (userId) {
+            queryBuilder = queryBuilder.where('v.userId = :userId OR v.userId IS NULL', { userId })
+        }
+
+        const dbResponse = await queryBuilder.getMany()
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(
@@ -45,12 +68,22 @@ const getAllVariables = async () => {
     }
 }
 
-const getVariableById = async (variableId: string) => {
+const getVariableById = async (variableId: string, userId?: string) => {
     try {
         const appServer = getRunningExpressApp()
         const dbResponse = await appServer.AppDataSource.getRepository(Variable).findOneBy({
             id: variableId
         })
+
+        if (!dbResponse) {
+            throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Variable ${variableId} not found`)
+        }
+
+        // 检查权限
+        if (userId && dbResponse.userId && dbResponse.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to access this variable`)
+        }
+
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(
@@ -60,9 +93,15 @@ const getVariableById = async (variableId: string) => {
     }
 }
 
-const updateVariable = async (variable: Variable, updatedVariable: Variable) => {
+const updateVariable = async (variable: Variable, updatedVariable: Variable, userId?: string) => {
     try {
         const appServer = getRunningExpressApp()
+
+        // 检查权限
+        if (userId && variable.userId && variable.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to update this variable`)
+        }
+
         const tmpUpdatedVariable = await appServer.AppDataSource.getRepository(Variable).merge(variable, updatedVariable)
         const dbResponse = await appServer.AppDataSource.getRepository(Variable).save(tmpUpdatedVariable)
         return dbResponse
