@@ -85,9 +85,26 @@ const checkIfChatflowIsValidForUploads = async (chatflowId: string): Promise<any
     }
 }
 
-const deleteChatflow = async (chatflowId: string): Promise<any> => {
+const deleteChatflow = async (chatflowId: string, userId?: string): Promise<any> => {
     try {
         const appServer = getRunningExpressApp()
+
+        // 必须提供 userId，所有用户都只能删除自己的工作流
+        if (!userId) {
+            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, 'User ID is required')
+        }
+
+        // 先检查 chatflow 是否存在且属于该用户
+        const chatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({ id: chatflowId })
+        if (!chatflow) {
+            throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowId} not found`)
+        }
+
+        // 严格检查权限：只能删除自己的 chatflow
+        if (chatflow.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to delete this chatflow`)
+        }
+
         const dbResponse = await appServer.AppDataSource.getRepository(ChatFlow).delete({ id: chatflowId })
         try {
             // Delete all uploads corresponding to this chatflow
@@ -114,10 +131,23 @@ const deleteChatflow = async (chatflowId: string): Promise<any> => {
     }
 }
 
-const getAllChatflows = async (type?: ChatflowType): Promise<ChatFlow[]> => {
+const getAllChatflows = async (type?: ChatflowType, userId?: string): Promise<ChatFlow[]> => {
     try {
         const appServer = getRunningExpressApp()
-        const dbResponse = await appServer.AppDataSource.getRepository(ChatFlow).find()
+
+        // 必须提供 userId，所有用户都只能看到自己的工作流
+        if (!userId) {
+            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, 'User ID is required')
+        }
+
+        // 构建查询条件：只查询属于当前用户的 chatflows
+        const queryBuilder = appServer.AppDataSource.getRepository(ChatFlow)
+            .createQueryBuilder('cf')
+            .where('cf.userId = :userId', { userId })
+            .orderBy('cf.updatedDate', 'DESC')
+
+        const dbResponse = await queryBuilder.getMany()
+
         if (type === 'MULTIAGENT') {
             return dbResponse.filter((chatflow) => chatflow.type === 'MULTIAGENT')
         } else if (type === 'CHATFLOW') {
@@ -157,7 +187,7 @@ const getChatflowByApiKey = async (apiKeyId: string, keyonly?: unknown): Promise
     }
 }
 
-const getChatflowById = async (chatflowId: string): Promise<any> => {
+const getChatflowById = async (chatflowId: string, userId?: string): Promise<any> => {
     try {
         const appServer = getRunningExpressApp()
         const dbResponse = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
@@ -166,6 +196,12 @@ const getChatflowById = async (chatflowId: string): Promise<any> => {
         if (!dbResponse) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowId} not found in the database!`)
         }
+
+        // 如果提供了 userId，检查权限：只能访问自己的 chatflow
+        if (userId && dbResponse.userId && dbResponse.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to access this chatflow`)
+        }
+
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(
@@ -353,6 +389,82 @@ const _checkAndUpdateDocumentStoreUsage = async (chatflow: ChatFlow) => {
     }
 }
 
+// 获取所有无主的 chatflows（管理员专用）
+const getOrphanedChatflows = async (type?: ChatflowType): Promise<ChatFlow[]> => {
+    try {
+        const appServer = getRunningExpressApp()
+
+        let queryBuilder = appServer.AppDataSource.getRepository(ChatFlow).createQueryBuilder('cf').where('cf.userId IS NULL')
+
+        const dbResponse = await queryBuilder.orderBy('cf.updatedDate', 'DESC').getMany()
+
+        if (type === 'MULTIAGENT') {
+            return dbResponse.filter((chatflow) => chatflow.type === 'MULTIAGENT')
+        } else if (type === 'CHATFLOW') {
+            return dbResponse.filter((chatflow) => chatflow.type === 'CHATFLOW' || !chatflow.type)
+        }
+        return dbResponse
+    } catch (error) {
+        throw new InternalFlowiseError(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            `Error: chatflowsService.getOrphanedChatflows - ${getErrorMessage(error)}`
+        )
+    }
+}
+
+// 分配 chatflow 所有者（管理员专用）
+const assignChatflowOwner = async (chatflowId: string, newUserId: string): Promise<ChatFlow> => {
+    try {
+        const appServer = getRunningExpressApp()
+
+        const chatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({ id: chatflowId })
+        if (!chatflow) {
+            throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Chatflow ${chatflowId} not found`)
+        }
+
+        chatflow.userId = newUserId
+        const dbResponse = await appServer.AppDataSource.getRepository(ChatFlow).save(chatflow)
+
+        return dbResponse
+    } catch (error) {
+        throw new InternalFlowiseError(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            `Error: chatflowsService.assignChatflowOwner - ${getErrorMessage(error)}`
+        )
+    }
+}
+
+// 批量分配 chatflow 所有者（管理员专用）
+const batchAssignChatflowOwner = async (chatflowIds: string[], newUserId: string): Promise<{ success: number; failed: number }> => {
+    try {
+        const appServer = getRunningExpressApp()
+        let success = 0
+        let failed = 0
+
+        for (const chatflowId of chatflowIds) {
+            try {
+                await appServer.AppDataSource.getRepository(ChatFlow)
+                    .createQueryBuilder()
+                    .update(ChatFlow)
+                    .set({ userId: newUserId })
+                    .where('id = :id', { id: chatflowId })
+                    .execute()
+                success++
+            } catch (e) {
+                failed++
+                logger.error(`Failed to assign owner for chatflow ${chatflowId}: ${e}`)
+            }
+        }
+
+        return { success, failed }
+    } catch (error) {
+        throw new InternalFlowiseError(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            `Error: chatflowsService.batchAssignChatflowOwner - ${getErrorMessage(error)}`
+        )
+    }
+}
+
 export default {
     checkIfChatflowIsValidForStreaming,
     checkIfChatflowIsValidForUploads,
@@ -364,5 +476,8 @@ export default {
     importChatflows,
     updateChatflow,
     getSinglePublicChatflow,
-    getSinglePublicChatbotConfig
+    getSinglePublicChatbotConfig,
+    getOrphanedChatflows,
+    assignChatflowOwner,
+    batchAssignChatflowOwner
 }

@@ -7,7 +7,7 @@
     "scripts": {
         "build": "tsc && gulp",
         "dev:gulp": "gulp",
-        "dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"pnpm dev:gulp\"",
+        "dev": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" tsc-watch --noClear -p ./tsconfig.json --onSuccess \"pnpm dev:gulp\"",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "clean": "rimraf dist",
         "nuke": "rimraf dist node_modules .turbo"
@@ -154,6 +154,7 @@
         "@types/pg": "^8.10.2",
         "@types/ws": "^8.5.3",
         "babel-register": "^6.26.0",
+        "cross-env": "^10.1.0",
         "gulp": "^4.0.2",
         "rimraf": "^5.0.5",
         "tsc-watch": "^6.0.4",

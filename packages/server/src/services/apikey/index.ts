@@ -27,17 +27,28 @@ const _apikeysStoredInDb = (): boolean => {
     return appConfig.apiKeys.storageType === 'db'
 }
 
-const getAllApiKeys = async () => {
+const getAllApiKeys = async (userId?: string) => {
     try {
+        // 必须提供 userId，所有用户都只能看到自己的 API 密钥
+        if (!userId) {
+            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, 'User ID is required')
+        }
+
         if (_apikeysStoredInJson()) {
             const keys = await getAPIKeys_json()
             return await addChatflowsCount(keys)
         } else if (_apikeysStoredInDb()) {
             const appServer = getRunningExpressApp()
-            let keys = await appServer.AppDataSource.getRepository(ApiKey).find()
+
+            // 只查询属于当前用户的 API 密钥
+            let queryBuilder = appServer.AppDataSource.getRepository(ApiKey).createQueryBuilder('k').where('k.userId = :userId', { userId })
+
+            let keys = await queryBuilder.getMany()
+
+            // 如果用户没有密钥，为其创建默认密钥
             if (keys.length === 0) {
-                await createApiKey('DefaultKey')
-                keys = await appServer.AppDataSource.getRepository(ApiKey).find()
+                await createApiKey('DefaultKey', userId)
+                keys = await queryBuilder.getMany()
             }
             return await addChatflowsCount(keys)
         } else {
@@ -69,7 +80,7 @@ const getApiKey = async (apiKey: string) => {
     }
 }
 
-const createApiKey = async (keyName: string) => {
+const createApiKey = async (keyName: string, userId?: string) => {
     try {
         if (_apikeysStoredInJson()) {
             const keys = await addAPIKey_json(keyName)
@@ -83,9 +94,13 @@ const createApiKey = async (keyName: string) => {
             newKey.apiKey = apiKey
             newKey.apiSecret = apiSecret
             newKey.keyName = keyName
+            // 设置用户ID
+            if (userId) {
+                newKey.userId = userId
+            }
             const key = appServer.AppDataSource.getRepository(ApiKey).create(newKey)
             await appServer.AppDataSource.getRepository(ApiKey).save(key)
-            return getAllApiKeys()
+            return getAllApiKeys(userId)
         } else {
             throw new InternalFlowiseError(StatusCodes.INTERNAL_SERVER_ERROR, `UNKNOWN APIKEY_STORAGE_TYPE`)
         }
@@ -95,8 +110,13 @@ const createApiKey = async (keyName: string) => {
 }
 
 // Update api key
-const updateApiKey = async (id: string, keyName: string) => {
+const updateApiKey = async (id: string, keyName: string, userId?: string) => {
     try {
+        // 必须提供 userId，所有用户都只能更新自己的 API 密钥
+        if (!userId) {
+            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, 'User ID is required')
+        }
+
         if (_apikeysStoredInJson()) {
             const keys = await updateAPIKey_json(id, keyName)
             return await addChatflowsCount(keys)
@@ -106,11 +126,17 @@ const updateApiKey = async (id: string, keyName: string) => {
                 id: id
             })
             if (!currentKey) {
-                throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `ApiKey ${currentKey} not found`)
+                throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `ApiKey ${id} not found`)
             }
+
+            // 严格检查权限：只能更新自己的 API 密钥
+            if (currentKey.userId !== userId) {
+                throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to update this API key`)
+            }
+
             currentKey.keyName = keyName
             await appServer.AppDataSource.getRepository(ApiKey).save(currentKey)
-            return getAllApiKeys()
+            return getAllApiKeys(userId)
         } else {
             throw new InternalFlowiseError(StatusCodes.INTERNAL_SERVER_ERROR, `UNKNOWN APIKEY_STORAGE_TYPE`)
         }
@@ -119,18 +145,35 @@ const updateApiKey = async (id: string, keyName: string) => {
     }
 }
 
-const deleteApiKey = async (id: string) => {
+const deleteApiKey = async (id: string, userId?: string) => {
     try {
+        // 必须提供 userId，所有用户都只能删除自己的 API 密钥
+        if (!userId) {
+            throw new InternalFlowiseError(StatusCodes.UNAUTHORIZED, 'User ID is required')
+        }
+
         if (_apikeysStoredInJson()) {
             const keys = await deleteAPIKey_json(id)
             return await addChatflowsCount(keys)
         } else if (_apikeysStoredInDb()) {
             const appServer = getRunningExpressApp()
+
+            // 先检查 API 密钥是否存在且属于该用户
+            const currentKey = await appServer.AppDataSource.getRepository(ApiKey).findOneBy({ id: id })
+            if (!currentKey) {
+                throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `ApiKey ${id} not found`)
+            }
+
+            // 严格检查权限：只能删除自己的 API 密钥
+            if (currentKey.userId !== userId) {
+                throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `No permission to delete this API key`)
+            }
+
             const dbResponse = await appServer.AppDataSource.getRepository(ApiKey).delete({ id: id })
             if (!dbResponse) {
                 throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `ApiKey ${id} not found`)
             }
-            return getAllApiKeys()
+            return getAllApiKeys(userId)
         } else {
             throw new InternalFlowiseError(StatusCodes.INTERNAL_SERVER_ERROR, `UNKNOWN APIKEY_STORAGE_TYPE`)
         }
@@ -139,7 +182,7 @@ const deleteApiKey = async (id: string) => {
     }
 }
 
-const importKeys = async (body: any) => {
+const importKeys = async (body: any, userId?: string) => {
     try {
         const jsonFile = body.jsonFile
         const splitDataURI = jsonFile.split(',')
@@ -205,11 +248,15 @@ const importKeys = async (body: any) => {
                     newKey.apiKey = key.apiKey
                     newKey.apiSecret = key.apiSecret
                     newKey.keyName = key.keyName
+                    // 设置用户ID
+                    if (userId) {
+                        newKey.userId = userId
+                    }
                     const newKeyEntity = appServer.AppDataSource.getRepository(ApiKey).create(newKey)
                     await appServer.AppDataSource.getRepository(ApiKey).save(newKeyEntity)
                 }
             }
-            return getAllApiKeys()
+            return getAllApiKeys(userId)
         } else {
             throw new InternalFlowiseError(StatusCodes.INTERNAL_SERVER_ERROR, `UNKNOWN APIKEY_STORAGE_TYPE`)
         }

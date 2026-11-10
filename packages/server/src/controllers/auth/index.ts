@@ -20,8 +20,8 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, password } = req.body
-        const result = await authService.login({ email, password })
+        const { email, username, password } = req.body
+        const result = await authService.login({ email, username, password })
         return res.status(StatusCodes.OK).json({
             success: true,
             message: '登录成功',

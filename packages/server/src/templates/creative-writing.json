@@ -1,0 +1,175 @@
+{
+    "id": "official-creative-writing",
+    "name": "创意写作助手",
+    "description": "AI创意写作助手，支持故事创作、诗歌创作、剧本编写等多种文学创作形式，激发创作灵感",
+    "category": "writing",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["创意写作", "故事创作", "诗歌", "文学创作"],
+    "usecases": ["小说创作", "诗歌创作", "剧本编写", "创意文案", "故事续写"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatOpenAI_0",
+                "position": { "x": 100, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatOpenAI_0",
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
+                    "category": "Chat Models",
+                    "description": "创意写作模型，高温度设置激发创造力",
+                    "inputParams": [
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-4"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.9
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-4",
+                        "temperature": 0.9
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "bufferMemory_0",
+                "position": { "x": 100, "y": 700 },
+                "type": "customNode",
+                "data": {
+                    "id": "bufferMemory_0",
+                    "label": "Buffer Memory",
+                    "version": 2.0,
+                    "name": "bufferMemory",
+                    "type": "BufferMemory",
+                    "baseClasses": ["BufferMemory", "BaseMemory"],
+                    "category": "Memory",
+                    "description": "记忆创作上下文，保持故事连贯性",
+                    "inputParams": [
+                        {
+                            "label": "Memory Key",
+                            "name": "memoryKey",
+                            "type": "string",
+                            "default": "chat_history"
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "memoryKey": "chat_history"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "bufferMemory_0-output-bufferMemory-BufferMemory|BaseMemory",
+                            "name": "bufferMemory",
+                            "label": "BufferMemory",
+                            "type": "BufferMemory | BaseMemory"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 500, "y": 250 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "Conversation Chain",
+                    "version": 3.0,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "LLMChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "创意写作对话链",
+                    "inputParams": [
+                        {
+                            "label": "System Message",
+                            "name": "systemMessagePrompt",
+                            "type": "string",
+                            "rows": 4,
+                            "default": "你是一个富有创意的作家，擅长创作引人入胜的故事、诗歌和文章。请发挥想象力，创作出独特而精彩的内容。注意：\n1. 保持情节连贯性和逻辑性\n2. 塑造生动的人物形象\n3. 运用丰富的修辞手法\n4. 营造适当的氛围和情感"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Chat Model",
+                            "name": "model",
+                            "type": "BaseChatModel"
+                        },
+                        {
+                            "label": "Memory",
+                            "name": "memory",
+                            "type": "BaseMemory"
+                        }
+                    ],
+                    "inputs": {
+                        "systemMessagePrompt": "你是一个富有创意的作家，擅长创作引人入胜的故事、诗歌和文章。请发挥想象力，创作出独特而精彩的内容。注意：\n1. 保持情节连贯性和逻辑性\n2. 塑造生动的人物形象\n3. 运用丰富的修辞手法\n4. 营造适当的氛围和情感"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "conversationChain_0-output-conversationChain-ConversationChain|LLMChain|BaseChain",
+                            "name": "conversationChain",
+                            "label": "ConversationChain",
+                            "type": "ConversationChain | LLMChain | BaseChain"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            }
+        ],
+        "edges": [
+            {
+                "id": "chatOpenAI_0-conversationChain_0",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-model-BaseChatModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            },
+            {
+                "id": "bufferMemory_0-conversationChain_0",
+                "source": "bufferMemory_0",
+                "sourceHandle": "bufferMemory_0-output-bufferMemory-BufferMemory|BaseMemory",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-memory-BaseMemory",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            }
+        ]
+    }
+}

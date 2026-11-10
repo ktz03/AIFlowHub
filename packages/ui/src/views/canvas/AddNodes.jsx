@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
@@ -71,6 +72,7 @@ const blacklistForChatflowCanvas = {
 
 const AddNodes = ({ nodesData, node, isAgentCanvas }) => {
     const theme = useTheme()
+    const { t } = useTranslation()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
 
@@ -284,7 +286,7 @@ const AddNodes = ({ nodesData, node, isAgentCanvas }) => {
                 size='small'
                 color='primary'
                 aria-label='add'
-                title='Add Node'
+                title={t('addNodes.addNode')}
                 onClick={handleToggle}
             >
                 {open ? <IconMinus /> : <IconPlus />}
@@ -315,7 +317,7 @@ const AddNodes = ({ nodesData, node, isAgentCanvas }) => {
                                 <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
                                     <Box sx={{ p: 2 }}>
                                         <Stack>
-                                            <Typography variant='h4'>Add Nodes</Typography>
+                                            <Typography variant='h4'>{t('addNodes.title')}</Typography>
                                         </Stack>
                                         <OutlinedInput
                                             // eslint-disable-next-line
@@ -324,7 +326,7 @@ const AddNodes = ({ nodesData, node, isAgentCanvas }) => {
                                             id='input-search-node'
                                             value={searchValue}
                                             onChange={(e) => filterSearch(e.target.value)}
-                                            placeholder='Search nodes'
+                                            placeholder={t('addNodes.searchPlaceholder')}
                                             startAdornment={
                                                 <InputAdornment position='start'>
                                                     <IconSearch stroke={1.5} size='1rem' color={theme.palette.grey[500]} />
@@ -340,7 +342,7 @@ const AddNodes = ({ nodesData, node, isAgentCanvas }) => {
                                                             color: theme.palette.grey[900]
                                                         }
                                                     }}
-                                                    title='Clear Search'
+                                                    title={t('addNodes.clearSearch')}
                                                 >
                                                     <IconX
                                                         stroke={1.5}

@@ -20,6 +20,13 @@ const getIsChatflowStreaming = (id) => client.get(`/chatflows-streaming/${id}`)
 
 const getAllowChatflowUploads = (id) => client.get(`/chatflows-uploads/${id}`)
 
+// 管理员功能 - 孤儿 chatflow 管理
+const getOrphanedChatflows = (type) => client.get(`/chatflows/orphaned${type ? `?type=${type}` : ''}`)
+
+const assignChatflowOwner = (chatflowId, userId) => client.post(`/chatflows/${chatflowId}/assign-owner`, { userId })
+
+const batchAssignChatflowOwner = (chatflowIds, userId) => client.post(`/chatflows/batch-assign-owner`, { chatflowIds, userId })
+
 export default {
     getAllChatflows,
     getAllAgentflows,
@@ -30,5 +37,8 @@ export default {
     updateChatflow,
     deleteChatflow,
     getIsChatflowStreaming,
-    getAllowChatflowUploads
+    getAllowChatflowUploads,
+    getOrphanedChatflows,
+    assignChatflowOwner,
+    batchAssignChatflowOwner
 }

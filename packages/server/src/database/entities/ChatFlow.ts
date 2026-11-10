@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm'
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn, Index } from 'typeorm'
 import { ChatflowType, IChatFlow } from '../../Interface'
 
 @Entity()
@@ -9,6 +9,10 @@ export class ChatFlow implements IChatFlow {
 
     @Column()
     name: string
+
+    @Column({ nullable: true })
+    @Index()
+    userId?: string
 
     @Column({ type: 'text' })
     flowData: string

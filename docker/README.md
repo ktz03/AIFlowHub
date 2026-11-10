@@ -9,6 +9,16 @@ Starts Flowise from [DockerHub Image](https://hub.docker.com/r/flowiseai/flowise
 3. Open [http://localhost:3000](http://localhost:3000)
 4. You can bring the containers down by `docker compose stop`
 
+## Offline local LLM (Ollama)
+
+If you want to run the system fully offline with a local model, use:
+
+```bash
+docker compose -f docker-compose.offline.yml up -d
+```
+
+Detailed setup guide (Chinese): [OFFLINE-LLM.zh-CN.md](./OFFLINE-LLM.zh-CN.md)
+
 ## 🔒 Authentication
 
 1. Create `.env` file and specify the `PORT`, `FLOWISE_USERNAME`, and `FLOWISE_PASSWORD` (refer to `.env.example`)

@@ -22,6 +22,8 @@ interface UsageData {
     model: string
     inputTokens: number
     outputTokens: number
+    cacheReadTokens?: number
+    cacheCreationTokens?: number
     latencyMs: number
     status: 'success' | 'failed'
     errorMessage?: string
@@ -31,6 +33,8 @@ interface TokenUsage {
     promptTokens: number
     completionTokens: number
     totalTokens: number
+    cacheReadTokens?: number
+    cacheCreationTokens?: number
 }
 
 /**
@@ -77,11 +81,14 @@ export const inferProvider = (modelName: string): string => {
 /**
  * 从LLM结果中提取token使用信息
  * 支持多种格式: OpenAI, Anthropic, 通用LangChain格式
+ * 支持缓存 token 提取（DeepSeek 等模型）
  */
 export const extractTokenUsage = (output: LLMResult): TokenUsage => {
     let promptTokens = 0
     let completionTokens = 0
     let totalTokens = 0
+    let cacheReadTokens: number | undefined
+    let cacheCreationTokens: number | undefined
 
     // 1. 尝试从 llmOutput.tokenUsage 获取 (OpenAI格式)
     if (output.llmOutput?.tokenUsage) {
@@ -89,7 +96,10 @@ export const extractTokenUsage = (output: LLMResult): TokenUsage => {
         promptTokens = usage.promptTokens || 0
         completionTokens = usage.completionTokens || 0
         totalTokens = usage.totalTokens || promptTokens + completionTokens
-        return { promptTokens, completionTokens, totalTokens }
+        // 提取缓存相关 token（DeepSeek 等模型）
+        cacheReadTokens = usage.cache_read_input_tokens
+        cacheCreationTokens = usage.cache_creation_input_tokens
+        return { promptTokens, completionTokens, totalTokens, cacheReadTokens, cacheCreationTokens }
     }
 
     // 2. 尝试从 llmOutput.usage 获取 (Anthropic格式)
@@ -98,7 +108,10 @@ export const extractTokenUsage = (output: LLMResult): TokenUsage => {
         promptTokens = usage.input_tokens || 0
         completionTokens = usage.output_tokens || 0
         totalTokens = promptTokens + completionTokens
-        return { promptTokens, completionTokens, totalTokens }
+        // Anthropic 也支持缓存
+        cacheReadTokens = usage.cache_read_input_tokens
+        cacheCreationTokens = usage.cache_creation_input_tokens
+        return { promptTokens, completionTokens, totalTokens, cacheReadTokens, cacheCreationTokens }
     }
 
     // 3. 尝试从 generations[0][0].message.usage_metadata 获取
@@ -109,7 +122,9 @@ export const extractTokenUsage = (output: LLMResult): TokenUsage => {
             promptTokens = usage.input_tokens || 0
             completionTokens = usage.output_tokens || 0
             totalTokens = usage.total_tokens || promptTokens + completionTokens
-            return { promptTokens, completionTokens, totalTokens }
+            cacheReadTokens = usage.cache_read_input_tokens
+            cacheCreationTokens = usage.cache_creation_input_tokens
+            return { promptTokens, completionTokens, totalTokens, cacheReadTokens, cacheCreationTokens }
         }
 
         // 4. 尝试从 response_metadata.tokenUsage 获取
@@ -118,11 +133,13 @@ export const extractTokenUsage = (output: LLMResult): TokenUsage => {
             promptTokens = usage.promptTokens || 0
             completionTokens = usage.completionTokens || 0
             totalTokens = usage.totalTokens || promptTokens + completionTokens
-            return { promptTokens, completionTokens, totalTokens }
+            cacheReadTokens = usage.cache_read_input_tokens
+            cacheCreationTokens = usage.cache_creation_input_tokens
+            return { promptTokens, completionTokens, totalTokens, cacheReadTokens, cacheCreationTokens }
         }
     }
 
-    return { promptTokens, completionTokens, totalTokens }
+    return { promptTokens, completionTokens, totalTokens, cacheReadTokens, cacheCreationTokens }
 }
 
 /**
@@ -177,8 +194,8 @@ export class UsageTrackingHandler extends BaseCallbackHandler {
     async handleLLMEnd(output: LLMResult, runId: string): Promise<void> {
         const latencyMs = Date.now() - this.startTime
 
-        // 提取token使用信息
-        let { promptTokens, completionTokens, totalTokens } = extractTokenUsage(output)
+        // 提取token使用信息（包括缓存 token）
+        let { promptTokens, completionTokens, totalTokens, cacheReadTokens, cacheCreationTokens } = extractTokenUsage(output)
 
         // 如果没有获取到token信息，使用估算
         if (totalTokens === 0) {
@@ -202,6 +219,8 @@ export class UsageTrackingHandler extends BaseCallbackHandler {
             model: this.modelName,
             inputTokens: promptTokens,
             outputTokens: completionTokens,
+            cacheReadTokens,
+            cacheCreationTokens,
             latencyMs,
             status: 'success'
         })

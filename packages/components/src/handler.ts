@@ -28,6 +28,7 @@ import { getCredentialData, getCredentialParam, getEnvironmentVariable } from '.
 import { ICommonObject, IDatabaseEntity, INodeData, IServerSideEventStreamer } from './Interface'
 import { LangWatch, LangWatchSpan, LangWatchTrace, autoconvertTypedValues } from 'langwatch'
 import { DataSource } from 'typeorm'
+import { UsageTrackingHandler } from './usageTrackingHandler'
 import { ChatGenerationChunk } from '@langchain/core/outputs'
 import { AIMessageChunk } from '@langchain/core/messages'
 
@@ -432,10 +433,21 @@ class ExtendedLunaryHandler extends LunaryHandler {
 
 export const additionalCallbacks = async (nodeData: INodeData, options: ICommonObject) => {
     try {
-        if (!options.analytic) return []
+        const callbacks: any = []
+
+        // Add usage tracking handler if userId is available
+        if (options.userId && options.chatflowid && options.baseURL) {
+            const usageTracker = new UsageTrackingHandler({
+                userId: options.userId,
+                chatflowId: options.chatflowid,
+                baseURL: options.baseURL
+            })
+            callbacks.push(usageTracker)
+        }
+
+        if (!options.analytic) return callbacks
 
         const analytic = JSON.parse(options.analytic)
-        const callbacks: any = []
 
         for (const provider in analytic) {
             const providerStatus = analytic[provider].status as boolean

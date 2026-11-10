@@ -89,6 +89,8 @@ export const buildAgentGraph = async ({
             cachePool,
             uploads,
             baseURL,
+            flowConfig,
+            userId: flowConfig.userId, // Pass userId for usage tracking
             signal: signal ?? new AbortController()
         }
 
@@ -366,10 +368,22 @@ export const buildAgentGraph = async ({
                 totalUsedTools = uniq(flatten(totalUsedTools))
                 totalArtifacts = uniq(flatten(totalArtifacts))
 
+                // 转换图片 artifacts 的路径为可访问的 URL
+                const processedArtifacts = totalArtifacts.map((artifact: any) => {
+                    if ((artifact.type === 'png' || artifact.type === 'jpeg' || artifact.type === 'webp') && artifact.data) {
+                        const fileName = artifact.data.replace('FILE-STORAGE::', '')
+                        return {
+                            ...artifact,
+                            data: `${baseURL}/api/v1/get-upload-file?chatflowId=${chatflowid}&chatId=${chatId}&fileName=${fileName}`
+                        }
+                    }
+                    return artifact
+                })
+
                 if (shouldStreamResponse && sseStreamer) {
                     sseStreamer.streamUsedToolsEvent(chatId, totalUsedTools)
                     sseStreamer.streamSourceDocumentsEvent(chatId, totalSourceDocuments)
-                    sseStreamer.streamArtifactsEvent(chatId, totalArtifacts)
+                    sseStreamer.streamArtifactsEvent(chatId, processedArtifacts)
                     sseStreamer.streamEndEvent(chatId)
                 }
 
@@ -377,7 +391,7 @@ export const buildAgentGraph = async ({
                     finalResult,
                     finalAction,
                     sourceDocuments: totalSourceDocuments,
-                    artifacts: totalArtifacts,
+                    artifacts: processedArtifacts,
                     usedTools: totalUsedTools,
                     agentReasoning
                 }

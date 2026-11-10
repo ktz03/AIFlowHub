@@ -41,7 +41,9 @@ class ChainTool_Tools implements INode {
             {
                 label: 'Return Direct',
                 name: 'returnDirect',
+                description: 'Return the output of the tool directly to the user',
                 type: 'boolean',
+                default: true, // ⭐ 默认启用
                 optional: true
             },
             {

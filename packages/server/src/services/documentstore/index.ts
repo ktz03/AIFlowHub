@@ -68,10 +68,19 @@ const createDocumentStore = async (newDocumentStore: DocumentStore) => {
     }
 }
 
-const getAllDocumentStores = async () => {
+const getAllDocumentStores = async (userId?: string, isAdmin?: boolean) => {
     try {
         const appServer = getRunningExpressApp()
-        const entities = await appServer.AppDataSource.getRepository(DocumentStore).find()
+
+        // Build query with userId filter for non-admin users
+        const query: any = {}
+        if (userId && !isAdmin) {
+            query.userId = userId
+        }
+
+        const entities = await appServer.AppDataSource.getRepository(DocumentStore).find({
+            where: query
+        })
         return entities
     } catch (error) {
         throw new InternalFlowiseError(
@@ -141,7 +150,7 @@ const deleteLoaderFromDocumentStore = async (storeId: string, docId: string) => 
     }
 }
 
-const getDocumentStoreById = async (storeId: string) => {
+const getDocumentStoreById = async (storeId: string, userId?: string, isAdmin?: boolean) => {
     try {
         const appServer = getRunningExpressApp()
         const entity = await appServer.AppDataSource.getRepository(DocumentStore).findOneBy({
@@ -153,6 +162,12 @@ const getDocumentStoreById = async (storeId: string) => {
                 `Error: documentStoreServices.getDocumentStoreById - Document store ${storeId} not found`
             )
         }
+
+        // Check permission: non-admin users can only access their own document stores
+        if (userId && !isAdmin && entity.userId && entity.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `Access denied to document store ${storeId}`)
+        }
+
         return entity
     } catch (error) {
         throw new InternalFlowiseError(

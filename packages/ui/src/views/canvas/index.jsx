@@ -65,6 +65,8 @@ const Canvas = () => {
 
     const { state } = useLocation()
     const templateFlowData = state ? state.templateFlowData : ''
+    const sessionId = state ? state.sessionId : null
+    const continueChat = state ? state.continueChat : false
 
     const URLpath = document.location.pathname.toString().split('/')
     const chatflowId =
@@ -587,7 +589,7 @@ const Canvas = () => {
                                     </Fab>
                                 )}
                                 {isUpsertButtonEnabled && <VectorStorePopUp chatflowid={chatflowId} />}
-                                <ChatPopUp isAgentCanvas={isAgentCanvas} chatflowid={chatflowId} />
+                                <ChatPopUp isAgentCanvas={isAgentCanvas} chatflowid={chatflowId} initialChatId={sessionId} />
                             </ReactFlow>
                         </div>
                     </div>

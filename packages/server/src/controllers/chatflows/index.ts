@@ -42,7 +42,9 @@ const deleteChatflow = async (req: Request, res: Response, next: NextFunction) =
         if (typeof req.params === 'undefined' || !req.params.id) {
             throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, `Error: chatflowsRouter.deleteChatflow - id not provided!`)
         }
-        const apiResponse = await chatflowsService.deleteChatflow(req.params.id)
+        // 获取当前用户ID（如果已登录）
+        const userId = req.user?.userId
+        const apiResponse = await chatflowsService.deleteChatflow(req.params.id, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -51,7 +53,9 @@ const deleteChatflow = async (req: Request, res: Response, next: NextFunction) =
 
 const getAllChatflows = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const apiResponse = await chatflowsService.getAllChatflows(req.query?.type as ChatflowType)
+        // 获取当前用户ID（所有用户包括管理员都只能看到自己的工作流）
+        const userId = req.user?.userId
+        const apiResponse = await chatflowsService.getAllChatflows(req.query?.type as ChatflowType, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -83,7 +87,9 @@ const getChatflowById = async (req: Request, res: Response, next: NextFunction) 
         if (typeof req.params === 'undefined' || !req.params.id) {
             throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, `Error: chatflowsRouter.getChatflowById - id not provided!`)
         }
-        const apiResponse = await chatflowsService.getChatflowById(req.params.id)
+        // 获取当前用户ID（所有用户包括管理员都只能访问自己的工作流）
+        const userId = req.user?.userId
+        const apiResponse = await chatflowsService.getChatflowById(req.params.id, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -98,6 +104,12 @@ const saveChatflow = async (req: Request, res: Response, next: NextFunction) => 
         const body = req.body
         const newChatFlow = new ChatFlow()
         Object.assign(newChatFlow, body)
+
+        // 自动设置当前用户为 chatflow 的所有者
+        if (req.user?.userId) {
+            newChatFlow.userId = req.user.userId
+        }
+
         const apiResponse = await chatflowsService.saveChatflow(newChatFlow)
         return res.json(apiResponse)
     } catch (error) {
@@ -120,7 +132,9 @@ const updateChatflow = async (req: Request, res: Response, next: NextFunction) =
         if (typeof req.params === 'undefined' || !req.params.id) {
             throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, `Error: chatflowsRouter.updateChatflow - id not provided!`)
         }
-        const chatflow = await chatflowsService.getChatflowById(req.params.id)
+        // 获取当前用户ID（所有用户包括管理员都只能更新自己的工作流）
+        const userId = req.user?.userId
+        const chatflow = await chatflowsService.getChatflowById(req.params.id, userId)
         if (!chatflow) {
             return res.status(404).send(`Chatflow ${req.params.id} not found`)
         }
@@ -170,6 +184,67 @@ const getSinglePublicChatbotConfig = async (req: Request, res: Response, next: N
     }
 }
 
+// 获取无主的 chatflows（管理员专用）
+const getOrphanedChatflows = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // 检查是否为管理员
+        if (req.user?.role !== 'admin') {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, 'Admin access required')
+        }
+        const apiResponse = await chatflowsService.getOrphanedChatflows(req.query?.type as ChatflowType)
+        return res.json(apiResponse)
+    } catch (error) {
+        next(error)
+    }
+}
+
+// 分配 chatflow 所有者（管理员专用）
+const assignChatflowOwner = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // 检查是否为管理员
+        if (req.user?.role !== 'admin') {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, 'Admin access required')
+        }
+
+        if (typeof req.params === 'undefined' || !req.params.id) {
+            throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, 'Chatflow id not provided!')
+        }
+
+        const { userId } = req.body
+        if (!userId) {
+            throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, 'userId not provided!')
+        }
+
+        const apiResponse = await chatflowsService.assignChatflowOwner(req.params.id, userId)
+        return res.json(apiResponse)
+    } catch (error) {
+        next(error)
+    }
+}
+
+// 批量分配 chatflow 所有者（管理员专用）
+const batchAssignChatflowOwner = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // 检查是否为管理员
+        if (req.user?.role !== 'admin') {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, 'Admin access required')
+        }
+
+        const { chatflowIds, userId } = req.body
+        if (!chatflowIds || !Array.isArray(chatflowIds) || chatflowIds.length === 0) {
+            throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, 'chatflowIds array not provided!')
+        }
+        if (!userId) {
+            throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, 'userId not provided!')
+        }
+
+        const apiResponse = await chatflowsService.batchAssignChatflowOwner(chatflowIds, userId)
+        return res.json(apiResponse)
+    } catch (error) {
+        next(error)
+    }
+}
+
 export default {
     checkIfChatflowIsValidForStreaming,
     checkIfChatflowIsValidForUploads,
@@ -181,5 +256,8 @@ export default {
     importChatflows,
     updateChatflow,
     getSinglePublicChatflow,
-    getSinglePublicChatbotConfig
+    getSinglePublicChatbotConfig,
+    getOrphanedChatflows,
+    assignChatflowOwner,
+    batchAssignChatflowOwner
 }

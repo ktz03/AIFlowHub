@@ -48,7 +48,10 @@ import versionRouter from './versions'
 import nvidiaNimRouter from './nvidia-nim'
 import templateMarketRouter from './template-market'
 import modelEvaluationRouter from './model-evaluation'
+import workflowGeneratorRouter from './workflow-generator'
 import chatHistoryRouter from './chat-history'
+import systemConfigRouter from './system-config'
+import imageProxyRouter from './image-proxy'
 
 const router = express.Router()
 
@@ -102,5 +105,8 @@ router.use('/nvidia-nim', nvidiaNimRouter)
 router.use('/template-market', templateMarketRouter)
 router.use('/model-evaluation', modelEvaluationRouter)
 router.use('/chat-history', chatHistoryRouter)
+router.use('/workflow-generator', workflowGeneratorRouter)
+router.use('/system-config', systemConfigRouter)
+router.use('/image-proxy', imageProxyRouter)
 
 export default router

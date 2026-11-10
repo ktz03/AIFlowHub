@@ -45,10 +45,10 @@ export class User {
     @Column({ type: 'boolean', default: false })
     quotaWarningNotified: boolean
 
-    @Column({ type: 'datetime', nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     quotaResetAt: Date
 
-    @Column({ type: 'datetime', nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     lastLoginAt: Date
 
     @Column({ type: 'varchar', length: 255, nullable: true })
@@ -57,7 +57,7 @@ export class User {
     @Column({ type: 'varchar', length: 255, nullable: true })
     resetPasswordToken: string
 
-    @Column({ type: 'datetime', nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     resetPasswordExpires: Date
 
     @Column({ type: 'varchar', length: 255, nullable: true })

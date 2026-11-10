@@ -1,0 +1,45 @@
+services:
+    aiflow-hub:
+        image: flowiseai/flowise:latest
+        container_name: aiflow-hub
+        restart: unless-stopped
+        environment:
+            - PORT=${PORT:-3000}
+            - CORS_ORIGINS=${CORS_ORIGINS:-*}
+            - IFRAME_ORIGINS=${IFRAME_ORIGINS:-*}
+            - FLOWISE_USERNAME=${FLOWISE_USERNAME}
+            - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
+            - FLOWISE_FILE_SIZE_LIMIT=${FLOWISE_FILE_SIZE_LIMIT:-50mb}
+            - DEBUG=${DEBUG:-false}
+            - DATABASE_PATH=${DATABASE_PATH:-/root/.flowise}
+            - DATABASE_TYPE=${DATABASE_TYPE:-sqlite}
+            - LOG_LEVEL=${LOG_LEVEL:-info}
+            - LOG_PATH=${LOG_PATH:-/root/.flowise/logs}
+            - BLOB_STORAGE_PATH=${BLOB_STORAGE_PATH:-/root/.flowise/storage}
+            - DISABLE_FLOWISE_TELEMETRY=${DISABLE_FLOWISE_TELEMETRY:-true}
+        ports:
+            - '${PORT:-3000}:${PORT:-3000}'
+        volumes:
+            - aiflow-data:/root/.flowise
+        depends_on:
+            - ollama
+
+    ollama:
+        image: ollama/ollama:latest
+        container_name: ollama
+        restart: unless-stopped
+        ports:
+            - '11434:11434'
+        volumes:
+            - ollama-data:/root/.ollama
+        healthcheck:
+            test: ['CMD', 'ollama', 'list']
+            interval: 30s
+            timeout: 10s
+            retries: 10
+
+volumes:
+    aiflow-data:
+        name: aiflow-data
+    ollama-data:
+        name: ollama-data

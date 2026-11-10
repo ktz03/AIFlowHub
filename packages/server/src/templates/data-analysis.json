@@ -1,0 +1,123 @@
+{
+    "id": "official-data-analysis",
+    "name": "数据分析助手",
+    "description": "专业的数据分析助手，帮助分析数据、发现趋势、提供洞察，支持统计分析、数据可视化建议等",
+    "category": "analysis",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["数据分析", "统计分析", "数据洞察", "趋势分析"],
+    "usecases": ["业务数据分析", "市场研究", "用户行为分析", "财务分析", "运营分析"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatOpenAI_0",
+                "position": { "x": 100, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatOpenAI_0",
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
+                    "category": "Chat Models",
+                    "description": "数据分析模型",
+                    "inputParams": [
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-4"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.3
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-4",
+                        "temperature": 0.3
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 500, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "Conversation Chain",
+                    "version": 3.0,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "LLMChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "数据分析对话链",
+                    "inputParams": [
+                        {
+                            "label": "System Message",
+                            "name": "systemMessagePrompt",
+                            "type": "string",
+                            "rows": 4,
+                            "default": "你是一个专业的数据分析师，擅长分析数据、发现趋势、提供洞察。分析要求：\n1. 识别数据中的关键指标和趋势\n2. 提供清晰的数据解读和洞察\n3. 给出可操作的建议和结论\n4. 使用图表和可视化建议\n5. 注意数据的准确性和逻辑性"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Chat Model",
+                            "name": "model",
+                            "type": "BaseChatModel"
+                        }
+                    ],
+                    "inputs": {
+                        "systemMessagePrompt": "你是一个专业的数据分析师，擅长分析数据、发现趋势、提供洞察。分析要求：\n1. 识别数据中的关键指标和趋势\n2. 提供清晰的数据解读和洞察\n3. 给出可操作的建议和结论\n4. 使用图表和可视化建议\n5. 注意数据的准确性和逻辑性"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "conversationChain_0-output-conversationChain-ConversationChain|LLMChain|BaseChain",
+                            "name": "conversationChain",
+                            "label": "ConversationChain",
+                            "type": "ConversationChain | LLMChain | BaseChain"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            }
+        ],
+        "edges": [
+            {
+                "id": "chatOpenAI_0-conversationChain_0",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-model-BaseChatModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            }
+        ]
+    }
+}

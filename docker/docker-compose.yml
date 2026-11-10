@@ -1,6 +1,6 @@
 services:
     aiflow-hub:
-        image: registry.cn-hangzhou.aliyuncs.com/aiflow-hub/aiflow_hub:latest
+        image: crpi-c6e1zivi7i9hhomo.cn-hangzhou.personal.cr.aliyuncs.com/aiflow-hub/aiflow-hub:latest
         container_name: aiflow-hub
         restart: unless-stopped
         environment:

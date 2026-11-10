@@ -192,16 +192,24 @@ const deleteAssistant = async (assistantId: string, isDeleteBoth: any): Promise<
     }
 }
 
-const getAllAssistants = async (type?: AssistantType): Promise<Assistant[]> => {
+const getAllAssistants = async (type?: AssistantType, userId?: string, isAdmin?: boolean): Promise<Assistant[]> => {
     try {
         const appServer = getRunningExpressApp()
+        const query: any = {}
+
+        // Add type filter if provided
         if (type) {
-            const dbResponse = await appServer.AppDataSource.getRepository(Assistant).findBy({
-                type
-            })
-            return dbResponse
+            query.type = type
         }
-        const dbResponse = await appServer.AppDataSource.getRepository(Assistant).find()
+
+        // Add userId filter for non-admin users
+        if (userId && !isAdmin) {
+            query.userId = userId
+        }
+
+        const dbResponse = await appServer.AppDataSource.getRepository(Assistant).find({
+            where: query
+        })
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(
@@ -211,7 +219,7 @@ const getAllAssistants = async (type?: AssistantType): Promise<Assistant[]> => {
     }
 }
 
-const getAssistantById = async (assistantId: string): Promise<Assistant> => {
+const getAssistantById = async (assistantId: string, userId?: string, isAdmin?: boolean): Promise<Assistant> => {
     try {
         const appServer = getRunningExpressApp()
         const dbResponse = await appServer.AppDataSource.getRepository(Assistant).findOneBy({
@@ -220,6 +228,12 @@ const getAssistantById = async (assistantId: string): Promise<Assistant> => {
         if (!dbResponse) {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Assistant ${assistantId} not found`)
         }
+
+        // Check permission: non-admin users can only access their own assistants
+        if (userId && !isAdmin && dbResponse.userId && dbResponse.userId !== userId) {
+            throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `Access denied to assistant ${assistantId}`)
+        }
+
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(

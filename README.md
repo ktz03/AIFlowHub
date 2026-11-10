@@ -1,216 +1,277 @@
-<!-- markdownlint-disable MD030 -->
+# AIFlowHub
 
-<img width="100%" src="https://github.com/FlowiseAI/Flowise/blob/main/images/flowise.png?raw=true"></a>
+支持多源异构大模型的可视化应用构建平台（基于 [Flowise](https://github.com/FlowiseAI/Flowise) 深度二次开发）。
 
-# Flowise - Build LLM Apps Easily
+覆盖需求描述、工作流生成、可视化编排、执行调优与平台治理的完整链路，支持云端与本地模型混合接入。
 
-[![Release Notes](https://img.shields.io/github/release/FlowiseAI/Flowise)](https://github.com/FlowiseAI/Flowise/releases)
-[![Discord](https://img.shields.io/discord/1087698854775881778?label=Discord&logo=discord)](https://discord.gg/jbaHfsRVBW)
-[![Twitter Follow](https://img.shields.io/twitter/follow/FlowiseAI?style=social)](https://twitter.com/FlowiseAI)
-[![GitHub star chart](https://img.shields.io/github/stars/FlowiseAI/Flowise?style=social)](https://star-history.com/#FlowiseAI/Flowise)
-[![GitHub fork](https://img.shields.io/github/forks/FlowiseAI/Flowise?style=social)](https://github.com/FlowiseAI/Flowise/fork)
+## 目录
 
-English | [繁體中文](./i18n/README-TW.md) | [簡體中文](./i18n/README-ZH.md) | [日本語](./i18n/README-JA.md) | [한국어](./i18n/README-KR.md)
+-   [项目概述](#项目概述)
+-   [核心能力](#核心能力)
+-   [功能模块](#功能模块)
+-   [与原版 Flowise 的差异](#与原版-flowise-的差异)
+-   [系统架构](#系统架构)
+-   [技术栈](#技术栈)
+-   [快速开始](#快速开始)
+-   [配置说明](#配置说明)
+-   [部署方式](#部署方式)
+-   [内置模板](#内置模板)
+-   [安全与治理](#安全与治理)
+-   [文档索引](#文档索引)
+-   [许可证与致谢](#许可证与致谢)
 
-<h3>Drag & drop UI to build your customized LLM flow</h3>
-<a href="https://github.com/FlowiseAI/Flowise">
-<img width="100%" src="https://github.com/FlowiseAI/Flowise/blob/main/images/flowise.gif?raw=true"></a>
+## 项目概述
 
-## ⚡Quick Start
+AIFlowHub 在 Flowise 之上扩展「多模型统一接入 + 自然语言生成工作流 + 平台治理」能力，适用于：
 
-Download and Install [NodeJS](https://nodejs.org/en/download) >= 18.15.0
+-   云端大模型与本地/离线模型混合编排
+-   拖拽式工作流快速搭建与迭代
+-   自然语言到可执行工作流的自动生成
+-   配额、成本、评测、审计等运营治理场景
 
-1. Install Flowise
-    ```bash
-    npm install -g flowise
-    ```
-2. Start Flowise
+当前版本基于 Flowise `2.2.7`，采用 PNPM Monorepo 组织前后端与组件库。
 
-    ```bash
-    npx flowise start
-    ```
+## 核心能力
 
-    With username & password
+| 能力           | 说明                                                                            |
+| -------------- | ------------------------------------------------------------------------------- |
+| 可视化编排     | 基于 ReactFlow 的拖拽式工作流编辑、调试与执行                                   |
+| 多源异构模型   | 统一接入 OpenAI、Anthropic、Ollama 以及星火、混元、月之暗面、智谱、通义、文心等 |
+| 智能工作流生成 | 支持模板匹配、LLM 生成、多智能体协作三种生成模式                                |
+| 模板市场       | 模板共享、复用、评分、收藏与分类统计                                            |
+| 平台治理       | 配额控制、用量/成本统计、模型评测、会话历史管理                                 |
+| 安全能力       | 登录鉴权、系统配置加密存储、接口访问控制                                        |
 
-    ```bash
-    npx flowise start --FLOWISE_USERNAME=user --FLOWISE_PASSWORD=1234
-    ```
+## 功能模块
 
-3. Open [http://localhost:3000](http://localhost:3000)
+| 模块             | 入口                | 说明                               |
+| ---------------- | ------------------- | ---------------------------------- |
+| Chatflows        | `/chatflows`        | 可视化工作流创建、编辑与发布       |
+| Agentflows       | `/agentflows`       | 多智能体流程编排                   |
+| Assistants       | `/assistants`       | 助手配置与管理                     |
+| Marketplaces     | `/marketplaces`     | 官方/社区市场模板                  |
+| Template Market  | `/template-market`  | 平台增强模板市场                   |
+| Model Evaluation | `/model-evaluation` | 多模型并行评测与对比               |
+| Document Stores  | `/document-stores`  | 文档上传、向量化与检索             |
+| Chat History     | `/chat-history`     | 会话检索、导出与统计               |
+| Quota            | `/quota`            | Token/调用额度与预警               |
+| Usage Stats      | `/usage-stats`      | 用量趋势、成本分析与导出           |
+| System Config    | `/system-config`    | 管理员系统配置（含生成器 API Key） |
+| User Management  | `/admin/users`      | 用户与角色管理                     |
 
-## 🐳 Docker
+## 与原版 Flowise 的差异
 
-### Docker Compose
+在保留 Flowise 核心编排能力的基础上，重点扩展了以下服务：
 
-1. Clone the Flowise project
-2. Go to `docker` folder at the root of the project
-3. Copy `.env.example` file, paste it into the same location, and rename to `.env` file
-4. `docker compose up -d`
-5. Open [http://localhost:3000](http://localhost:3000)
-6. You can bring the containers down by `docker compose stop`
+| 扩展模块       | 路径                                                                       |
+| -------------- | -------------------------------------------------------------------------- |
+| 工作流自动生成 | `packages/server/src/services/workflow-generator`                          |
+| 多智能体生成器 | `packages/server/src/services/workflow-generator/multi-agent-generator.ts` |
+| 模型评测中心   | `packages/server/src/services/model-evaluation`                            |
+| 配额治理       | `packages/server/src/services/quota`                                       |
+| 用量与成本统计 | `packages/server/src/services/usage-stats`                                 |
+| 系统配置中心   | `packages/server/src/services/system-config`                               |
+| 对话历史管理   | `packages/server/src/services/chat-history`                                |
+| 模板市场增强   | `packages/server/src/services/template-market`                             |
 
-### Docker Image
+### 生成链路关键策略
 
-1. Build the image locally:
-    ```bash
-    docker build --no-cache -t flowise .
-    ```
-2. Run image:
+-   意图分析、规则匹配评分与冲突惩罚
+-   置信度归一化与低置信度回退
+-   多因素模板相似度匹配与参数定制
+-   拓扑排序驱动的分层自动布局与重叠消解
+-   参数兼容回退、异步轮询与超时控制
+-   敏感配置 AES-256-CBC 加密存储
 
-    ```bash
-    docker run -d --name flowise -p 3000:3000 flowise
-    ```
+## 系统架构
 
-3. Stop image:
-    ```bash
-    docker stop flowise
-    ```
-
-## 👨‍💻 Developers
-
-Flowise has 3 different modules in a single mono repository.
-
--   `server`: Node backend to serve API logics
--   `ui`: React frontend
--   `components`: Third-party nodes integrations
--   `api-documentation`: Auto-generated swagger-ui API docs from express
-
-### Prerequisite
-
--   Install [PNPM](https://pnpm.io/installation)
-    ```bash
-    npm i -g pnpm
-    ```
-
-### Setup
-
-1.  Clone the repository
-
-    ```bash
-    git clone https://github.com/FlowiseAI/Flowise.git
-    ```
-
-2.  Go into repository folder
-
-    ```bash
-    cd Flowise
-    ```
-
-3.  Install all dependencies of all modules:
-
-    ```bash
-    pnpm install
-    ```
-
-4.  Build all the code:
-
-    ```bash
-    pnpm build
-    ```
-
-    <details>
-    <summary>Exit code 134 (JavaScript heap out of memory)</summary>  
-      If you get this error when running the above `build` script, try increasing the Node.js heap size and run the script again:
-
-        export NODE_OPTIONS="--max-old-space-size=4096"
-        pnpm build
-
-    </details>
-
-5.  Start the app:
-
-    ```bash
-    pnpm start
-    ```
-
-    You can now access the app on [http://localhost:3000](http://localhost:3000)
-
-6.  For development build:
-
-    -   Create `.env` file and specify the `VITE_PORT` (refer to `.env.example`) in `packages/ui`
-    -   Create `.env` file and specify the `PORT` (refer to `.env.example`) in `packages/server`
-    -   Run
-
-        ```bash
-        pnpm dev
-        ```
-
-    Any code changes will reload the app automatically on [http://localhost:8080](http://localhost:8080)
-
-## 🔒 Authentication
-
-To enable app level authentication, add `FLOWISE_USERNAME` and `FLOWISE_PASSWORD` to the `.env` file in `packages/server`:
-
+```text
+Flowise/
+├── packages/
+│   ├── server/                 # 后端 API、业务服务、数据库与模板
+│   ├── ui/                     # 前端应用与可视化交互
+│   ├── components/             # 节点、模型与工具组件
+│   └── api-documentation/      # OpenAPI 文档
+├── docs/                       # 功能设计文档
+├── docker/                     # 容器化与离线部署方案
+├── ARCHITECTURE.md             # 架构说明
+├── DEPLOYMENT.md               # 部署手册
+└── SECURITY.md                 # 安全说明
 ```
+
+```text
+用户 / 管理员
+    │
+    ▼
+packages/ui  (React + ReactFlow)
+    │  HTTP / SSE
+    ▼
+packages/server  (Express + TypeORM)
+    ├── workflow-generator / template-market
+    ├── quota / usage-stats / model-evaluation
+    ├── system-config / chat-history
+    └── chatflows / agentflows / document-store
+    │
+    ├── SQLite / PostgreSQL
+    └── packages/components  (LangChain 节点与模型适配)
+```
+
+## 技术栈
+
+-   **前端**：React 18、MUI、Redux、Vite、ReactFlow、i18next
+-   **后端**：Node.js、Express、TypeORM、SQLite（可选 PostgreSQL）
+-   **AI 编排**：LangChain、LlamaIndex 生态
+-   **工程化**：PNPM Workspace、Turbo、Docker、Docker Compose
+
+## 快速开始
+
+### 1. 环境准备
+
+-   Node.js `>= 18.15.0`（推荐 18.x / 20.x）
+-   PNPM `>= 8`（仓库当前锁定为 `pnpm@10.26.2`）
+
+```bash
+npm i -g pnpm
+```
+
+### 2. 安装与构建
+
+在 `Flowise/` 目录执行：
+
+```bash
+pnpm install
+pnpm build
+```
+
+### 3. 开发模式
+
+```bash
+pnpm dev
+```
+
+-   前端开发入口：`http://localhost:8080`
+
+### 4. 生产模式启动
+
+```bash
+pnpm start
+```
+
+-   默认访问地址：`http://localhost:3000`
+
+常用脚本：
+
+| 命令                       | 说明                    |
+| -------------------------- | ----------------------- |
+| `pnpm build`               | 构建全部包              |
+| `pnpm build-force`         | 清理后强制全量构建      |
+| `pnpm dev`                 | 前后端并行开发          |
+| `pnpm start`               | 启动已构建服务          |
+| `pnpm start-worker`        | 启动 Worker             |
+| `pnpm clean` / `pnpm nuke` | 清理构建产物 / 深度清理 |
+
+## 配置说明
+
+可在 `packages/server/.env` 或 Docker 环境变量中配置，常见项：
+
+```env
+PORT=3000
 FLOWISE_USERNAME=user
 FLOWISE_PASSWORD=1234
+DATABASE_TYPE=sqlite
+DATABASE_PATH=./data
+JWT_SECRET=please-change-me
+LOG_LEVEL=info
+BLOB_STORAGE_PATH=./storage
+ENCRYPTION_KEY=please-change-me
 ```
 
-## 🌱 Env Variables
+| 变量                                    | 说明                     |
+| --------------------------------------- | ------------------------ |
+| `PORT`                                  | 服务端口，默认 `3000`    |
+| `FLOWISE_USERNAME` / `FLOWISE_PASSWORD` | 基础登录凭证             |
+| `DATABASE_TYPE`                         | `sqlite` 或 `postgres`   |
+| `JWT_SECRET`                            | JWT 签名密钥             |
+| `ENCRYPTION_KEY`                        | 系统配置敏感字段加密密钥 |
+| `BLOB_STORAGE_PATH`                     | 文件/对象存储路径        |
 
-Flowise support different environment variables to configure your instance. You can specify the following variables in the `.env` file inside `packages/server` folder. Read [more](https://github.com/FlowiseAI/Flowise/blob/main/CONTRIBUTING.md#-env-variables)
+完整变量与生产建议见 [`DEPLOYMENT.md`](./DEPLOYMENT.md)、[`docs/SYSTEM-CONFIG.md`](./docs/SYSTEM-CONFIG.md)。
 
-## 📖 Documentation
+## 部署方式
 
-[Flowise Docs](https://docs.flowiseai.com/)
+### Docker Compose（推荐）
 
-## 🌐 Self Host
+```bash
+cd docker
+cp .env.example .env
+docker compose up -d
+```
 
-Deploy Flowise self-hosted in your existing infrastructure, we support various [deployments](https://docs.flowiseai.com/configuration/deployment)
+可选编排文件：
 
--   [AWS](https://docs.flowiseai.com/configuration/deployment/aws)
--   [Azure](https://docs.flowiseai.com/configuration/deployment/azure)
--   [Digital Ocean](https://docs.flowiseai.com/configuration/deployment/digital-ocean)
--   [GCP](https://docs.flowiseai.com/configuration/deployment/gcp)
--   [Alibaba Cloud](https://computenest.console.aliyun.com/service/instance/create/default?type=user&ServiceName=Flowise社区版)
--   <details>
-      <summary>Others</summary>
+| 文件                                | 用途                   |
+| ----------------------------------- | ---------------------- |
+| `docker/docker-compose.yml`         | 标准部署               |
+| `docker/docker-compose.quick.yml`   | 快速体验               |
+| `docker/docker-compose.offline.yml` | 离线本地模型（Ollama） |
 
-    -   [Railway](https://docs.flowiseai.com/configuration/deployment/railway)
+### 离线本地模型
 
-        [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/pn4G8S?referralCode=WVNPD9)
+```bash
+cd docker
+docker compose -f docker-compose.offline.yml up -d
+```
 
-    -   [Render](https://docs.flowiseai.com/configuration/deployment/render)
+详细说明：[`docker/OFFLINE-LLM.zh-CN.md`](./docker/OFFLINE-LLM.zh-CN.md)
 
-        [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://docs.flowiseai.com/configuration/deployment/render)
+### 生产建议
 
-    -   [HuggingFace Spaces](https://docs.flowiseai.com/deployment/hugging-face)
+-   反向代理统一入口（Nginx / Caddy），启用 HTTPS
+-   持久化数据库、日志与对象存储目录
+-   定期归档用量日志与评测记录
+-   使用强随机 `JWT_SECRET` / `ENCRYPTION_KEY`
 
-        <a href="https://huggingface.co/spaces/FlowiseAI/Flowise"><img src="https://huggingface.co/datasets/huggingface/badges/raw/main/open-in-hf-spaces-sm.svg" alt="HuggingFace Spaces"></a>
+完整步骤见 [`DEPLOYMENT.md`](./DEPLOYMENT.md)。
 
-    -   [Elestio](https://elest.io/open-source/flowiseai)
+## 内置模板
 
-        [![Deploy on Elestio](https://elest.io/images/logos/deploy-to-elestio-btn.png)](https://elest.io/open-source/flowiseai)
+工作流生成器内置场景模板（`packages/server/src/templates/`）：
 
-    -   [Sealos](https://cloud.sealos.io/?openapp=system-template%3FtemplateName%3Dflowise)
+| 模板     | 文件                    |
+| -------- | ----------------------- |
+| 文档问答 | `doc-qa.json`           |
+| 客服助手 | `customer-service.json` |
+| 代码助手 | `code-assistant.json`   |
+| 教学辅导 | `tutor.json`            |
+| 创意写作 | `creative-writing.json` |
+| 邮件助手 | `email-assistant.json`  |
+| 内容摘要 | `content-summary.json`  |
+| 数据分析 | `data-analysis.json`    |
+| 翻译     | `translation.json`      |
+| 图片生成 | `image-generation.json` |
 
-        [![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-template%3FtemplateName%3Dflowise)
+## 安全与治理
 
-    -   [RepoCloud](https://repocloud.io/details/?app_id=29)
+-   **认证授权**：应用级登录与管理员权限控制
+-   **敏感数据保护**：系统配置采用 AES-256-CBC 加密存储
+-   **调用治理**：配额检查、频率预警、成本统计与审计日志
+-   **可观测性**：成功率、耗时、Token、成本等指标追踪
 
-        [![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploy.png)](https://repocloud.io/details/?app_id=29)
+更多说明见 [`SECURITY.md`](./SECURITY.md)。
 
-      </details>
+## 文档索引
 
-## ☁️ Flowise Cloud
+| 文档                                                                           | 说明               |
+| ------------------------------------------------------------------------------ | ------------------ |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md)                                         | 项目架构与模块说明 |
+| [`DEPLOYMENT.md`](./DEPLOYMENT.md)                                             | 部署与升级手册     |
+| [`SECURITY.md`](./SECURITY.md)                                                 | 安全披露与策略     |
+| [`docs/DYNAMIC-WORKFLOW-GENERATION.md`](./docs/DYNAMIC-WORKFLOW-GENERATION.md) | 动态工作流生成方案 |
+| [`docs/SYSTEM-CONFIG.md`](./docs/SYSTEM-CONFIG.md)                             | 系统配置设计       |
+| [`docker/README.md`](./docker/README.md)                                       | Docker 使用说明    |
+| [`docker/OFFLINE-LLM.zh-CN.md`](./docker/OFFLINE-LLM.zh-CN.md)                 | 离线 LLM 部署      |
 
-[Get Started with Flowise Cloud](https://flowiseai.com/)
+## 许可证与致谢
 
-## 🙋 Support
-
-Feel free to ask any questions, raise problems, and request new features in [discussion](https://github.com/FlowiseAI/Flowise/discussions)
-
-## 🙌 Contributing
-
-Thanks go to these awesome contributors
-
-<a href="https://github.com/FlowiseAI/Flowise/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=FlowiseAI/Flowise" />
-</a>
-
-See [contributing guide](CONTRIBUTING.md). Reach out to us at [Discord](https://discord.gg/jbaHfsRVBW) if you have any questions or issues.
-[![Star History Chart](https://api.star-history.com/svg?repos=FlowiseAI/Flowise&type=Timeline)](https://star-history.com/#FlowiseAI/Flowise&Date)
-
-## 📄 License
-
-Source code in this repository is made available under the [Apache License Version 2.0](LICENSE.md).
+-   本项目基于 [Flowise](https://github.com/FlowiseAI/Flowise) 二次开发。
+-   源码许可证与第三方依赖声明以仓库内 [`LICENSE.md`](./LICENSE.md) 及相关文件为准。

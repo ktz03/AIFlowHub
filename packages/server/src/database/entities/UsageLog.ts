@@ -38,6 +38,12 @@ export class UsageLog {
     @Column({ type: 'int', default: 0 })
     totalTokens: number
 
+    @Column({ type: 'int', nullable: true })
+    cacheReadTokens: number
+
+    @Column({ type: 'int', nullable: true })
+    cacheCreationTokens: number
+
     @Column({ type: 'decimal', precision: 10, scale: 6, default: 0 })
     cost: number
 

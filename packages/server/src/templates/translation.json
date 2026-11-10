@@ -1,0 +1,123 @@
+{
+    "id": "official-translation",
+    "name": "智能翻译助手",
+    "description": "专业的多语言翻译助手，支持中英日韩等多种语言互译，保持原文语气和风格，确保翻译准确地道",
+    "category": "translation",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["翻译", "多语言", "中英互译", "本地化"],
+    "usecases": ["文档翻译", "商务翻译", "学术翻译", "网站本地化", "字幕翻译"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatOpenAI_0",
+                "position": { "x": 100, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatOpenAI_0",
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
+                    "category": "Chat Models",
+                    "description": "翻译模型，低温度确保准确性",
+                    "inputParams": [
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-3.5-turbo"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.3
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-3.5-turbo",
+                        "temperature": 0.3
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 500, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "Conversation Chain",
+                    "version": 3.0,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "LLMChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "翻译对话链",
+                    "inputParams": [
+                        {
+                            "label": "System Message",
+                            "name": "systemMessagePrompt",
+                            "type": "string",
+                            "rows": 4,
+                            "default": "你是一个专业的翻译助手，能够准确、流畅地在多种语言之间进行翻译。翻译要求：\n1. 保持原文的语气和风格\n2. 确保翻译的准确性和地道性\n3. 注意文化差异和习惯用语\n4. 对于专业术语，提供准确的对应翻译\n5. 必要时提供多个翻译选项供参考"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Chat Model",
+                            "name": "model",
+                            "type": "BaseChatModel"
+                        }
+                    ],
+                    "inputs": {
+                        "systemMessagePrompt": "你是一个专业的翻译助手，能够准确、流畅地在多种语言之间进行翻译。翻译要求：\n1. 保持原文的语气和风格\n2. 确保翻译的准确性和地道性\n3. 注意文化差异和习惯用语\n4. 对于专业术语，提供准确的对应翻译\n5. 必要时提供多个翻译选项供参考"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "conversationChain_0-output-conversationChain-ConversationChain|LLMChain|BaseChain",
+                            "name": "conversationChain",
+                            "label": "ConversationChain",
+                            "type": "ConversationChain | LLMChain | BaseChain"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            }
+        ],
+        "edges": [
+            {
+                "id": "chatOpenAI_0-conversationChain_0",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-model-BaseChatModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            }
+        ]
+    }
+}

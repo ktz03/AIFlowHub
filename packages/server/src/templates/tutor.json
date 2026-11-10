@@ -1,0 +1,175 @@
+{
+    "id": "official-tutor",
+    "name": "教育辅导助手",
+    "description": "智能教育辅导助手，提供个性化学习指导，擅长用简单易懂的方式解释复杂概念，适合各年龄段学习者",
+    "category": "education",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["教育", "辅导", "学习", "知识讲解"],
+    "usecases": ["课程辅导", "作业答疑", "知识讲解", "学习规划", "考试准备"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["chatModel"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatOpenAI_0",
+                "position": { "x": 100, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatOpenAI_0",
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
+                    "category": "Chat Models",
+                    "description": "教育辅导模型",
+                    "inputParams": [
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-4"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.6
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-4",
+                        "temperature": 0.6
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "bufferMemory_0",
+                "position": { "x": 100, "y": 700 },
+                "type": "customNode",
+                "data": {
+                    "id": "bufferMemory_0",
+                    "label": "Buffer Memory",
+                    "version": 2.0,
+                    "name": "bufferMemory",
+                    "type": "BufferMemory",
+                    "baseClasses": ["BufferMemory", "BaseMemory"],
+                    "category": "Memory",
+                    "description": "记忆学习上下文，提供连贯的辅导",
+                    "inputParams": [
+                        {
+                            "label": "Memory Key",
+                            "name": "memoryKey",
+                            "type": "string",
+                            "default": "chat_history"
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "memoryKey": "chat_history"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "bufferMemory_0-output-bufferMemory-BufferMemory|BaseMemory",
+                            "name": "bufferMemory",
+                            "label": "BufferMemory",
+                            "type": "BufferMemory | BaseMemory"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 500, "y": 250 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "Conversation Chain",
+                    "version": 3.0,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "LLMChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "教育辅导对话链",
+                    "inputParams": [
+                        {
+                            "label": "System Message",
+                            "name": "systemMessagePrompt",
+                            "type": "string",
+                            "rows": 4,
+                            "default": "你是一个耐心的教育辅导老师，擅长用简单易懂的方式解释复杂概念。教学要求：\n1. 循序渐进地引导学生理解知识\n2. 使用生动的例子和类比\n3. 鼓励学生独立思考，不直接给出答案\n4. 根据学生的理解程度调整讲解方式\n5. 提供适当的练习建议和学习资源"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Chat Model",
+                            "name": "model",
+                            "type": "BaseChatModel"
+                        },
+                        {
+                            "label": "Memory",
+                            "name": "memory",
+                            "type": "BaseMemory"
+                        }
+                    ],
+                    "inputs": {
+                        "systemMessagePrompt": "你是一个耐心的教育辅导老师，擅长用简单易懂的方式解释复杂概念。教学要求：\n1. 循序渐进地引导学生理解知识\n2. 使用生动的例子和类比\n3. 鼓励学生独立思考，不直接给出答案\n4. 根据学生的理解程度调整讲解方式\n5. 提供适当的练习建议和学习资源"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "conversationChain_0-output-conversationChain-ConversationChain|LLMChain|BaseChain",
+                            "name": "conversationChain",
+                            "label": "ConversationChain",
+                            "type": "ConversationChain | LLMChain | BaseChain"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            }
+        ],
+        "edges": [
+            {
+                "id": "chatOpenAI_0-conversationChain_0",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-model-BaseChatModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            },
+            {
+                "id": "bufferMemory_0-conversationChain_0",
+                "source": "bufferMemory_0",
+                "sourceHandle": "bufferMemory_0-output-bufferMemory-BufferMemory|BaseMemory",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-memory-BaseMemory",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            }
+        ]
+    }
+}

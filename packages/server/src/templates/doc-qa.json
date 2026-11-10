@@ -18,181 +18,319 @@
     "flowData": {
         "nodes": [
             {
-                "id": "pdfLoader_0",
-                "position": { "x": 100, "y": 200 },
+                "id": "textFile_0",
+                "position": { "x": 100, "y": 100 },
                 "type": "customNode",
                 "data": {
-                    "id": "pdfLoader_0",
-                    "label": "PDF文档加载器",
-                    "version": 1,
-                    "name": "pdfLoader",
-                    "type": "PDFLoader",
-                    "baseClasses": ["PDFLoader", "DocumentLoader"],
+                    "id": "textFile_0",
+                    "label": "Text File",
+                    "version": 3.0,
+                    "name": "textFile",
+                    "type": "Document",
+                    "baseClasses": ["Document"],
                     "category": "Document Loaders",
-                    "description": "加载PDF文档并提取文本内容",
-                    "inputParams": [{ "name": "pdfFile", "type": "file" }],
-                    "inputAnchors": [],
+                    "description": "加载文本文档并提取内容",
+                    "inputParams": [
+                        {
+                            "label": "Txt File",
+                            "name": "txtFile",
+                            "type": "file"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Text Splitter",
+                            "name": "textSplitter",
+                            "type": "TextSplitter",
+                            "optional": true
+                        }
+                    ],
                     "inputs": {},
-                    "outputAnchors": [{ "name": "output", "type": "Document" }],
+                    "outputAnchors": [
+                        {
+                            "id": "textFile_0-output-document-Document",
+                            "name": "document",
+                            "label": "Document",
+                            "type": "Document"
+                        }
+                    ],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
             },
             {
-                "id": "textSplitter_0",
-                "position": { "x": 400, "y": 200 },
+                "id": "recursiveCharacterTextSplitter_0",
+                "position": { "x": 100, "y": 700 },
                 "type": "customNode",
                 "data": {
-                    "id": "textSplitter_0",
-                    "label": "文本分割器",
-                    "version": 1,
-                    "name": "recursiveTextSplitter",
+                    "id": "recursiveCharacterTextSplitter_0",
+                    "label": "Recursive Character Text Splitter",
+                    "version": 2.0,
+                    "name": "recursiveCharacterTextSplitter",
                     "type": "RecursiveCharacterTextSplitter",
                     "baseClasses": ["RecursiveCharacterTextSplitter", "TextSplitter"],
                     "category": "Text Splitters",
                     "description": "将长文档分割成适合处理的小块",
                     "inputParams": [
-                        { "name": "chunkSize", "type": "number", "default": 1000 },
-                        { "name": "chunkOverlap", "type": "number", "default": 200 }
+                        {
+                            "label": "Chunk Size",
+                            "name": "chunkSize",
+                            "type": "number",
+                            "default": 1000
+                        },
+                        {
+                            "label": "Chunk Overlap",
+                            "name": "chunkOverlap",
+                            "type": "number",
+                            "default": 200
+                        }
                     ],
-                    "inputAnchors": [{ "name": "document", "type": "Document" }],
+                    "inputAnchors": [],
                     "inputs": {
                         "chunkSize": 1000,
                         "chunkOverlap": 200
                     },
-                    "outputAnchors": [{ "name": "output", "type": "Document" }],
+                    "outputAnchors": [
+                        {
+                            "id": "recursiveCharacterTextSplitter_0-output-recursiveCharacterTextSplitter-RecursiveCharacterTextSplitter|TextSplitter",
+                            "name": "recursiveCharacterTextSplitter",
+                            "label": "RecursiveCharacterTextSplitter",
+                            "type": "RecursiveCharacterTextSplitter | TextSplitter"
+                        }
+                    ],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
             },
             {
-                "id": "embeddings_0",
-                "position": { "x": 400, "y": 400 },
+                "id": "openAIEmbeddings_0",
+                "position": { "x": 500, "y": 700 },
                 "type": "customNode",
                 "data": {
-                    "id": "embeddings_0",
-                    "label": "文本嵌入",
-                    "version": 1,
+                    "id": "openAIEmbeddings_0",
+                    "label": "OpenAI Embeddings",
+                    "version": 4.0,
                     "name": "openAIEmbeddings",
                     "type": "OpenAIEmbeddings",
                     "baseClasses": ["OpenAIEmbeddings", "Embeddings"],
                     "category": "Embeddings",
-                    "description": "将文本转换为向量表示，可替换为国产嵌入模型",
-                    "inputParams": [],
+                    "description": "将文本转换为向量表示",
+                    "inputParams": [
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "text-embedding-ada-002"
+                        }
+                    ],
                     "inputAnchors": [],
-                    "inputs": {},
-                    "outputAnchors": [{ "name": "output", "type": "Embeddings" }],
+                    "inputs": {
+                        "modelName": "text-embedding-ada-002"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "openAIEmbeddings_0-output-openAIEmbeddings-OpenAIEmbeddings|Embeddings",
+                            "name": "openAIEmbeddings",
+                            "label": "OpenAIEmbeddings",
+                            "type": "OpenAIEmbeddings | Embeddings"
+                        }
+                    ],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
             },
             {
-                "id": "vectorStore_0",
-                "position": { "x": 700, "y": 300 },
+                "id": "faiss_0",
+                "position": { "x": 500, "y": 100 },
                 "type": "customNode",
                 "data": {
-                    "id": "vectorStore_0",
-                    "label": "向量数据库",
-                    "version": 1,
+                    "id": "faiss_0",
+                    "label": "Faiss",
+                    "version": 1.0,
                     "name": "faiss",
                     "type": "Faiss",
-                    "baseClasses": ["Faiss", "VectorStore"],
+                    "baseClasses": ["Faiss", "VectorStoreRetriever", "BaseRetriever"],
                     "category": "Vector Stores",
                     "description": "存储文档向量，支持高效相似度检索",
-                    "inputParams": [],
-                    "inputAnchors": [
-                        { "name": "document", "type": "Document" },
-                        { "name": "embeddings", "type": "Embeddings" }
+                    "inputParams": [
+                        {
+                            "label": "Base Path to load",
+                            "name": "basePath",
+                            "type": "string",
+                            "placeholder": "C:\\Users\\User\\Desktop"
+                        },
+                        {
+                            "label": "Top K",
+                            "name": "topK",
+                            "type": "number",
+                            "default": 4
+                        }
                     ],
-                    "inputs": {},
-                    "outputAnchors": [{ "name": "output", "type": "VectorStore" }],
+                    "inputAnchors": [
+                        {
+                            "label": "Document",
+                            "name": "document",
+                            "type": "Document",
+                            "list": true,
+                            "optional": true
+                        },
+                        {
+                            "label": "Embeddings",
+                            "name": "embeddings",
+                            "type": "Embeddings"
+                        }
+                    ],
+                    "inputs": {
+                        "basePath": "./faiss_index",
+                        "topK": 4
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "faiss_0-output-retriever-Faiss|VectorStoreRetriever|BaseRetriever",
+                            "name": "retriever",
+                            "label": "Faiss Retriever",
+                            "type": "Faiss | VectorStoreRetriever | BaseRetriever"
+                        }
+                    ],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
             },
             {
-                "id": "chatModel_0",
-                "position": { "x": 700, "y": 500 },
+                "id": "chatOpenAI_0",
+                "position": { "x": 900, "y": 700 },
                 "type": "customNode",
                 "data": {
-                    "id": "chatModel_0",
-                    "label": "Chat Model",
-                    "version": 1,
+                    "id": "chatOpenAI_0",
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
                     "name": "chatOpenAI",
                     "type": "ChatOpenAI",
-                    "baseClasses": ["ChatOpenAI", "BaseChatModel"],
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
                     "category": "Chat Models",
-                    "description": "大语言模型，可替换为通义千问、文心一言等",
+                    "description": "大语言模型",
                     "inputParams": [
-                        { "name": "modelName", "type": "string", "default": "gpt-3.5-turbo" },
-                        { "name": "temperature", "type": "number", "default": 0.3 }
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-3.5-turbo"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.3
+                        }
                     ],
                     "inputAnchors": [],
                     "inputs": {
                         "modelName": "gpt-3.5-turbo",
                         "temperature": 0.3
                     },
-                    "outputAnchors": [{ "name": "output", "type": "ChatOpenAI" }],
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
+                    ],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
             },
             {
-                "id": "retrievalQA_0",
-                "position": { "x": 1000, "y": 400 },
+                "id": "retrievalQAChain_0",
+                "position": { "x": 900, "y": 100 },
                 "type": "customNode",
                 "data": {
-                    "id": "retrievalQA_0",
-                    "label": "检索问答链",
-                    "version": 1,
+                    "id": "retrievalQAChain_0",
+                    "label": "Retrieval QA Chain",
+                    "version": 3.0,
                     "name": "retrievalQAChain",
                     "type": "RetrievalQAChain",
                     "baseClasses": ["RetrievalQAChain", "BaseChain"],
                     "category": "Chains",
                     "description": "结合向量检索和LLM的问答链",
-                    "inputParams": [{ "name": "returnSourceDocuments", "type": "boolean", "default": true }],
+                    "inputParams": [],
                     "inputAnchors": [
-                        { "name": "model", "type": "BaseChatModel" },
-                        { "name": "vectorStore", "type": "VectorStore" }
+                        {
+                            "label": "Language Model",
+                            "name": "model",
+                            "type": "BaseLanguageModel"
+                        },
+                        {
+                            "label": "Vector Store Retriever",
+                            "name": "vectorStoreRetriever",
+                            "type": "BaseRetriever"
+                        }
                     ],
-                    "inputs": {
-                        "returnSourceDocuments": true
-                    },
-                    "outputAnchors": [{ "name": "output", "type": "RetrievalQAChain" }],
+                    "inputs": {},
+                    "outputAnchors": [
+                        {
+                            "id": "retrievalQAChain_0-output-retrievalQAChain-RetrievalQAChain|BaseChain",
+                            "name": "retrievalQAChain",
+                            "label": "RetrievalQAChain",
+                            "type": "RetrievalQAChain | BaseChain"
+                        }
+                    ],
                     "outputs": {}
-                }
+                },
+                "width": 300,
+                "height": 500
             }
         ],
         "edges": [
             {
-                "id": "e1",
-                "source": "pdfLoader_0",
-                "sourceHandle": "output",
-                "target": "textSplitter_0",
-                "targetHandle": "document"
+                "id": "recursiveCharacterTextSplitter_0-textFile_0",
+                "source": "recursiveCharacterTextSplitter_0",
+                "sourceHandle": "recursiveCharacterTextSplitter_0-output-recursiveCharacterTextSplitter-RecursiveCharacterTextSplitter|TextSplitter",
+                "target": "textFile_0",
+                "targetHandle": "textFile_0-input-textSplitter-TextSplitter",
+                "type": "buttonedge",
+                "data": { "label": "" }
             },
             {
-                "id": "e2",
-                "source": "textSplitter_0",
-                "sourceHandle": "output",
-                "target": "vectorStore_0",
-                "targetHandle": "document"
+                "id": "textFile_0-faiss_0",
+                "source": "textFile_0",
+                "sourceHandle": "textFile_0-output-document-Document",
+                "target": "faiss_0",
+                "targetHandle": "faiss_0-input-document-Document",
+                "type": "buttonedge",
+                "data": { "label": "" }
             },
             {
-                "id": "e3",
-                "source": "embeddings_0",
-                "sourceHandle": "output",
-                "target": "vectorStore_0",
-                "targetHandle": "embeddings"
+                "id": "openAIEmbeddings_0-faiss_0",
+                "source": "openAIEmbeddings_0",
+                "sourceHandle": "openAIEmbeddings_0-output-openAIEmbeddings-OpenAIEmbeddings|Embeddings",
+                "target": "faiss_0",
+                "targetHandle": "faiss_0-input-embeddings-Embeddings",
+                "type": "buttonedge",
+                "data": { "label": "" }
             },
             {
-                "id": "e4",
-                "source": "vectorStore_0",
-                "sourceHandle": "output",
-                "target": "retrievalQA_0",
-                "targetHandle": "vectorStore"
+                "id": "faiss_0-retrievalQAChain_0",
+                "source": "faiss_0",
+                "sourceHandle": "faiss_0-output-retriever-Faiss|VectorStoreRetriever|BaseRetriever",
+                "target": "retrievalQAChain_0",
+                "targetHandle": "retrievalQAChain_0-input-vectorStoreRetriever-BaseRetriever",
+                "type": "buttonedge",
+                "data": { "label": "" }
             },
             {
-                "id": "e5",
-                "source": "chatModel_0",
-                "sourceHandle": "output",
-                "target": "retrievalQA_0",
-                "targetHandle": "model"
+                "id": "chatOpenAI_0-retrievalQAChain_0",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                "target": "retrievalQAChain_0",
+                "targetHandle": "retrievalQAChain_0-input-model-BaseLanguageModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
             }
         ]
     }

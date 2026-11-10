@@ -15,7 +15,8 @@ const createVariable = async (req: Request, res: Response, next: NextFunction) =
         const body = req.body
         const newVariable = new Variable()
         Object.assign(newVariable, body)
-        const apiResponse = await variablesService.createVariable(newVariable)
+        const userId = req.user?.userId
+        const apiResponse = await variablesService.createVariable(newVariable, userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -27,7 +28,9 @@ const deleteVariable = async (req: Request, res: Response, next: NextFunction) =
         if (typeof req.params === 'undefined' || !req.params.id) {
             throw new InternalFlowiseError(StatusCodes.PRECONDITION_FAILED, 'Error: variablesController.deleteVariable - id not provided!')
         }
-        const apiResponse = await variablesService.deleteVariable(req.params.id)
+        const userId = req.user?.userId
+        const isAdmin = req.user?.role === 'admin'
+        const apiResponse = await variablesService.deleteVariable(req.params.id, isAdmin ? undefined : userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -36,7 +39,9 @@ const deleteVariable = async (req: Request, res: Response, next: NextFunction) =
 
 const getAllVariables = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const apiResponse = await variablesService.getAllVariables()
+        const userId = req.user?.userId
+        const isAdmin = req.user?.role === 'admin'
+        const apiResponse = await variablesService.getAllVariables(isAdmin ? undefined : userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)
@@ -54,14 +59,16 @@ const updateVariable = async (req: Request, res: Response, next: NextFunction) =
                 'Error: variablesController.updateVariable - body not provided!'
             )
         }
-        const variable = await variablesService.getVariableById(req.params.id)
+        const userId = req.user?.userId
+        const isAdmin = req.user?.role === 'admin'
+        const variable = await variablesService.getVariableById(req.params.id, isAdmin ? undefined : userId)
         if (!variable) {
             return res.status(404).send(`Variable ${req.params.id} not found in the database`)
         }
         const body = req.body
         const updatedVariable = new Variable()
         Object.assign(updatedVariable, body)
-        const apiResponse = await variablesService.updateVariable(variable, updatedVariable)
+        const apiResponse = await variablesService.updateVariable(variable, updatedVariable, isAdmin ? undefined : userId)
         return res.json(apiResponse)
     } catch (error) {
         next(error)

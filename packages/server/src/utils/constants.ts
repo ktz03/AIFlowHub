@@ -19,6 +19,7 @@ export const WHITELIST_URLS = [
     '/api/v1/attachments',
     '/api/v1/metrics',
     '/api/v1/nvidia-nim',
+    '/api/v1/image-proxy',
     // 前端页面需要的 API（开发模式下允许访问）
     '/api/v1/chatflows',
     '/api/v1/agentflows',
@@ -40,7 +41,9 @@ export const WHITELIST_URLS = [
     '/api/v1/quota',
     '/api/v1/template-market',
     '/api/v1/model-evaluation',
-    '/api/v1/chat-history'
+    '/api/v1/chat-history',
+    '/api/v1/system-config',
+    '/api/v1/workflow-generator'
 ]
 
 export const OMIT_QUEUE_JOB_DATA = ['componentNodes', 'appDataSource', 'sseStreamer', 'telemetry', 'cachePool']

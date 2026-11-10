@@ -1,4 +1,4 @@
-import * as React from 'react'
+/* eslint-disable react/prop-types */
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -36,7 +36,25 @@ import {
     Alert
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { IconSearch, IconHeart, IconHeartFilled, IconDownload, IconEye, IconStar, IconPlus, IconX, IconFilter } from '@tabler/icons-react'
+import {
+    IconSearch,
+    IconHeart,
+    IconHeartFilled,
+    IconDownload,
+    IconEye,
+    IconPlus,
+    IconX,
+    IconRobot,
+    IconBook,
+    IconBrain,
+    IconBolt,
+    IconChartBar,
+    IconPencil,
+    IconLanguage,
+    IconCode,
+    IconSchool,
+    IconPackage
+} from '@tabler/icons-react'
 
 // project imports
 import MainCard from '@/ui-component/cards/MainCard'
@@ -55,16 +73,22 @@ import { baseURL, gridSpacing } from '@/store/constant'
 
 // 分类图标映射
 const categoryIcons = {
-    chatbot: '🤖',
-    rag: '📚',
-    agent: '🦾',
-    automation: '⚙️',
-    'data-analysis': '📊',
-    content: '✍️',
-    translation: '🌐',
-    code: '💻',
-    education: '🎓',
-    other: '📦'
+    chatbot: IconRobot,
+    rag: IconBook,
+    agent: IconBrain,
+    automation: IconBolt,
+    'data-analysis': IconChartBar,
+    content: IconPencil,
+    translation: IconLanguage,
+    code: IconCode,
+    education: IconSchool,
+    other: IconPackage
+}
+
+// 获取分类图标组件
+const getCategoryIcon = (category) => {
+    const IconComponent = categoryIcons[category] || IconPackage
+    return <IconComponent size={20} style={{ marginRight: 8 }} />
 }
 
 // ==============================|| Template Market ||============================== //
@@ -297,9 +321,12 @@ const TemplateMarket = () => {
             >
                 <CardContent sx={{ flexGrow: 1 }}>
                     <Stack direction='row' justifyContent='space-between' alignItems='flex-start' mb={1}>
-                        <Typography variant='h5' component='div' noWrap sx={{ maxWidth: '80%' }}>
-                            {categoryIcons[template.category] || '📦'} {template.name}
-                        </Typography>
+                        <Stack direction='row' alignItems='center' sx={{ maxWidth: '80%' }}>
+                            {getCategoryIcon(template.category)}
+                            <Typography variant='h5' component='div' noWrap>
+                                {template.name}
+                            </Typography>
+                        </Stack>
                         <IconButton
                             size='small'
                             onClick={(e) => handleToggleFavorite(template.id, e)}
@@ -465,7 +492,10 @@ const TemplateMarket = () => {
                             >
                                 {categories.map((cat) => (
                                     <MenuItem key={cat.id} value={cat.id}>
-                                        {categoryIcons[cat.id]} {cat.name}
+                                        <Stack direction='row' alignItems='center' spacing={1}>
+                                            {getCategoryIcon(cat.id)}
+                                            <span>{cat.name}</span>
+                                        </Stack>
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -501,9 +531,10 @@ const TemplateMarket = () => {
             <Dialog open={detailDialog.open} onClose={() => setDetailDialog({ open: false, template: null })} maxWidth='md' fullWidth>
                 <DialogTitle>
                     <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                        <Typography variant='h4'>
-                            {categoryIcons[template.category]} {template.name}
-                        </Typography>
+                        <Stack direction='row' alignItems='center' spacing={1}>
+                            {getCategoryIcon(template.category)}
+                            <Typography variant='h4'>{template.name}</Typography>
+                        </Stack>
                         <IconButton onClick={() => setDetailDialog({ open: false, template: null })}>
                             <IconX />
                         </IconButton>
@@ -640,15 +671,19 @@ const TemplateMarket = () => {
                         color={categoryFilter === '' ? 'primary' : 'default'}
                         variant={categoryFilter === '' ? 'filled' : 'outlined'}
                     />
-                    {categoryStats.map((stat) => (
-                        <Chip
-                            key={stat.category}
-                            label={`${categoryIcons[stat.category] || ''} ${stat.categoryName} (${stat.count})`}
-                            onClick={() => setCategoryFilter(stat.category)}
-                            color={categoryFilter === stat.category ? 'primary' : 'default'}
-                            variant={categoryFilter === stat.category ? 'filled' : 'outlined'}
-                        />
-                    ))}
+                    {categoryStats.map((stat) => {
+                        const IconComponent = categoryIcons[stat.category] || IconPackage
+                        return (
+                            <Chip
+                                key={stat.category}
+                                icon={<IconComponent size={16} />}
+                                label={`${stat.categoryName} (${stat.count})`}
+                                onClick={() => setCategoryFilter(stat.category)}
+                                color={categoryFilter === stat.category ? 'primary' : 'default'}
+                                variant={categoryFilter === stat.category ? 'filled' : 'outlined'}
+                            />
+                        )
+                    })}
                 </Stack>
 
                 {/* 筛选栏 */}

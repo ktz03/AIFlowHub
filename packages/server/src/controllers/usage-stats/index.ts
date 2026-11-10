@@ -170,7 +170,19 @@ const exportData = async (req: Request, res: Response, next: NextFunction) => {
 // 记录使用日志（内部API）
 const logUsage = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { userId, chatflowId, provider, model, inputTokens, outputTokens, latencyMs, status, errorMessage } = req.body
+        const {
+            userId,
+            chatflowId,
+            provider,
+            model,
+            inputTokens,
+            outputTokens,
+            cacheReadTokens,
+            cacheCreationTokens,
+            latencyMs,
+            status,
+            errorMessage
+        } = req.body
 
         if (!userId || !provider || !model) {
             throw new InternalFlowiseError(StatusCodes.BAD_REQUEST, '缺少必要参数')
@@ -183,6 +195,8 @@ const logUsage = async (req: Request, res: Response, next: NextFunction) => {
             model,
             inputTokens: inputTokens || 0,
             outputTokens: outputTokens || 0,
+            cacheReadTokens,
+            cacheCreationTokens,
             latencyMs,
             status,
             errorMessage

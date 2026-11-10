@@ -28,8 +28,7 @@ import authApi from '@/api/auth'
 import { SET_USER } from '@/store/actions'
 
 // Assets
-import logoDark from '@/assets/images/flowise_logo_dark.png'
-import logoLight from '@/assets/images/flowise_logo.png'
+import logo from '@/assets/images/aiflow_logo.png'
 
 // 邮箱验证正则
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -46,7 +45,7 @@ const Login = () => {
     const [rememberMe, setRememberMe] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    
+
     // 表单验证状态
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
@@ -132,7 +131,14 @@ const Login = () => {
         try {
             const response = await authApi.login({ email, password })
 
-            if (response.data.success) {
+            console.log('=== 登录调试信息 ===')
+            console.log('1. 完整响应对象:', response)
+            console.log('2. response.data:', response.data)
+            console.log('3. response.data.success:', response.data.success)
+            console.log('4. typeof success:', typeof response.data.success)
+            console.log('5. response.data.data:', response.data.data)
+
+            if (response.data && response.data.success) {
                 const { user, tokens } = response.data.data
 
                 // 保存 Token
@@ -154,9 +160,20 @@ const Login = () => {
 
                 // 跳转到首页
                 navigate('/chatflows')
+            } else {
+                console.error('=== 登录失败 ===')
+                console.error('response.data:', response.data)
+                console.error('success 值为 false 或不存在')
+                setError(response.data?.message || '登录失败，请重试')
             }
         } catch (err) {
-            const message = err.response?.data?.message || t('auth.loginFailed') || '登录失败，请重试'
+            console.error('=== 登录异常 ===')
+            console.error('错误对象:', err)
+            console.error('错误消息:', err.message)
+            console.error('错误响应:', err.response)
+            console.error('响应数据:', err.response?.data)
+            console.error('响应状态:', err.response?.status)
+            const message = err.response?.data?.message || err.message || t('auth.loginFailed') || '登录失败，请重试'
             setError(message)
         } finally {
             setLoading(false)
@@ -170,31 +187,24 @@ const Login = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background:
-                    theme.palette.mode === 'dark'
-                        ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #1a1a2e 100%)`
-                        : `linear-gradient(135deg, ${theme.palette.primary.light}22 0%, ${theme.palette.secondary.light}22 100%)`,
+                background: '#f5f5f5',
                 padding: 3
             }}
         >
             <Paper
-                elevation={theme.palette.mode === 'dark' ? 2 : 8}
+                elevation={3}
                 sx={{
                     padding: { xs: 3, sm: 5 },
                     width: '100%',
                     maxWidth: 420,
                     borderRadius: 4,
-                    background: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
-                    border: theme.palette.mode === 'dark' ? `1px solid ${theme.palette.divider}` : 'none'
+                    background: '#ffffff',
+                    border: '1px solid rgba(0, 0, 0, 0.08)'
                 }}
             >
                 {/* Logo */}
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
-                    <img
-                        src={theme.palette.mode === 'dark' ? logoDark : logoLight}
-                        alt='AIFlowHub'
-                        style={{ height: 50, marginBottom: 16 }}
-                    />
+                    <img src={logo} alt='AIFlowHub' style={{ height: 60, marginBottom: 16 }} />
                     <Typography variant='h3' fontWeight='600' color='text.primary'>
                         {t('auth.welcomeBack') || '欢迎回来'}
                     </Typography>
@@ -205,8 +215,8 @@ const Login = () => {
 
                 {error && (
                     <Collapse in={!!error}>
-                        <Alert 
-                            severity='error' 
+                        <Alert
+                            severity='error'
                             sx={{ mb: 3, borderRadius: 2 }}
                             icon={<IconAlertCircle size={20} />}
                             onClose={() => setError('')}
@@ -228,12 +238,42 @@ const Login = () => {
                         helperText={touched.email && emailError}
                         required
                         autoComplete='email'
-                        autoFocus
-                        sx={{ mb: 2.5 }}
+                        sx={{
+                            mb: 2.5,
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: '#ffffff',
+                                '& fieldset': {
+                                    borderColor: 'rgba(0, 0, 0, 0.23)'
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: 'rgba(0, 0, 0, 0.4)'
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#2196f3',
+                                    borderWidth: 2
+                                },
+                                '& input': {
+                                    color: 'rgba(0, 0, 0, 0.87)',
+                                    backgroundColor: '#ffffff'
+                                }
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: 'rgba(0, 0, 0, 0.6)',
+                                '&.Mui-focused': {
+                                    color: '#2196f3'
+                                }
+                            },
+                            '& .MuiFormHelperText-root': {
+                                color: 'rgba(0, 0, 0, 0.6)',
+                                '&.Mui-error': {
+                                    color: '#d32f2f'
+                                }
+                            }
+                        }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position='start'>
-                                    <IconMail size={20} stroke={1.5} color={theme.palette.text.secondary} />
+                                    <IconMail size={20} stroke={1.5} style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
                                 </InputAdornment>
                             )
                         }}
@@ -250,16 +290,52 @@ const Login = () => {
                         helperText={touched.password && passwordError}
                         required
                         autoComplete='current-password'
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2,
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: '#ffffff',
+                                '& fieldset': {
+                                    borderColor: 'rgba(0, 0, 0, 0.23)'
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: 'rgba(0, 0, 0, 0.4)'
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#2196f3',
+                                    borderWidth: 2
+                                },
+                                '& input': {
+                                    color: 'rgba(0, 0, 0, 0.87)',
+                                    backgroundColor: '#ffffff'
+                                }
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: 'rgba(0, 0, 0, 0.6)',
+                                '&.Mui-focused': {
+                                    color: '#2196f3'
+                                }
+                            },
+                            '& .MuiFormHelperText-root': {
+                                color: 'rgba(0, 0, 0, 0.6)',
+                                '&.Mui-error': {
+                                    color: '#d32f2f'
+                                }
+                            }
+                        }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position='start'>
-                                    <IconLock size={20} stroke={1.5} color={theme.palette.text.secondary} />
+                                    <IconLock size={20} stroke={1.5} style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
                                 </InputAdornment>
                             ),
                             endAdornment: (
                                 <InputAdornment position='end'>
-                                    <IconButton onClick={() => setShowPassword(!showPassword)} edge='end' size='small'>
+                                    <IconButton
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        edge='end'
+                                        size='small'
+                                        sx={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                                    >
                                         {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
                                     </IconButton>
                                 </InputAdornment>
@@ -272,8 +348,16 @@ const Login = () => {
                             <Checkbox
                                 checked={rememberMe}
                                 onChange={(e) => setRememberMe(e.target.checked)}
-                                color='primary'
                                 size='small'
+                                sx={{
+                                    color: 'rgba(0, 0, 0, 0.6)',
+                                    '&.Mui-checked': {
+                                        color: '#2196f3'
+                                    },
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(33, 150, 243, 0.04)'
+                                    }
+                                }}
                             />
                         }
                         label={
@@ -296,7 +380,7 @@ const Login = () => {
                             textTransform: 'none',
                             fontSize: '1rem',
                             fontWeight: 600,
-                            boxShadow: theme.palette.mode === 'dark' ? 'none' : 2
+                            boxShadow: 2
                         }}
                     >
                         {loading ? <CircularProgress size={24} color='inherit' /> : t('auth.login') || '登录'}
@@ -319,11 +403,11 @@ const Login = () => {
                             py: 1.2,
                             borderRadius: 2,
                             textTransform: 'none',
-                            borderColor: theme.palette.divider,
-                            color: theme.palette.text.primary,
+                            borderColor: 'rgba(0, 0, 0, 0.23)',
+                            color: 'rgba(0, 0, 0, 0.87)',
                             '&:hover': {
-                                borderColor: theme.palette.text.secondary,
-                                background: theme.palette.action.hover
+                                borderColor: 'rgba(0, 0, 0, 0.4)',
+                                background: 'rgba(0, 0, 0, 0.04)'
                             }
                         }}
                         disabled
@@ -338,7 +422,7 @@ const Login = () => {
                         <Link
                             to='/auth/register'
                             style={{
-                                color: theme.palette.primary.main,
+                                color: '#2196f3',
                                 textDecoration: 'none',
                                 fontWeight: 600
                             }}
@@ -352,7 +436,7 @@ const Login = () => {
                     <Link
                         to='/'
                         style={{
-                            color: theme.palette.text.secondary,
+                            color: 'rgba(0, 0, 0, 0.6)',
                             textDecoration: 'none',
                             fontSize: '0.875rem'
                         }}

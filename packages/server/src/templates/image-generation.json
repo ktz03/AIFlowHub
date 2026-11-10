@@ -1,0 +1,123 @@
+{
+    "id": "official-image-generation",
+    "name": "AI图片生成",
+    "description": "使用即梦AI生成高质量图片，支持多种风格和场景，适用于设计、创作、营销等场景",
+    "category": "image",
+    "type": "Chatflow",
+    "framework": "Langchain",
+    "tags": ["图片生成", "AI绘画", "创意设计", "即梦AI"],
+    "usecases": ["图片创作", "设计辅助", "营销素材", "艺术创作"],
+    "author": "AIFlowHub官方",
+    "version": "1.0.0",
+    "isPublic": true,
+    "isOfficial": true,
+    "useCount": 0,
+    "likeCount": 0,
+    "viewCount": 0,
+    "requiredCredentials": ["jimengApi"],
+    "flowData": {
+        "nodes": [
+            {
+                "id": "chatOpenAI_0",
+                "position": { "x": 100, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "chatOpenAI_0",
+                    "label": "ChatOpenAI",
+                    "version": 8.1,
+                    "name": "chatOpenAI",
+                    "type": "ChatOpenAI",
+                    "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel"],
+                    "category": "Chat Models",
+                    "description": "用于理解用户需求并优化提示词",
+                    "inputParams": [
+                        {
+                            "label": "Model Name",
+                            "name": "modelName",
+                            "type": "string",
+                            "default": "gpt-3.5-turbo"
+                        },
+                        {
+                            "label": "Temperature",
+                            "name": "temperature",
+                            "type": "number",
+                            "default": 0.7
+                        }
+                    ],
+                    "inputAnchors": [],
+                    "inputs": {
+                        "modelName": "gpt-3.5-turbo",
+                        "temperature": 0.7
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                            "name": "chatOpenAI",
+                            "label": "ChatOpenAI",
+                            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            },
+            {
+                "id": "conversationChain_0",
+                "position": { "x": 500, "y": 100 },
+                "type": "customNode",
+                "data": {
+                    "id": "conversationChain_0",
+                    "label": "Conversation Chain",
+                    "version": 3.0,
+                    "name": "conversationChain",
+                    "type": "ConversationChain",
+                    "baseClasses": ["ConversationChain", "LLMChain", "BaseChain"],
+                    "category": "Chains",
+                    "description": "处理用户对话并生成图片提示词",
+                    "inputParams": [
+                        {
+                            "label": "System Message",
+                            "name": "systemMessagePrompt",
+                            "type": "string",
+                            "rows": 4,
+                            "default": "你是一个AI图片生成助手。当用户描述想要生成的图片时，请帮助优化提示词，使其更加详细和准确。提示词应该包含：主体、风格、色彩、构图、光线等要素。"
+                        }
+                    ],
+                    "inputAnchors": [
+                        {
+                            "label": "Chat Model",
+                            "name": "model",
+                            "type": "BaseChatModel"
+                        }
+                    ],
+                    "inputs": {
+                        "systemMessagePrompt": "你是一个AI图片生成助手。当用户描述想要生成的图片时，请帮助优化提示词，使其更加详细和准确。提示词应该包含：主体、风格、色彩、构图、光线等要素。"
+                    },
+                    "outputAnchors": [
+                        {
+                            "id": "conversationChain_0-output-conversationChain-ConversationChain|LLMChain|BaseChain",
+                            "name": "conversationChain",
+                            "label": "ConversationChain",
+                            "type": "ConversationChain | LLMChain | BaseChain"
+                        }
+                    ],
+                    "outputs": {}
+                },
+                "width": 300,
+                "height": 500
+            }
+        ],
+        "edges": [
+            {
+                "id": "chatOpenAI_0-conversationChain_0",
+                "source": "chatOpenAI_0",
+                "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel",
+                "target": "conversationChain_0",
+                "targetHandle": "conversationChain_0-input-model-BaseChatModel",
+                "type": "buttonedge",
+                "data": { "label": "" }
+            }
+        ]
+    }
+}

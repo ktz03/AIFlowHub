@@ -89,8 +89,8 @@ const Chatflows = () => {
         if (getAllChatflowsApi.error) {
             if (getAllChatflowsApi.error?.response?.status === 401) {
                 setLoginDialogProps({
-                    title: 'Login',
-                    confirmButtonName: 'Login'
+                    title: t('auth.login'),
+                    confirmButtonName: t('auth.login')
                 })
                 setLoginDialogOpen(true)
             } else {
