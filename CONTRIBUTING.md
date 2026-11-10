@@ -1,8 +1,8 @@
 # Contributing to AIFlowHub
 
-Thanks for your interest in contributing. AIFlowHub is a **community continuation** of [Flowise](https://github.com/FlowiseAI/Flowise) after the upstream project reached EOL / Archive in August 2026 ([announcement](https://github.com/FlowiseAI/Flowise/discussions/6727)).
+Thanks for your interest in contributing. AIFlowHub is a **community continuation** of [Flowise](https://github.com/FlowiseAI/Flowise). Independent maintenance started in **January 2026**, months before the upstream Code Freeze (Jul 29, 2026) and Archive (Aug 13, 2026). See the official [EOL announcement](https://github.com/FlowiseAI/Flowise/discussions/6727).
 
-We welcome PRs that would previously have gone to FlowiseAI/Flowise.
+We welcome PRs that would previously have gone to FlowiseAI/Flowise — this fork was already under active stewardship before the community went read-only.
 
 English | [中文](./i18n/CONTRIBUTING-ZH.md)
 

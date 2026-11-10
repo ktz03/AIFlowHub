@@ -2,7 +2,7 @@
 
 🚀 下一代多模型 AI 应用工厂：说话即搭建，拖拽即上线，云端+本地一盘棋，内置企业级用量与评测闭环。
 
-**Community continuation of [Flowise](https://github.com/FlowiseAI/Flowise)**（官方已于 2026-08 EOL / Archive，详见 [Future of Flowise](https://github.com/FlowiseAI/Flowise/discussions/6727)）。本仓库在 Apache-2.0 基础上继续演进：Skill-driven NL→Workflow、多源异构 LLM、Cloud+Local Hybrid Inference，以及 Quota / Cost / Eval 治理闭环。
+**Community continuation of [Flowise](https://github.com/FlowiseAI/Flowise)** — **independent maintenance since Jan 2026（早于官方 EOL）**。上游于 2026-07 Code Freeze、2026-08 Archive（[Future of Flowise](https://github.com/FlowiseAI/Flowise/discussions/6727)）；本仓库在社区关闭前即已完成品牌化与深度扩展，EOL 后继续以 Public Continuation 接受贡献：Skill-driven NL→Workflow、多源异构 LLM、Cloud+Local Hybrid Inference，以及 Quota / Cost / Eval 治理闭环。
 
 [![GitHub stars](https://img.shields.io/github/stars/ktz03/AIFlowHub?style=social)](https://github.com/ktz03/AIFlowHub)
 [![License](https://img.shields.io/github/license/ktz03/AIFlowHub)](./LICENSE.md)
@@ -40,12 +40,20 @@ AIFlowHub 在 Flowise 之上扩展「多模型统一接入 + 自然语言生成�
 
 ## 相对 Flowise 的定位
 
-| 项目                | 状态           | 说明                                                              |
-| ------------------- | -------------- | ----------------------------------------------------------------- |
-| FlowiseAI/Flowise   | Archived / EOL | 官方不再接受 PR                                                   |
-| **ktz03/AIFlowHub** | **Active**     | 社区延续仓：接受 Issue / PR，持续合入模型节点、生成链路与治理能力 |
+| 项目                | 状态                                | 说明                                                                            |
+| ------------------- | ----------------------------------- | ------------------------------------------------------------------------------- |
+| FlowiseAI/Flowise   | Archived / EOL（2026-08）           | 官方 Code Freeze 后不再接受 PR                                                  |
+| **ktz03/AIFlowHub** | **Active（自 2026-01 起独立演进）** | 在官方关停前即启动的深度维护与能力扩展；EOL 后作为社区延续仓继续接受 Issue / PR |
 
-欢迎把原计划贡献给 Flowise 的 Chat Model / Tool / Bugfix 提交到本仓库。
+**维护时间线（可核实）**
+
+-   **2026-01**：完成国产模型接入、用户鉴权、用量治理与 **AIFlowHub** 品牌化，进入独立维护轨道
+-   **2026-01 起**：持续投入 Skill-driven Workflow Generation、Hybrid Inference、Quota/Cost/Eval
+-   **2026-07-29**：上游宣布 Code Freeze（此后官方不再收 PR）
+-   **2026-08-13**：上游仓库 Archive
+-   **2026-08**：本仓库以 Public Continuation 形式对外开放贡献
+
+欢迎把原计划贡献给 Flowise 的 Chat Model / Tool / Bugfix 提交到本仓库——**这里的维护工作在社区关闭前就已经开始**。
 
 ## 核心能力
 
